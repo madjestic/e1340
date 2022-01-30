@@ -41,13 +41,13 @@ import Linear.Matrix as LM -- (M44, M33, identity, translation, fromQuaternion, 
 import Linear (V3(..))
 
 import Graphics.RedViz.LoadShaders
-import Graphics.RedViz.Material
+import Graphics.RedViz.Material       as Material
 import Graphics.RedViz.Descriptor
 import Solvable
-import PGeo
-import Project
-import Model
-import Utils          as U
+import Graphics.RedViz.PGeo
+import Graphics.RedViz.Project.Project as Project
+import Graphics.RedViz.Project.Model   as Model
+import Graphics.RedViz.Utils           as U
 
 --import Debug.Trace    as DT
 

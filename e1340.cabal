@@ -192,9 +192,16 @@ executable e1340
               , Graphics.RedViz.Project
               , Graphics.RedViz.Project.Model
               , Graphics.RedViz.Project.Project
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.PGeo
+              , Graphics.RedViz.VAO
+              , Graphics.RedViz.Project.Utils
               , App
+              , Application
               , Object
               , Solvable
+              , Update
+              -- , Model
               -- , LoadShaders
               -- , Project
               -- , Model

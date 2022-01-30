@@ -23,6 +23,7 @@ import Graphics.RedViz.Camera
 import Graphics.RedViz.Descriptor
 import Object
 import Graphics.RedViz.Project     as P
+import Graphics.RedViz.Project.Utils
 
 -- import Debug.Trace as DT
 
