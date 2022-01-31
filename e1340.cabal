@@ -196,6 +196,9 @@ executable e1340
               , Graphics.RedViz.PGeo
               , Graphics.RedViz.VAO
               , Graphics.RedViz.Project.Utils
+              , Graphics.RedViz.Input
+              , Graphics.RedViz.Input.FRP.Yampa
+              , Graphics.RedViz.Input.FRP.Yampa.AppInput
               , App
               , Application
               , Object

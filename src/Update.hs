@@ -24,12 +24,12 @@ import Data.Functor                          (($>))
 import Control.Lens
 
 import Application
-import AppInput
+import Graphics.RedViz.Input
 import Solvable
 import Object
 import App
-import Camera
-import Controllable
+import Graphics.RedViz.Camera
+import Graphics.RedViz.Controllable
 import Keyboard
 import Mouse
 import Utils
