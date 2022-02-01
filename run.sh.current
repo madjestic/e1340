@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Run Tests
+cabal build exe:e1340
+cabal run +RTS -sstderr -RTS e1340 ./projects/intro_XXII ./projects/solar_system
+# cabal build exe:Grapher
+# cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/graph
+
+# Generating a Graph (procedural texture) example.
+# cabal build exe:Grapher
+# cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/graph
+
+# Checkerboard
+# cabal build exe:e1340
+# cabal run exe:e1340 ./projects/test ./projects/test
+
+# N-body, gravity solver test
+# cabal build exe:e1340
+# cabal run +RTS -sstderr -RTS e1340 ./projects/3body ./projects/3body
+
+# Solar System
+# cabal build exe:e1340
+# cabal run +RTS -sstderr -RTS e1340 ./projects/intro_XXII ./projects/solar_system
+
+# Test
+# cabal build exe:e1340
+# cabal run exe:e1340 ./projects/intro_XXII ./projects/test
+
+
+# TODO:
+
+# Unit Sphere
+# cabal build exe:e1340
+# cabal run e1340 ./projects/unit_sphere ./projects/unit_sphere
+
+# Raymarch Sphere
+# cabal build exe:e1340
+# cabal run e1340 ./projects/raymarch ./projects/raymarch

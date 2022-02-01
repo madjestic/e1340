@@ -28,11 +28,9 @@ import Graphics.RedViz.Input
 import Solvable
 import Object
 import App
-import Graphics.RedViz.Camera
-import Graphics.RedViz.Controllable
-import Keyboard
-import Mouse
-import Utils
+import Graphics.RedViz.Camera       as Camera
+import Graphics.RedViz.Controllable as Controllable
+import Graphics.RedViz.Utils
 
 updateKeyboard' :: SF (AppInput, Keyboard) (Keyboard, [Event ()])
 updateKeyboard' = undefined

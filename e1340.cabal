@@ -21,64 +21,62 @@ source-repository head
   type:         git
   location:     https://github.com/madjestic/e1338
 
--- library
---   hs-source-dirs:
---                 src
---   ghc-options: -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
---   build-depends:
---                 base                
---               , aeson               
---               , aeson-pretty        
---               , bearriver           
---               , bytestring          
---               , containers          
---               , GLUtil              
---               , ilist               
---               , lens                
---               , linear              
---               , locators                        
---               , massiv              
---               , OpenGL              
---               , random                        
---               , sdl2                
---               , simple-affine-space 
---               , sort                
---               , split               
---               , store               
---               , text                
---               --, Yampa             
---               , vector              
---               , uuid                
-  
---   exposed-modules:
---                 AppInput
---               , Camera
---               , Controllable
---               , Descriptor
---               , Application
---               , App
---               , Keyboard
---               , Material
---               , Model
---               , Object
---               , PGeo
---               , Project
---               , Rendering
---               , Solvable
---               , Texture
---               , Utils
---               , VAO
---               , Update
---               , Graph
---               , Drawable            
+library
+  hs-source-dirs:
+                src
+  ghc-options: -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty
+              , bearriver           
+              , bytestring           
+              , containers          
+              , GLUtil              
+              , ilist               
+              , lens                
+              , linear              
+              , locators            
+              , massiv          
+              , OpenGL              
+              , random              
+              , scientific          
+              , simple-affine-space 
+              , sdl2                
+              , sort
+              , split
+              , store
+              , text                
+              , uuid                
+              , vector  
+  exposed-modules:
+              Graphics.RedViz
+              Graphics.RedViz.LoadShaders
+              Graphics.RedViz.Rendering
+              Graphics.RedViz.Material
+              Graphics.RedViz.Descriptor
+              Graphics.RedViz.Drawable
+              Graphics.RedViz.Texture
+              Graphics.RedViz.Utils
+              Graphics.RedViz.Camera
+              Graphics.RedViz.Controllable
+              Graphics.RedViz.Input
+              Graphics.RedViz.Input.Keyboard
+              Graphics.RedViz.Input.Mouse
+              Graphics.RedViz.Input.FRP.Yampa
+              Graphics.RedViz.Input.FRP.Yampa.AppInput
+              Graphics.RedViz.Project.Model
+              Graphics.RedViz.Project.Project
+              Graphics.RedViz.Project.Utils
+              Graphics.RedViz.PGeo
+              Graphics.RedViz.VAO
+              Graphics.RedViz.FromVector
               
---   other-modules:
---                 Paths_e1338
---               , LoadShaders
---               , FromVector
---               , Mouse
---   default-language:
---                 Haskell2010
+  other-modules:
+                Paths_e1340
+              
+  default-language:
+              Haskell2010
 
 -- executable Grapher
 --   main-is:             Grapher.hs
@@ -187,8 +185,8 @@ executable e1340
               , Graphics.RedViz.Utils
               , Graphics.RedViz.Camera
               , Graphics.RedViz.Controllable
-              , Graphics.RedViz.Keyboard
-              , Graphics.RedViz.Mouse
+              , Graphics.RedViz.Input.Keyboard
+              , Graphics.RedViz.Input.Mouse
               , Graphics.RedViz.Project
               , Graphics.RedViz.Project.Model
               , Graphics.RedViz.Project.Project

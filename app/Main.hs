@@ -30,19 +30,19 @@ import Linear.Matrix
     
 import Application
 import Update (handleExit, appRun)
-import Project as P ( camMode, resy, resx, name, read )
-import AppInput                  ( parseWinInput ) 
-import Rendering as R
-import Material as M
-import qualified Texture  as T
-import Drawable
-import Camera
-import Controllable
+import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
+import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
+import Graphics.RedViz.Rendering as R
+import Graphics.RedViz.Material as M
+import qualified Graphics.RedViz.Texture  as T
+import Graphics.RedViz.Drawable
+import Graphics.RedViz.Camera
+import Graphics.RedViz.Controllable as Controllable
 import Object             as O
-import Descriptor
-import Texture
-import Mouse
-import Utils ((<$.>), (<*.>))
+import Graphics.RedViz.Descriptor
+import Graphics.RedViz.Texture
+import Graphics.RedViz.Input.Mouse
+import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import App
 
 -- import Debug.Trace    as DT
