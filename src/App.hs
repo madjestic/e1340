@@ -12,6 +12,7 @@ module App
   , App.objects
   , playCam
   , App.cameras
+  , selected
   , initApp
   ) where
 
@@ -35,6 +36,7 @@ data App
   , _objects   :: ObjectTree
   , _playCam   :: Camera
   , _cameras   :: [Camera]
+  , _selected  :: [Object]
   } deriving Show
 
 data Options
@@ -78,6 +80,7 @@ initApp initVAO project =
           objTree
           pCam
           cams
+          []
 
     print "finished initializing app resources..."
     return app

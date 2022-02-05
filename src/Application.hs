@@ -32,10 +32,11 @@ data Interface =
 data Application
   = Application
   {
-    _interface :: Interface
-  , _intro     :: App
-  , _main      :: App
-  , _hmap      :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
+    _interface  :: Interface
+  , _intro      :: App
+  , _main       :: App
+--  , _planetInfo :: App
+  , _hmap       :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
                                    -- UUID -> GLuint
   } deriving Show
 $(makeLenses ''Application)

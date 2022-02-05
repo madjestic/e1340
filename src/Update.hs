@@ -18,9 +18,10 @@ module Update
 
 import SDL hiding ( (*^), Event, Mouse )
 import FRP.Yampa
+import Data.Functor                          (($>))
 import Data.IntMap.Lazy         as IM hiding (keys)
 import Data.List.Index          as DL        (indexed)
-import Data.Functor                          (($>))
+import Data.Sort                             (sortOn)
 import Control.Lens
 
 import Application
@@ -30,6 +31,7 @@ import Object
 import App
 import Graphics.RedViz.Camera       as Camera
 import Graphics.RedViz.Controllable as Controllable
+import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Utils
 
 updateKeyboard' :: SF (AppInput, Keyboard) (Keyboard, [Event ()])
@@ -282,6 +284,9 @@ switchCameras cams0 =
 updateApp :: App -> SF AppInput App
 updateApp app' =
   proc input -> do
+-- Something like this, similar to camera switching?    
+--    (huds, hud) <- updateHUD (App._huds app, App._activeHUD) <- (input, app)
+    selected'   <- updateSelected (view selected app') -< app'
     (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
 
     objs        <- updateObjects        filteredLinObjs -< ()
@@ -297,7 +302,8 @@ updateApp app' =
         app'
         { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
         , App._cameras = cams
-        , _playCam      = cam
+        , _playCam     = cam
+        , _selected    = selected'
         }
 
     returnA  -< result
@@ -354,3 +360,40 @@ appMain app0 =
                returnA     -< (result, reset $> app0)
                
            cont = appRun
+
+updateSelected :: [Object] -> SF App [Object]
+updateSelected objs0 =
+  switch sf cont
+  where
+    sf = 
+      proc app' -> do
+        --objs <- selectObject objs0 -< app'
+        let
+          sev     = undefined :: Event () -- (arr (\_ -> True) >>> edge)
+          result  = undefined
+          result' = undefined
+
+        returnA -<
+          ( result
+          , sev $> result')
+    cont = updateSelected
+
+
+distCamObjs :: Camera -> Object -> Double
+distCamObjs cam0 obj0 = undefined
+
+selectObject :: SF App (ObjectTree, Event ObjectTree)
+selectObject =
+  proc app' -> do
+    let
+      camPos     = app' ^.playCam.controller.Ctrl.transform.translation              :: V3 Double
+      sortedObjs = sortOn (distCamObjs (app' ^.playCam)) $ app' ^.objects.foreground :: [Object]
+      objPos     = view translation $ head $ view transforms $ head sortedObjs       :: V3 Double
+      dist       = 1488.0 :: Double
+    -- proximity event gets triggered when dist is LEQ ...
+    proxE <- edge -< distance camPos objPos <= dist
+
+    let
+      result = view objects app' & foreground .~ sortedObjs
+          
+    returnA -< (result, proxE $> result)
