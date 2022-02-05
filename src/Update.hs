@@ -34,6 +34,8 @@ import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Utils
 
+import Debug.Trace as DT (trace)
+
 updateKeyboard' :: SF (AppInput, Keyboard) (Keyboard, [Event ()])
 updateKeyboard' = undefined
 
@@ -303,10 +305,12 @@ updateApp app' =
         { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
         , App._cameras = cams
         , _playCam     = cam
-        , _selected    = selected'
+        --, _selected    = selected'
+        , _selected    = app' ^. objects . foreground
         }
 
-    returnA  -< result
+    --returnA  -< result
+    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
       where
         idxObjs    = DL.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -367,31 +371,34 @@ updateSelected objs0 =
   where
     sf = 
       proc app' -> do
-        --objs <- selectObject objs0 -< app'
+        (objTree, sev) <- selectObject -< app'
+        sev' <- edge -< True
         let
-          sev     = undefined :: Event () -- (arr (\_ -> True) >>> edge)
-          result  = undefined
-          result' = undefined
+          --sev'    = undefined :: Event () -- (arr (\_ -> True) >>> edge)
+          result  = objs0
+          result' = view foreground objTree
 
         returnA -<
           ( result
-          , sev $> result')
+          , sev' $> result')
     cont = updateSelected
 
-
-distCamObjs :: Camera -> Object -> Double
-distCamObjs cam0 obj0 = undefined
+distCamPosObj :: V3 Double -> Object -> Double
+distCamPosObj camPos0 obj0 = dist
+  where
+    dist    = distance camPos0 objPos
+    objPos  = view translation $ head $ view transforms obj0 :: V3 Double
 
 selectObject :: SF App (ObjectTree, Event ObjectTree)
 selectObject =
   proc app' -> do
     let
       camPos     = app' ^.playCam.controller.Ctrl.transform.translation              :: V3 Double
-      sortedObjs = sortOn (distCamObjs (app' ^.playCam)) $ app' ^.objects.foreground :: [Object]
-      objPos     = view translation $ head $ view transforms $ head sortedObjs       :: V3 Double
-      dist       = 1488.0 :: Double
+      sortedObjs = sortOn (distCamPosObj camPos) $ app' ^.objects.foreground :: [Object]
+      -- objPos     = view translation $ head $ view transforms $ head sortedObjs       :: V3 Double
+      -- dist       = 1488.0 :: Double
     -- proximity event gets triggered when dist is LEQ ...
-    proxE <- edge -< distance camPos objPos <= dist
+    proxE <- edge -< True--distance camPos objPos <= dist
 
     let
       result = view objects app' & foreground .~ sortedObjs

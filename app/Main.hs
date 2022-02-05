@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP    #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE OverloadedStrings, Arrows #-}
+--{-# LANGUAGE OverloadedStrings, Arrows #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
+--{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Main where 
