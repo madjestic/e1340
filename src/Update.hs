@@ -289,7 +289,7 @@ updateApp app' =
 -- Something like this, similar to camera switching?    
 --    (huds, hud) <- updateHUD (App._huds app, App._activeHUD) <- (input, app)
     (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
-    selected'   <- updateSelected (view selected app') -< app' --
+    selected'   <- updateSelected (view selected app') -< app' -- try -< cam?
 
     objs        <- updateObjects        filteredLinObjs -< ()
     let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
@@ -309,8 +309,8 @@ updateApp app' =
         --, _selected    = app' ^. objects . foreground
         }
 
-    --returnA  -< result
-    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
+    returnA  -< result
+    --returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
       where
         idxObjs    = DL.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -365,25 +365,6 @@ appMain app0 =
                
            cont = appRun
 
--- updateSelected :: [Object] -> SF App [Object]
--- updateSelected objs0 =
---   switch sf cont
---   where
---     sf = 
---       proc app' -> do
---         (objTree, sev) <- selectObject -< app'
---         --sev' <- edge -< True
---         sev' <- now () -< ()
---         let
---           --sev'    = undefined :: Event () -- (arr (\_ -> True) >>> edge)
---           result  = objs0
---           result' = view foreground objTree
-
---         returnA -<
---           ( result
---           , sev' $> result')
---     cont = updateSelected
-
 updateSelected :: [Object] -> SF App [Object]
 updateSelected objs0 =
   switch sf cont
@@ -391,23 +372,14 @@ updateSelected objs0 =
     sf =
       proc app'-> do
         (objTree, sev) <- selectObject -< app'
-        --proxE <- edge -< True--distance camPos objPos <= dist -- does not work
-        --proxE <- now () -< ()
-        --proxE <- never -< ()
 
         let
-          result  = [] --objs0
-          result' = view foreground objTree
+          result = view foreground $ fromEvent sev--view foreground objTree
        
         returnA -<
-            ( result
-            , sev $> result')
-    cont = updateSelected'
-
-updateSelected' :: [Object] -> SF App [Object]
-updateSelected' objs0 =
-  proc _ -> do
-    returnA -< objs0
+            ( objs0
+            , sev $> result)
+    cont = updateSelected
 
 distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist
@@ -426,12 +398,14 @@ selectObject =
       dist       = 1488000000000.0 :: Double
     -- proximity event gets triggered when dist is LEQ ...
     
-    --proxE <- iEdge False -< False
-    proxE <- iEdge False -< distance camPos objPos <= dist
+    --proxE' <- iEdge True -< True
+    --proxE <- iEdge False -< distance camPos objPos <= dist
+    proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (camPos))$ distance camPos objPos) <= dist
 
     let
       objTree = view objects app'
       result  = objTree { _foreground = [] }
       result' = view objects app' & foreground .~ sortedObjs'
           
-    returnA -< (result', proxE $> result')
+    --returnA -< (result, (mergeEvents [proxE, proxE']) $> result')
+    returnA -< (result, proxE $> result')
