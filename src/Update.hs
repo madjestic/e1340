@@ -287,9 +287,8 @@ updateApp :: App -> SF AppInput App
 updateApp app' =
   proc input -> do
 -- Something like this, similar to camera switching?    
---    (huds, hud) <- updateHUD (App._huds app, App._activeHUD) <- (input, app)
     (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
-    selected'   <- updateSelected (view selected app') -< app' -- try -< cam?
+    selected'   <- updateSelected app' -< cam
 
     objs        <- updateObjects        filteredLinObjs -< ()
     let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
@@ -365,19 +364,19 @@ appMain app0 =
                
            cont = appRun
 
-updateSelected :: [Object] -> SF App [Object]
-updateSelected objs0 =
+updateSelected :: App -> SF Camera [Object]
+updateSelected app0 =
   switch sf cont
   where
     sf =
-      proc app'-> do
-        (objTree, sev) <- selectObject -< app'
+      proc cam -> do
+        (objs, sev) <- selectObject (view (objects . foreground) app0)  -< cam
 
         let
-          result = view foreground $ fromEvent sev--view foreground objTree
-       
+          result = app0 & objects .~ (app0 ^. objects & foreground .~ fromEvent sev) :: App
+        
         returnA -<
-            ( objs0
+            ( app0 ^. objects . foreground
             , sev $> result)
     cont = updateSelected
 
@@ -387,25 +386,20 @@ distCamPosObj camPos0 obj0 = dist
     dist    = distance camPos0 objPos
     objPos  = view translation $ head $ view transforms obj0 :: V3 Double
 
-selectObject :: SF App (ObjectTree, Event ObjectTree)
-selectObject =
-  proc app' -> do
+selectObject :: [Object] -> SF Camera ([Object], Event [Object])
+selectObject objs0 =
+  proc cam' -> do
     let
-      camPos     = app' ^.playCam.controller.Ctrl.transform.translation      :: V3 Double
-      sortedObjs = sortOn (distCamPosObj camPos) $ app' ^.objects.foreground :: [Object]
+      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
+      sortedObjs = sortOn (distCamPosObj camPos) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view transforms $ head sortedObjs       :: V3 Double
+      objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
       dist       = 1488000000000.0 :: Double
-    -- proximity event gets triggered when dist is LEQ ...
-    
-    --proxE' <- iEdge True -< True
-    --proxE <- iEdge False -< distance camPos objPos <= dist
+
     proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (camPos))$ distance camPos objPos) <= dist
 
     let
-      objTree = view objects app'
-      result  = objTree { _foreground = [] }
-      result' = view objects app' & foreground .~ sortedObjs'
-          
-    --returnA -< (result, (mergeEvents [proxE, proxE']) $> result')
+      result = [] :: [Object]
+      result' = sortedObjs' :: [Object]
+
     returnA -< (result, proxE $> result')
