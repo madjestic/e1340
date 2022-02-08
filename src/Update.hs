@@ -376,7 +376,7 @@ updateSelected app0 =
           result = app0 & objects .~ (app0 ^. objects & foreground .~ fromEvent sev) :: App
         
         returnA -<
-            ( app0 ^. objects . foreground
+            ( objs --app0 ^. objects . foreground
             , sev $> result)
     cont = updateSelected
 
@@ -398,10 +398,10 @@ selectObject objs0 =
     proxE <- iEdge True -< distance camPos objPos <= dist
 
     let
-      result  = [] :: [Object]
+      result  = objs0 --[] :: [Object]
       result' = sortedObjs' :: [Object]
 
-    returnA -< (result', proxE $> result')
+    returnA -< (result, proxE $> result')
 
 distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist
