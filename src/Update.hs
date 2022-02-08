@@ -309,7 +309,7 @@ updateApp app' =
         }
 
     returnA  -< result
-    --returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
+    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
       where
         idxObjs    = DL.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -380,12 +380,6 @@ updateSelected app0 =
             , sev $> result)
     cont = updateSelected
 
-distCamPosObj :: V3 Double -> Object -> Double
-distCamPosObj camPos0 obj0 = dist
-  where
-    dist    = distance camPos0 objPos
-    objPos  = view translation $ head $ view transforms obj0 :: V3 Double
-
 selectObject :: [Object] -> SF Camera ([Object], Event [Object])
 selectObject objs0 =
   proc cam' -> do
@@ -394,12 +388,23 @@ selectObject objs0 =
       sortedObjs = sortOn (distCamPosObj camPos) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
-      dist       = 1488000000000.0 :: Double
+      dist       = 20.0 :: Double
 
-    proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (camPos))$ distance camPos objPos) <= dist
+    -- proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (distance camPos objPos) ++ "\n" ++
+    --                                   "camPos : " ++ show (camPos) ++ "\n" ++
+    --                                   "objPos : " ++ show (objPos) ++ "\n" ++
+    --                                   "condition : " ++ show ((distance camPos objPos) <= dist)
+    --                                  )$ distance camPos objPos) <= dist
+    proxE <- iEdge True -< distance camPos objPos <= dist
 
     let
-      result = [] :: [Object]
+      result  = [] :: [Object]
       result' = sortedObjs' :: [Object]
 
-    returnA -< (result, proxE $> result')
+    returnA -< (result', proxE $> result')
+
+distCamPosObj :: V3 Double -> Object -> Double
+distCamPosObj camPos0 obj0 = dist
+  where
+    dist    = distance camPos0 objPos
+    objPos  = view translation $ head $ view transforms obj0 :: V3 Double
