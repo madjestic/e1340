@@ -33,6 +33,7 @@ import Graphics.RedViz.Camera       as Camera
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Utils
+import Graphics.RedViz.Material as Material
 
 import Debug.Trace as DT (trace)
 
@@ -309,7 +310,7 @@ updateApp app' =
         }
 
     returnA  -< result
-    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (view selected result)) $ result
+    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (concat $ fmap objectNames $ view selected result)) $ result
       where
         idxObjs    = DL.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -321,6 +322,9 @@ updateApp app' =
         filterLinIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
         filteredLinObjs     = snd <$> IM.toList filterLinIntObjMap
         filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
+
+objectNames :: Object -> [String]
+objectNames = toListOf (materials . traverse . Material.name)
 
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
@@ -386,19 +390,19 @@ selectObject objs0 =
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
       sortedObjs = sortOn (distCamPosObj camPos) $ objs0 :: [Object]
-      sortedObjs' = [head sortedObjs]
+      sortedObjs' = [last sortedObjs]
       objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
       dist       = 20.0 :: Double
 
-    -- proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (distance camPos objPos) ++ "\n" ++
-    --                                   "camPos : " ++ show (camPos) ++ "\n" ++
-    --                                   "objPos : " ++ show (objPos) ++ "\n" ++
-    --                                   "condition : " ++ show ((distance camPos objPos) <= dist)
-    --                                  )$ distance camPos objPos) <= dist
-    proxE <- iEdge True -< distance camPos objPos <= dist
+    proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (distance camPos objPos) ++ "\n" ++
+                                      "camPos : " ++ show (camPos) ++ "\n" ++
+                                      "objPos : " ++ show (objPos) ++ "\n" ++
+                                      "condition : " ++ show ((distance camPos objPos) <= dist)
+                                     )$ distance camPos objPos) <= dist
+    --proxE <- iEdge True -< distance camPos objPos <= dist
 
     let
-      result  = objs0 --[] :: [Object]
+      result  = objs0
       result' = sortedObjs' :: [Object]
 
     returnA -< (result, proxE $> result')
