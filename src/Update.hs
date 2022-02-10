@@ -389,17 +389,24 @@ selectObject objs0 =
   proc cam' -> do
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
-      sortedObjs = sortOn (distCamPosObj camPos) $ objs0 :: [Object]
-      sortedObjs' = [last sortedObjs]
+      camPos' = camPos * (-1)
+      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
+      sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
-      dist       = 20.0 :: Double
+      dist       = 50000000.0 :: Double
 
-    proxE <- iEdge True -< (DT.trace ("distance camPos objPos : " ++ show (distance camPos objPos) ++ "\n" ++
-                                      "camPos : " ++ show (camPos) ++ "\n" ++
+    proxE <- iEdge True -< (DT.trace ("\n" ++
+                                      "objs0 : " ++ show (fmap objectNames objs0) ++ "\n" ++
+                                      "sortedObjs : " ++ show (fmap objectNames sortedObjs) ++ "\n" ++
+                                      "distances : " ++ show (fmap (distCamPosObj camPos') sortedObjs) ++ "\n" ++
+                                      -- "positions : " ++ show (toListOf (traverse . transforms . traverse . translation ) sortedObjs) ++ "\n" ++
+                                      "positions : " ++ show ( sortedObjs ^.. traverse . transforms . traverse . translation) ++ "\n" ++
+                                      "camPos' : " ++ show (camPos') ++ "\n" ++
                                       "objPos : " ++ show (objPos) ++ "\n" ++
-                                      "condition : " ++ show ((distance camPos objPos) <= dist)
-                                     )$ distance camPos objPos) <= dist
-    --proxE <- iEdge True -< distance camPos objPos <= dist
+                                      "distance camPos' objPos : " ++ show (distance camPos' objPos) ++ "\n" ++
+                                      "condition : " ++ show ((distance camPos' objPos) <= dist)
+                                     )$ distance camPos' objPos) <= dist
+    --proxE <- iEdge True -< distance camPos' objPos <= dist
 
     let
       result  = objs0
