@@ -306,7 +306,6 @@ updateApp app' =
         , App._cameras = cams
         , _playCam     = cam
         , _selected    = selected'
-        --, _selected    = app' ^. objects . foreground
         }
 
     --returnA  -< result
@@ -377,13 +376,10 @@ updateSelected app0 =
         (objs, sev) <- selectObject (view (objects . foreground) app0)  -< cam
 
         let
-          result = app0 & objects .~ (app0 ^. objects & foreground .~ fromEvent sev) :: App
-          --result = app0 & selected .~ fromEvent sev :: App
+          result = app0 & selected .~ fromEvent sev :: App
         
         returnA -<
-            ( objs
-              --app0 ^. objects . foreground
-              --result
+            ( app0 ^. objects . foreground
             , sev $> result)
     cont = updateSelected'
 
@@ -393,17 +389,15 @@ updateSelected' app0 =
   where
     sf =
       proc cam -> do
-        (objs, sev) <- unselectObject (view (objects . foreground) app0)  -< cam
+        (objs, sev) <- selectObject' (view (objects . foreground) app0)  -< cam
 
         let
           result = app0 & objects .~ (app0 ^. objects & foreground .~ fromEvent sev) :: App
-          --result = app0 & selected .~ fromEvent sev :: App
+          result' = app0 & selected .~ []
         
         returnA -<
-            ( []
-              --app0 ^. objects . foreground
-              --result
-            , sev $> result)
+            ( app0 ^. selected
+            , sev $> result')
     cont = updateSelected
 
 selectObject :: [Object] -> SF Camera ([Object], Event [Object])
@@ -436,8 +430,8 @@ selectObject objs0 =
 
     returnA -< (result, proxE $> result')
 
-unselectObject :: [Object] -> SF Camera ([Object], Event [Object])
-unselectObject objs0 =
+selectObject' :: [Object] -> SF Camera ([Object], Event [Object])
+selectObject' objs0 =
   proc cam' -> do
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
@@ -447,17 +441,6 @@ unselectObject objs0 =
       objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
       dist       = 50000000.0 :: Double
 
-    -- proxE <- iEdge True -< (DT.trace ("\n" ++
-    --                                   "objs0 : " ++ show (fmap objectNames objs0) ++ "\n" ++
-    --                                   "sortedObjs : " ++ show (fmap objectNames sortedObjs) ++ "\n" ++
-    --                                   "distances : " ++ show (fmap (distCamPosObj camPos') sortedObjs) ++ "\n" ++
-    --                                   -- "positions : " ++ show (toListOf (traverse . transforms . traverse . translation ) sortedObjs) ++ "\n" ++
-    --                                   "positions : " ++ show ( sortedObjs ^.. traverse . transforms . traverse . translation) ++ "\n" ++
-    --                                   "camPos' : " ++ show (camPos') ++ "\n" ++
-    --                                   "objPos : " ++ show (objPos) ++ "\n" ++
-    --                                   "distance camPos' objPos : " ++ show (distance camPos' objPos) ++ "\n" ++
-    --                                   "condition : " ++ show ((distance camPos' objPos) <= dist)
-    --                                  )$ distance camPos' objPos) <= dist
     proxE <- iEdge True -< distance camPos' objPos > dist
 
     let
