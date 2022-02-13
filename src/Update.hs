@@ -379,7 +379,7 @@ updateSelected app0 =
           result = app0 & selected .~ fromEvent sev :: App
         
         returnA -<
-            ( app0 ^. objects . foreground
+            ( app0 ^. selected
             , sev $> result)
     cont = updateSelected'
 
