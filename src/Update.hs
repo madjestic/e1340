@@ -289,7 +289,7 @@ updateApp app' =
   proc input -> do
 -- Something like this, similar to camera switching?    
     (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
-    selected'   <- updateSelected app' -< cam
+    selected'   <- updateSelection app' -< cam
 
     objs        <- updateObjects        filteredLinObjs -< ()
     let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
@@ -367,13 +367,13 @@ appMain app0 =
                
            cont = appRun
 
-updateSelected :: App -> SF Camera [Object]
-updateSelected app0 =
+updateSelection :: App -> SF Camera [Object]
+updateSelection app0 =
   switch sf cont
   where
     sf =
       proc cam -> do
-        (objs, sev) <- selectObject (view (objects . foreground) app0)  -< cam
+        (objs, sev) <- selectObjectE (view (objects . foreground) app0)  -< cam
 
         let
           result = app0 & selected .~ fromEvent sev :: App
@@ -381,27 +381,26 @@ updateSelected app0 =
         returnA -<
             ( app0 ^. selected
             , sev $> result)
-    cont = updateSelected'
+    cont = selectObject
 
-updateSelected' :: App -> SF Camera [Object]
-updateSelected' app0 =
+selectObject :: App -> SF Camera [Object]
+selectObject app0 =
   switch sf cont
   where
     sf =
       proc cam -> do
-        (objs, sev) <- selectObject' (view (objects . foreground) app0)  -< cam
+        (objs, sev) <- unselectObject (view (objects . foreground) app0)  -< cam
 
         let
-          result = app0 & objects .~ (app0 ^. objects & foreground .~ fromEvent sev) :: App
-          result' = app0 & selected .~ []
+          result = app0 & selected .~ []
         
         returnA -<
             ( app0 ^. selected
-            , sev $> result')
-    cont = updateSelected
+            , sev $> result)
+    cont = updateSelection
 
-selectObject :: [Object] -> SF Camera ([Object], Event [Object])
-selectObject objs0 =
+selectObjectE :: [Object] -> SF Camera ([Object], Event [Object])
+selectObjectE objs0 =
   proc cam' -> do
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
@@ -411,17 +410,6 @@ selectObject objs0 =
       objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
       dist       = 50000000.0 :: Double
 
-    -- proxE <- iEdge True -< (DT.trace ("\n" ++
-    --                                   "objs0 : " ++ show (fmap objectNames objs0) ++ "\n" ++
-    --                                   "sortedObjs : " ++ show (fmap objectNames sortedObjs) ++ "\n" ++
-    --                                   "distances : " ++ show (fmap (distCamPosObj camPos') sortedObjs) ++ "\n" ++
-    --                                   -- "positions : " ++ show (toListOf (traverse . transforms . traverse . translation ) sortedObjs) ++ "\n" ++
-    --                                   "positions : " ++ show ( sortedObjs ^.. traverse . transforms . traverse . translation) ++ "\n" ++
-    --                                   "camPos' : " ++ show (camPos') ++ "\n" ++
-    --                                   "objPos : " ++ show (objPos) ++ "\n" ++
-    --                                   "distance camPos' objPos : " ++ show (distance camPos' objPos) ++ "\n" ++
-    --                                   "condition : " ++ show ((distance camPos' objPos) <= dist)
-    --                                  )$ distance camPos' objPos) <= dist
     proxE <- iEdge True -< distance camPos' objPos <= dist
 
     let
@@ -430,8 +418,8 @@ selectObject objs0 =
 
     returnA -< (result, proxE $> result')
 
-selectObject' :: [Object] -> SF Camera ([Object], Event [Object])
-selectObject' objs0 =
+unselectObject :: [Object] -> SF Camera ([Object], Event [Object])
+unselectObject objs0 =
   proc cam' -> do
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
