@@ -73,12 +73,19 @@ import Graphics.RedViz.Utils           as U
 -- $(makeLenses ''Object)
 
 -- UUID should be inherited?
+
+-- TODO: turn into a type-class in order to inherit and expand from a basic set, along the lines with:
 data Object
-  =  Planet
+  =  Object
      {
-      _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
+       -- common methods --
+     }
+  |  Planet
+     {
+      _descriptors  :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
                -- data Descriptor =
                     -- Descriptor VertexArrayObject NumArrayIndices
+     , _nameP        :: String
      , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
      , _programs    :: [Program]    -- | Shader Programs
      , _transforms  :: ![M44 Double]
@@ -97,6 +104,7 @@ data Object
      , _transforms  :: ![M44 Double]
      , _time        :: Double
      }
+  -- |  Comp Object Object
   -- |  Graph
   --    {
   --      _sz     :: Sz2
@@ -105,6 +113,15 @@ data Object
   --    }
   deriving Show
 $(makeLenses ''Object)
+
+fromProject' :: (([Int], Int, [Float]) -> IO Descriptor) -> Project -> IO [Object]
+fromProject' initVAO proj0 = do
+  return objs
+    where
+      objs = undefined :: [Object]
+
+toObject :: (([Int], Int, [Float]) -> IO Descriptor) -> Object -> [VGeo] -> IO Object
+toObject initVAO initialObj vgeos = undefined
 
 -- data Planet
 --   = Planet
@@ -138,6 +155,7 @@ defaultObj :: Object
 defaultObj =
   Object.Planet
     []
+    ""
     [defaultMat]
     []
     [(identity::M44 Double)]
@@ -147,6 +165,15 @@ defaultObj =
     (1.0)
     (0.0)
     []
+
+
+fromPreObject :: PreObject -> Object
+fromPreObject prj0 = undefined
+
+fromProject :: ObjectClass -> Project -> [Object]
+fromProject cls project = objs
+  where
+    objs = undefined
 
 -- | returns a list of model paths
 modelPaths :: ObjectClass -> Project -> [String]
@@ -208,6 +235,7 @@ initObject project
                         <$.> is_ <*.> st_ <*.> vs_
         vel           = toV3 (fmap float2Double (head vels_)) :: V3 Double -- TODO: this can be a list of vels, representing animated series, could be used later to create animations
         m'            = realToFrac (head ms_):: Double      -- TODO: same here
+        name'         = undefined :: String
 
         solversF      = case solvers' of
                           [] -> [""]
@@ -240,6 +268,7 @@ initObject project
             _ -> 
               defaultObj
               { _descriptors = ds
+              , _nameP       = name'
               , _materials   = mats'
               , _programs    = progs
               , _transforms  = preTransforms

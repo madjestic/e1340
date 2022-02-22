@@ -4,7 +4,7 @@
 
 module Application
   ( Application (..)
-  , Main        (..)
+  , GUI         (..)
   , Interface   (..)
   , fromApplication
 --  , hmap
@@ -19,15 +19,27 @@ import App
 
 -- import Debug.Trace as DT
 
-data Main = Default
+data Menu =
+    Start
+  | PlanetInfo
   deriving Show
+
+data GUI =
+    Default
+  | ContextMenu Menu
+
+instance Show GUI where
+  show (ContextMenu t) = show t
+  show t = show t
 
 data Interface =
      Intro
-   | Main Main
+   | Main GUI
    | Finished
-   | Menu
-  deriving Show
+
+instance Show Interface where
+  show (Main t) = show t
+  show t = show t
 
 data Application
   = Application
@@ -35,9 +47,9 @@ data Application
     _interface  :: Interface
   , _intro      :: App
   , _main       :: App
---  , _planetInfo :: App
+--  , _menu       :: App
+  , _planetInfo :: App
   , _hmap       :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
-                                   -- UUID -> GLuint
   } deriving Show
 $(makeLenses ''Application)
 
@@ -47,4 +59,6 @@ fromApplication app =
   --case (view interface (DT.trace ("fromApplication.app :" ++ show app) app)) of
     Intro        -> view intro app
     Main Default -> view main  app
+    Main (ContextMenu PlanetInfo) -> view planetInfo app
+    --Menu 
     _ -> view main app

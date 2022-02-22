@@ -389,7 +389,7 @@ selectObject app0 =
   where
     sf =
       proc cam -> do
-        (objs, sev) <- unselectObject (view (objects . foreground) app0)  -< cam
+        (objs, sev) <- unselectObjectE (view (objects . foreground) app0)  -< cam
 
         let
           result = app0 & selected .~ []
@@ -418,8 +418,8 @@ selectObjectE objs0 =
 
     returnA -< (result, proxE $> result')
 
-unselectObject :: [Object] -> SF Camera ([Object], Event [Object])
-unselectObject objs0 =
+unselectObjectE :: [Object] -> SF Camera ([Object], Event [Object])
+unselectObjectE objs0 =
   proc cam' -> do
     let
       camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double

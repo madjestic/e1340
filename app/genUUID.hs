@@ -16,10 +16,10 @@ import System.Directory
 import System.Environment
 import System.Exit
 
-import Project as P
-import Material as M
-import Texture  as T
-import Utils                (encodeStringUUID, (<$.>), (<*.>))
+import Graphics.RedViz.Project as P
+import Graphics.RedViz.Material as M
+import Graphics.RedViz.Texture  as T
+import Graphics.RedViz.Utils                (encodeStringUUID, (<$.>), (<*.>))
 
 -- import Debug.Trace as DT
 

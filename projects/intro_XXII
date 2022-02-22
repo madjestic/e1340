@@ -9,6 +9,7 @@
     "objects": [
         {
             "pname": "IntroScreen",
+	    "ptype": "",
             "modelIDXs": [
                 0
             ],

@@ -62,6 +62,7 @@
     "objects": [
         {
             "pname": "Venus",
+	    "ptype": "",	    
             "modelIDXs": [
                 12
             ],
@@ -71,6 +72,7 @@
         },
         {
             "pname": "Mercury",
+	    "ptype": "",	    
             "modelIDXs": [
                 11
             ],
@@ -80,6 +82,7 @@
         },
         {
             "pname": "Gizmo",
+	    "ptype": "",
             "modelIDXs": [
                 17
             ],
@@ -89,6 +92,7 @@
         },
         {
             "pname": "Sun",
+	    "ptype": "",
             "modelIDXs": [
                 10
             ],
@@ -98,6 +102,7 @@
         },
         {
             "pname": "Earth",
+	    "ptype": "",
             "modelIDXs": [
                 13
             ],
@@ -107,6 +112,7 @@
         },
         {
             "pname": "Mars",
+	    "ptype": "",
             "modelIDXs": [
                 15
             ],
@@ -116,6 +122,7 @@
         },
         {
             "pname": "Jupiter",
+	    "ptype": "",
             "modelIDXs": [
                 16
             ],
@@ -125,6 +132,7 @@
         },
         {
             "pname": "Moon",
+	    "ptype": "",
             "modelIDXs": [
                 14
             ],
@@ -136,6 +144,7 @@
     "background": [
         {
             "pname": "Star Sector 01",
+	    "ptype": "",
             "modelIDXs": [
                 1
             ],
@@ -145,6 +154,7 @@
         },
         {
             "pname": "Star Sector 00",
+	    "ptype": "",
             "modelIDXs": [
                 0
             ],
@@ -154,6 +164,7 @@
         },
         {
             "pname": "Star Sector 02",
+	    "ptype": "",
             "modelIDXs": [
                 2
             ],
@@ -163,6 +174,7 @@
         },
         {
             "pname": "Star Sector 03",
+	    "ptype": "",
             "modelIDXs": [
                 3
             ],
@@ -172,6 +184,7 @@
         },
         {
             "pname": "Star Sector 04",
+	    "ptype": "",
             "modelIDXs": [
                 4
             ],
@@ -181,6 +194,7 @@
         },
         {
             "pname": "Star Sector 05",
+	    "ptype": "",
             "modelIDXs": [
                 5
             ],
@@ -190,6 +204,7 @@
         },
         {
             "pname": "Star Sector 06",
+	    "ptype": "",
             "modelIDXs": [
                 6
             ],
@@ -199,6 +214,7 @@
         },
         {
             "pname": "Star Sector 07",
+	    "ptype": "",
             "modelIDXs": [
                 7
             ],
@@ -208,6 +224,7 @@
         },
         {
             "pname": "Star Sector 08",
+	    "ptype": "",
             "modelIDXs": [
                 8
             ],
@@ -217,6 +234,7 @@
         },
         {
             "pname": "Star Sector 09",
+	    "ptype": "",
             "modelIDXs": [
                 9
             ],

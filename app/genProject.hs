@@ -3,7 +3,7 @@ module Main where
 import System.Environment
 import System.Exit
 
-import Project
+import Graphics.RedViz.Project as Project
 
 -- import Debug.Trace as DT
 

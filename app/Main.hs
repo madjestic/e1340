@@ -221,13 +221,13 @@ main = do
   main' <- initApp initVAO mainProj
 
   let
-    --planetInfo = intro
+    planetInfo = undefined :: App -- intro
     initApp' =
       Application
       Intro
       intro
       main'
-      --planetInfo
+      planetInfo
       []
 
   app <- initResources initApp'
