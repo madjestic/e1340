@@ -18,6 +18,7 @@ module Object
   , foreground
   , Object.background
   , initObjectTree
+  , fromProject
   , GUI (..)
   , Object.fonts
   , icons
@@ -44,12 +45,15 @@ import Graphics.RedViz.LoadShaders
 import Graphics.RedViz.Material       as Material
 import Graphics.RedViz.Descriptor
 import Solvable
-import Graphics.RedViz.PGeo
 import Graphics.RedViz.Project.Project as Project
 import Graphics.RedViz.Project.Model   as Model
 import Graphics.RedViz.Utils           as U
+import Graphics.RedViz.Rendering (initVAO, toDescriptor)
+import Graphics.RedViz.VAO (VAO', VAO'')
+import Graphics.RedViz.PGeo      (readBGeo, fromVGeo', fromVGeo'', fromSVGeo,  VGeo(..), SVGeo(..), smp, sxf, svl, sms)
+import qualified Graphics.RedViz as SVGeo
 
---import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
@@ -85,7 +89,7 @@ data Object
       _descriptors  :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
                -- data Descriptor =
                     -- Descriptor VertexArrayObject NumArrayIndices
-     , _nameP        :: String
+     , _nameP       :: String
      , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
      , _programs    :: [Program]    -- | Shader Programs
      , _transforms  :: ![M44 Double]
@@ -166,14 +170,114 @@ defaultObj =
     (0.0)
     []
 
+-- toTransforms :: ObjectClass -> SVGeo -> M44 Double
+-- toTransforms cls (SVGeo _ _ _ _ _ _ xf_) =
+--   case cls of
+--     Font -> U.fromList xf_
+--     _    -> uncurry preTransformer <$> (zip solvs (fmap U.fromList xf_) :: [(Solver, M44 Double)]) :: [M44 Double]
 
-fromPreObject :: PreObject -> Object
-fromPreObject prj0 = undefined
+-- fromPreObject' :: Project -> ObjectClass -> [PreObject]
+-- fromPreObject' prj0 cls = undefined
 
-fromProject :: ObjectClass -> Project -> [Object]
-fromProject cls project = objs
-  where
-    objs = undefined
+fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
+fromPreObject prj0 cls pObj0 = do
+  
+  (ds', svgeos') <- toDescriptor''' prj0 pObj0 :: IO ([Descriptor], [SVGeo])
+  materials'     <- mapM Material.read $ toListOf (traverse . smp) svgeos' :: IO [Material]
+  programs'      <- mapM
+    (\mat -> loadShaders
+             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ])
+    materials'
+
+  let
+    name'        = view pname pObj0     :: String
+    
+
+    psolvers'    = view Project.solvers pObj0     :: [String]
+    solverAttrs' = view Project.solverAttrs pObj0 :: [[Double]]
+    solversF     = case psolvers' of
+                     [] -> [""]
+                     _  -> psolvers'     :: [String]
+    attrsF       = case solverAttrs' of
+                     [] -> [[]]
+                     _  -> solverAttrs'  :: [[Double]]
+    solvers'     = toSolver <$> zip solversF attrsF :: [Solver]
+    xforms'  = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
+    
+    --foo = uncurry preTransformer <$> (zip solvers' xforms' :: [(Solver, M44 Double)])
+    transforms' =
+      case cls of
+        Font -> xforms'
+        _    -> uncurry preTransformer <$> (zip solvers' xforms' ::[(Solver, M44 Double)]) :: [M44 Double]
+                  
+    vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
+    velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?
+    avelocity'   = V3 0 0 0 :: V3 Double
+    mass'        = 1.0 :: Double
+    density'     = 1.0 :: Double
+    time'        = 0.0 :: Double
+    --solvers'    = [] :: [Solver]
+  
+  case _ptype pObj0 of
+    "planet" -> return $
+      Planet
+      ds'
+      name'
+      materials'
+      programs'
+      transforms'
+      velocity'
+      avelocity'
+      mass'
+      density'
+      time'
+      solvers'
+    "sprite" -> return $
+      Sprite
+      ds'
+      materials'
+      programs'
+      transforms'
+      time'
+    ""       -> return $ Object :: IO Object
+    _        -> return $ Object :: IO Object    
+
+--toDescriptor :: PreObject -> [Model] -> [VGeo] -> [Descriptor]
+
+toVGeo :: Project -> PreObject -> IO [VGeo]
+toVGeo prj0 pObj0 = do
+  let
+    modelSet   = toListOf (models . traverse . Model.path) prj0 :: [String]
+    modelPaths = (modelSet!!) <$> view modelIDXs pObj0
+    vgeos      = readBGeo <$> modelPaths
+  sequence vgeos
+
+toDescriptor' :: Project -> PreObject -> IO [Descriptor]
+toDescriptor' prj0 pObj0 = do
+  vgeos' <- toVGeo prj0 pObj0
+  let
+    vao = concat $ fromVGeo' <$> vgeos'
+  ds' <- mapM toDescriptor vao
+  return ds' :: IO [Descriptor]
+
+toDescriptor'' :: Project -> PreObject -> IO ([Descriptor], [VGeo])
+toDescriptor'' prj0 pObj0 = do
+  vgeos' <- toVGeo prj0 pObj0
+  let
+    vao = concat $ fromVGeo' <$> vgeos'
+  ds' <- mapM toDescriptor vao
+  return (ds', vgeos') :: IO ([Descriptor], [VGeo])
+
+toDescriptor''' :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
+toDescriptor''' prj0 pObj0 = do
+  vgeos' <- toVGeo prj0 pObj0
+  let
+    svgeos = concat $ fromVGeo'' <$> vgeos' :: [SVGeo] 
+    vao = concat $ fromVGeo' <$> vgeos' :: VAO'
+    vao'= fromSVGeo <$> svgeos :: VAO'
+  ds' <- mapM toDescriptor vao'
+  return (ds', svgeos) :: IO ([Descriptor], [SVGeo])
 
 -- | returns a list of model paths
 modelPaths :: ObjectClass -> Project -> [String]
@@ -185,6 +289,40 @@ modelPaths cls project = modelList
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> (toListOf (Project.fonts . traverse . Model.path) project)
+
+fromProject :: Project -> IO ObjectTree
+fromProject prj0 = do
+-- Project -> Object -> ObjectTree
+-- PreObject -> [Model] -> [VGeo] -> [Descriptor] -> Object
+  let
+    pobjs = concat $ toListOf Project.objects    prj0 :: [PreObject]
+    pbgrs = concat $ toListOf Project.background prj0 :: [PreObject]
+    -- pfnts = concat $ toListOf Project.fonts      prj0 :: [PreObject]
+  
+  objs <- mapM (fromPreObject prj0 Foreground) pobjs :: IO [Object]
+  bgrs <- mapM (fromPreObject prj0 Background) pbgrs :: IO [Object]
+  fnts <- initFontObject prj0 :: IO [Object]
+  let result =
+        ObjectTree
+        (GUI fnts [])
+        --objs
+        (DT.trace ("fromProject.objs : " ++ show objs) objs)
+        bgrs
+  putStrLn "Finished loading objects."
+  return result
+
+-- initFontObject' :: Project -> IO [Object]
+-- initFontObject' prj0 = mapM readBGeo (modelPaths Font prj0) >>= (\fntVGeos -> mapM (initObject prj0 initVAO Font) (zip fntVGeos [0..]))
+
+initFontObject :: Project -> IO [Object]
+initFontObject prj0 = do
+  fntVGeos  <- mapM readBGeo $ modelPaths Font prj0 :: IO [VGeo]
+                               
+  if not (null fntVGeos)
+    then
+      mapM (initObject prj0 initVAO Font) $ zip fntVGeos [0..]
+    else
+      pure []  :: IO [Object]
 
 initObjectTree :: (([Int], Int, [Float]) -> IO Descriptor) -> Project -> IO ObjectTree
 initObjectTree initVAO project =
@@ -216,7 +354,6 @@ initObjectTree initVAO project =
 
     putStrLn "Finished loading models."
     return result
-
 
 initObject :: Project
            -> (([Int], Int, [Float]) -> IO Descriptor)
@@ -289,6 +426,7 @@ initObject project
             Foreground -> (toListOf (objects . traverse . solverAttrs)            project!!idx) :: [[Double]]
             Background -> (toListOf (Project.background . traverse . solverAttrs) project!!idx) :: [[Double]]
             Font       -> []            
+
 
 fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
 fromVGeo initVAO (VGeo idxs st' vaos matPaths _ _ _) =

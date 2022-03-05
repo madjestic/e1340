@@ -9,7 +9,7 @@
     "objects": [
         {
             "pname": "IntroScreen",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 0
             ],
