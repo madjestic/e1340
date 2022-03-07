@@ -17,18 +17,14 @@ module Object
   , gui
   , foreground
   , Object.background
-  , initObjectTree
   , fromProject
   , GUI (..)
   , Object.fonts
   , icons
   , ObjectClass (..)
-  , ObjectFeature (..)
 -- | utility functions:  
-  , initObject
   , updateObjects'
   , updateObjects
---  , objectCompose
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -53,37 +49,13 @@ import Graphics.RedViz.VAO (VAO', VAO'')
 import Graphics.RedViz.PGeo      (readBGeo, fromVGeo', fromVGeo'', fromSVGeo,  VGeo(..), SVGeo(..), smp, sxf, svl, sms)
 import qualified Graphics.RedViz as SVGeo
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
 
--- data Object
---   =  Object
---      {
---        _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
---                 -- data Descriptor =
---                      -- Descriptor VertexArrayObject NumArrayIndices
---      , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
---      , _programs    :: [Program]    -- | Shader Programs
---      , _transforms  :: ![M44 Double]
---      , _velocity    :: V3 Double
---      , _avelocity   :: V3 Double    -- | Angular velocity
---      , _mass        :: Double
---      , _density     :: Double
---      , _time        :: Double
---      , _solvers     :: [Solver]
---      } deriving Show
--- $(makeLenses ''Object)
-
--- UUID should be inherited?
-
--- TODO: turn into a type-class in order to inherit and expand from a basic set, along the lines with:
 data Object
-  =  Object
-     {
-       -- common methods --
-     }
+  =  Empty {}  -- a unit
   |  Planet
      {
       _descriptors  :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
@@ -124,17 +96,6 @@ fromProject' initVAO proj0 = do
     where
       objs = undefined :: [Object]
 
-toObject :: (([Int], Int, [Float]) -> IO Descriptor) -> Object -> [VGeo] -> IO Object
-toObject initVAO initialObj vgeos = undefined
-
--- data Planet
---   = Planet
--- $(makeLenses ''Planet)
-
-data ObjectFeature
-  = Transforms
-  | Velocity
-
 data ObjectClass = Foreground | Background | Font
 
 data GUI =
@@ -170,19 +131,9 @@ defaultObj =
     (0.0)
     []
 
--- toTransforms :: ObjectClass -> SVGeo -> M44 Double
--- toTransforms cls (SVGeo _ _ _ _ _ _ xf_) =
---   case cls of
---     Font -> U.fromList xf_
---     _    -> uncurry preTransformer <$> (zip solvs (fmap U.fromList xf_) :: [(Solver, M44 Double)]) :: [M44 Double]
-
--- fromPreObject' :: Project -> ObjectClass -> [PreObject]
--- fromPreObject' prj0 cls = undefined
-
 fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
 fromPreObject prj0 cls pObj0 = do
-  
-  (ds', svgeos') <- toDescriptor''' prj0 pObj0 :: IO ([Descriptor], [SVGeo])
+  (ds', svgeos') <- toDescriptor' prj0 pObj0 :: IO ([Descriptor], [SVGeo])
   materials'     <- mapM Material.read $ toListOf (traverse . smp) svgeos' :: IO [Material]
   programs'      <- mapM
     (\mat -> loadShaders
@@ -192,8 +143,6 @@ fromPreObject prj0 cls pObj0 = do
 
   let
     name'        = view pname pObj0     :: String
-    
-
     psolvers'    = view Project.solvers pObj0     :: [String]
     solverAttrs' = view Project.solverAttrs pObj0 :: [[Double]]
     solversF     = case psolvers' of
@@ -203,10 +152,8 @@ fromPreObject prj0 cls pObj0 = do
                      [] -> [[]]
                      _  -> solverAttrs'  :: [[Double]]
     solvers'     = toSolver <$> zip solversF attrsF :: [Solver]
-    xforms'  = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
-    
-    --foo = uncurry preTransformer <$> (zip solvers' xforms' :: [(Solver, M44 Double)])
-    transforms' =
+    xforms'      = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
+    transforms'  =
       case cls of
         Font -> xforms'
         _    -> uncurry preTransformer <$> (zip solvers' xforms' ::[(Solver, M44 Double)]) :: [M44 Double]
@@ -217,33 +164,39 @@ fromPreObject prj0 cls pObj0 = do
     mass'        = 1.0 :: Double
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
-    --solvers'    = [] :: [Solver]
-  
-  case _ptype pObj0 of
-    "planet" -> return $
-      Planet
-      ds'
-      name'
-      materials'
-      programs'
-      transforms'
-      velocity'
-      avelocity'
-      mass'
-      density'
-      time'
-      solvers'
-    "sprite" -> return $
-      Sprite
-      ds'
-      materials'
-      programs'
-      transforms'
-      time'
-    ""       -> return $ Object :: IO Object
-    _        -> return $ Object :: IO Object    
 
---toDescriptor :: PreObject -> [Model] -> [VGeo] -> [Descriptor]
+  case cls of
+    Font -> return $
+      Object.Sprite
+      ds'
+      materials'
+      programs'
+      transforms'
+      time'
+    _ ->
+      case _ptype pObj0 of
+        "planet" -> return $
+          Planet
+          ds'
+          name'
+          materials'
+          programs'
+          transforms'
+          velocity'
+          avelocity'
+          mass'
+          density'
+          time'
+          solvers'
+        "sprite" -> return $
+          Sprite
+          ds'
+          materials'
+          programs'
+          transforms'
+          time'
+        ""       -> return Object.Empty :: IO Object
+        _        -> return Object.Empty :: IO Object    
 
 toVGeo :: Project -> PreObject -> IO [VGeo]
 toVGeo prj0 pObj0 = do
@@ -253,24 +206,8 @@ toVGeo prj0 pObj0 = do
     vgeos      = readBGeo <$> modelPaths
   sequence vgeos
 
-toDescriptor' :: Project -> PreObject -> IO [Descriptor]
+toDescriptor' :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
 toDescriptor' prj0 pObj0 = do
-  vgeos' <- toVGeo prj0 pObj0
-  let
-    vao = concat $ fromVGeo' <$> vgeos'
-  ds' <- mapM toDescriptor vao
-  return ds' :: IO [Descriptor]
-
-toDescriptor'' :: Project -> PreObject -> IO ([Descriptor], [VGeo])
-toDescriptor'' prj0 pObj0 = do
-  vgeos' <- toVGeo prj0 pObj0
-  let
-    vao = concat $ fromVGeo' <$> vgeos'
-  ds' <- mapM toDescriptor vao
-  return (ds', vgeos') :: IO ([Descriptor], [VGeo])
-
-toDescriptor''' :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
-toDescriptor''' prj0 pObj0 = do
   vgeos' <- toVGeo prj0 pObj0
   let
     svgeos = concat $ fromVGeo'' <$> vgeos' :: [SVGeo] 
@@ -292,8 +229,6 @@ modelPaths cls project = modelList
 
 fromProject :: Project -> IO ObjectTree
 fromProject prj0 = do
--- Project -> Object -> ObjectTree
--- PreObject -> [Model] -> [VGeo] -> [Descriptor] -> Object
   let
     pobjs = concat $ toListOf Project.objects    prj0 :: [PreObject]
     pbgrs = concat $ toListOf Project.background prj0 :: [PreObject]
@@ -305,14 +240,10 @@ fromProject prj0 = do
   let result =
         ObjectTree
         (GUI fnts [])
-        --objs
-        (DT.trace ("fromProject.objs : " ++ show objs) objs)
+        objs
         bgrs
   putStrLn "Finished loading objects."
   return result
-
--- initFontObject' :: Project -> IO [Object]
--- initFontObject' prj0 = mapM readBGeo (modelPaths Font prj0) >>= (\fntVGeos -> mapM (initObject prj0 initVAO Font) (zip fntVGeos [0..]))
 
 initFontObject :: Project -> IO [Object]
 initFontObject prj0 = do
@@ -320,130 +251,29 @@ initFontObject prj0 = do
                                
   if not (null fntVGeos)
     then
-      mapM (initObject prj0 initVAO Font) $ zip fntVGeos [0..]
+      mapM (initFontObject' prj0) $ zip fntVGeos [0..]
     else
       pure []  :: IO [Object]
 
-initObjectTree :: (([Int], Int, [Float]) -> IO Descriptor) -> Project -> IO ObjectTree
-initObjectTree initVAO project =
-  do
-    -- _ <- Dt.trace ("project :" ++ show project) $ return ()
-    putStrLn "Loading Models..."
-
-    fgrVGeos  <-
-      mapM (\modelPath -> (readBGeo modelPath :: IO VGeo)
-           ) $ modelPaths Foreground project  :: IO [VGeo]
-
-    bgrVGeos  <-
-      mapM (\modelPath -> (readBGeo modelPath :: IO VGeo)
-           ) $ modelPaths Background project  :: IO [VGeo]
-
-    fntVGeos  <-
-      mapM (\modelPath -> (readBGeo modelPath :: IO VGeo)
-           ) $ modelPaths Font project  :: IO [VGeo]
-
-    objs <- if not (null fgrVGeos) then mapM (initObject project initVAO Foreground) $ zip fgrVGeos [0..] else pure []  :: IO [Object]
-    bgrs <- if not (null bgrVGeos) then mapM (initObject project initVAO Background) $ zip bgrVGeos [0..] else pure []  :: IO [Object]
-    fnts <- if not (null fntVGeos) then mapM (initObject project initVAO Font)       $ zip fntVGeos [0..] else pure []  :: IO [Object]
-
-    let result =
-          ObjectTree
-          ( GUI fnts [] )
-          objs
-          bgrs
-
-    putStrLn "Finished loading models."
-    return result
-
-initObject :: Project
-           -> (([Int], Int, [Float]) -> IO Descriptor)
-           -> ObjectClass
-           -> (VGeo, Int)
-           -> IO Object
-initObject project
-           initVAO
-           cls
-           (vgeo, idx) =
-  do
-    mats'  <- mapM Material.read $ mts vgeo :: IO [Material]
-
-    let (VGeo is_ st_ vs_ _ ms_ vels_ xf_) = vgeo
-        vaoArgs       = (\idx' st' vao' -> (idx', st', vao'))
-                        <$.> is_ <*.> st_ <*.> vs_
-        vel           = toV3 (fmap float2Double (head vels_)) :: V3 Double -- TODO: this can be a list of vels, representing animated series, could be used later to create animations
-        m'            = realToFrac (head ms_):: Double      -- TODO: same here
-        name'         = undefined :: String
-
-        solversF      = case solvers' of
-                          [] -> [""]
-                          _  -> solvers'
-        attrsF        = case attrs' of
-                          [] -> [[]]
-                          _  -> attrs'
-        solvs         = toSolver <$> zip solversF attrsF
-        preTransforms =
-          case cls of
-            Font -> U.fromList <$> xf_
-            _    -> uncurry preTransformer <$> (zip solvs (fmap U.fromList xf_)::[(Solver, M44 Double)]) :: [M44 Double]
-         -- _    -> (\(s0, xf0) -> preTransformer s0 xf0) <$> (zip solvs (fmap fromList xf_)::[(Solver, M44 Double)]) :: [M44 Double]
-
-    ds    <- mapM initVAO vaoArgs
-
-    progs <- mapM (\mat -> loadShaders
-                           [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-                           , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
-    let result =
-          case cls of
-            Font ->
-              Object.Sprite
-              { _descriptors = ds
-              , _materials   = mats'
-              , _programs    = progs
-              , _transforms  = preTransforms
-              , _time        = 0.1
-              } :: Object
-            _ -> 
-              defaultObj
-              { _descriptors = ds
-              , _nameP       = name'
-              , _materials   = mats'
-              , _programs    = progs
-              , _transforms  = preTransforms
-              , _velocity    = vel
-              , _mass        = m'
-              , Object._solvers = solvs
-              } :: Object
-
-    return result
-      where
-        solvers' = -- | Maybe we want very different treatment of F/B/F solvers/attrs...  or this code stinks.
-          case cls of
-            Foreground -> (toListOf (objects            . traverse . Project.solvers) project!!idx) :: [String]
-            Background -> (toListOf (Project.background . traverse . Project.solvers) project!!idx) :: [String]
-            Font       -> []
-        attrs'   =
-          case cls of
-            Foreground -> (toListOf (objects . traverse . solverAttrs)            project!!idx) :: [[Double]]
-            Background -> (toListOf (Project.background . traverse . solverAttrs) project!!idx) :: [[Double]]
-            Font       -> []            
-
-
-fromVGeo :: (([Int], Int, [Float], Material) -> IO Descriptor) -> VGeo -> IO Object
-fromVGeo initVAO (VGeo idxs st' vaos matPaths _ _ _) =
-  do
-    mats' <- mapM Material.read matPaths -- (ms vgeo)
-    let
-      vaoargs         = (\idx' st'' vao' mat' ->  (idx', st'', vao', mat')) <$.> idxs <*.> st' <*.> vaos <*.> mats'
-
-    ds   <- mapM initVAO vaoargs
-
-    let object =
-          defaultObj
-          { _descriptors = ds
-          , _materials   = mats'
-          }
-
-    return object
+initFontObject' :: Project -> (VGeo, Int) -> IO Object
+initFontObject' project (vgeo, idx) = do
+  let (VGeo is_ st_ vs_ _ _ _ xf_) = vgeo
+      vaoArgs       = (,,) <$.> is_ <*.> st_ <*.> vs_
+      preTransforms = U.fromList <$> xf_
+      
+  mats' <- mapM Material.read $ mts vgeo :: IO [Material]
+  ds    <- mapM toDescriptor vaoArgs
+  progs <- mapM (\mat -> loadShaders
+                         [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                         , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
+  return $
+    Object.Sprite
+    { _descriptors = ds
+    , _materials   = mats'
+    , _programs    = progs
+    , _transforms  = preTransforms
+    , _time        = 0.1
+    } 
 
 -- | Linear Objects that only depend on initial conditions, i.e. Linear.
 updateObjects :: [Object] -> SF () [Object]
@@ -451,6 +281,14 @@ updateObjects objs0 =
   proc () -> do
     objs' <- parB . fmap solve $ objs0 -< ()
     returnA -< objs'
+
+-- | Objects that evolve over iterations, i.e. non-Linear
+updateObjects' :: [Object] -> SF [Object] [Object]
+updateObjects' objs0 =
+  proc _ -> do
+    rec objs   <- iPre objs0 -< objs'
+        objs'  <- gravitySolver -< objs
+    returnA -< objs
 
 solve :: Object -> SF () Object
 solve obj0 =
@@ -494,14 +332,6 @@ transform' solver mtx0 =
         Translate  txyz     = solver
         -- Gravity    idxs     = solver
 
--- | Objects that evolve over iterations, i.e. non-Linear
-updateObjects' :: [Object] -> SF [Object] [Object]
-updateObjects' objs0 =
-  proc _ -> do
-    rec objs   <- iPre objs0 -< objs'
-        objs'  <- gravitySolver -< objs
-    returnA -< objs
-
 gravitySolver :: SF [Object] [Object]
 gravitySolver =
   proc objs0 -> do
@@ -535,10 +365,7 @@ gravitySolver' (obj0, objs0) = obj
       tr
       where
         rot = view _m33 xform0
-        --tr  = (DT.trace ("acc :" ++ show (s*acc) ++ "\n\n") $ s*acc) -- + p0*0.01
         tr  = vel + p0
-        --tr  = (V3 1 0 0) + p0
-        --tr  = acc*s
 
     obj = obj0 { _transforms = [mtx]
                , _velocity   = vel }
@@ -546,15 +373,12 @@ g :: Double
 g = 6.673**(-11.0) :: Double
 
 gravity :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
-gravity p0 m0 (p1, m1) = acc --(DT.trace ("gravity.acc :" ++ show (norm (1000000000000.0*acc)) ++ "\n") acc)
+gravity p0 m0 (p1, m1) = acc
   where
     dir  = p1 ^-^ p0                 :: V3 Double
     dist = norm dir                  :: Double
-    --dist = (DT.trace ("dist :" ++ show (norm dir) ++ "\n") norm dir) :: Double
     f    = g * m0 * m1 / dist**2.0   :: Double
-    --s    = 10000000.0*0.0
     acc  = (f / m1) *^ (dir ^/ dist) :: V3 Double
-    --acc  = ((DT.trace("f :" ++ show f)f) / m1) *^ ((DT.trace ("dir :" ++ show dir) dir) ^/ (DT.trace ("dist :" ++ show dist) dist)) :: V3 Double
 -- | F = G*@mass*m2/(dist^2);       // Newton's gravity equation
 -- | a += (F/@mass)*normalize(dir); // Acceleration
 
@@ -575,6 +399,3 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
   where
     rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
     tr  = view translation mtx0 ^+^ view translation mtx1
-
--- objectCompose :: ObjectFeature -> (Double, Double) -> [Object] -> [Object] -> [Object]
--- objectCompose f ratios objs0 objs1 = undefined

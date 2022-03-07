@@ -169,8 +169,8 @@ initResources :: Application -> IO Application
 initResources app0 =
   do
     let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
+      objs  = introObjs ++ [head fntObjs] ++ fgrObjs ++ bgrObjs
+      txs   = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
       uuids = fmap (view T.uuid) txs
 
       hmap = toList . fromList $ zip uuids [0..]

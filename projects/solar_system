@@ -144,7 +144,7 @@
     "background": [
         {
             "pname": "Star Sector 01",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 1
             ],
@@ -154,7 +154,7 @@
         },
         {
             "pname": "Star Sector 00",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 0
             ],
@@ -164,7 +164,7 @@
         },
         {
             "pname": "Star Sector 02",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 2
             ],
@@ -174,7 +174,7 @@
         },
         {
             "pname": "Star Sector 03",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 3
             ],
@@ -184,7 +184,7 @@
         },
         {
             "pname": "Star Sector 04",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 4
             ],
@@ -194,7 +194,7 @@
         },
         {
             "pname": "Star Sector 05",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 5
             ],
@@ -204,7 +204,7 @@
         },
         {
             "pname": "Star Sector 06",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 6
             ],
@@ -214,7 +214,7 @@
         },
         {
             "pname": "Star Sector 07",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 7
             ],
@@ -224,7 +224,7 @@
         },
         {
             "pname": "Star Sector 08",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 8
             ],
@@ -234,7 +234,7 @@
         },
         {
             "pname": "Star Sector 09",
-	    "ptype": "",
+	    "ptype": "planet",
             "modelIDXs": [
                 9
             ],
