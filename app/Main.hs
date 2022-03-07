@@ -6,7 +6,7 @@
 module Main where 
 
 import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar )
-import Control.Lens       ( toListOf, view )
+import Control.Lens       ( toListOf, view, (^.), (^..) )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
 import Foreign.C          ( CInt )
@@ -27,7 +27,7 @@ import Unsafe.Coerce             ( unsafeCoerce )
 import Linear.Matrix
     
 import Application
-import Update (handleExit, appRun)
+import Update (handleExit, appRun, objectNames)
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
 import Graphics.RedViz.Rendering as R
@@ -102,7 +102,7 @@ toDrawable' mpos time0 res cam obj = drs
         -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
 
-    n      = length $ view descriptors obj:: Int
+    n      = length $ obj ^. base . descriptors :: Int
     mpos_  = replicate n mpos  :: [(Double, Double)]
     time_  = replicate n time0 :: [Double]
     res_   = replicate n res   :: [(CInt, CInt)]
@@ -110,11 +110,11 @@ toDrawable' mpos time0 res cam obj = drs
     cam_a_ = replicate n $ _apt cam :: [Double]
     cam_f_ = replicate n $ _foc cam :: [Double]
 
-    names  = toListOf (O.materials . traverse . M.name) obj :: [String]
-    mats   = view O.materials   obj :: [Material]
-    progs  = view O.programs    obj :: [Program]
-    xforms = concat $ replicate n $ view O.transforms obj :: [M44 Double]
-    ds     = view O.descriptors obj :: [Descriptor]
+    names  = objectNames obj
+    mats   = obj ^. base . materials :: [Material]
+    progs  = obj ^. base . programs :: [Program]
+    xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]
+    ds     = obj ^. base . descriptors :: [Descriptor]
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
@@ -136,7 +136,8 @@ output lastInteraction window application = do
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
 
     app  = fromApplication application
-    txs  = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
+    txs  = --concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
+      concat . concat $ (\obj -> obj ^.. base . materials . traverse . textures) <$> (fgrObjs ++ fntObjs) :: [Texture]
     hmap = _hmap application
 
     opts =
@@ -170,10 +171,9 @@ initResources app0 =
   do
     let
       objs  = introObjs ++ [head fntObjs] ++ fgrObjs ++ bgrObjs
-      txs   = concat $ concatMap (toListOf (materials . traverse . M.textures)) objs -- :: [Texture]
+      txs   = concat $ objs ^.. traverse . base . materials . traverse . textures :: [Texture]
       uuids = fmap (view T.uuid) txs
-
-      hmap = toList . fromList $ zip uuids [0..]
+      hmap  = toList . fromList $ zip uuids [0..]
 
     putStrLn "Initializing Resources..."
     putStrLn "Loading Textures..."

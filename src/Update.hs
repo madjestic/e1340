@@ -14,6 +14,7 @@ module Update
   , centerView
   , appRun
   , appIntro
+  , objectNames
   ) where
 
 import SDL hiding ( (*^), Event, Mouse )
@@ -323,7 +324,7 @@ updateApp app' =
         filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
 
 objectNames :: Object -> [String]
-objectNames = toListOf (materials . traverse . Material.name)
+objectNames obj = obj ^.. base . materials . traverse . Material.name
 
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
@@ -407,7 +408,8 @@ selectObjectE objs0 =
       camPos' = camPos * (-1)
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
+      --objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
+      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
       dist       = 50000000.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
@@ -426,7 +428,7 @@ unselectObjectE objs0 =
       camPos' = camPos * (-1)
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
+      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
       dist       = 50000000.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos > dist
@@ -441,4 +443,4 @@ distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist
   where
     dist    = distance camPos0 objPos
-    objPos  = view translation $ head $ view transforms obj0 :: V3 Double
+    objPos  = view translation $ head $ view (base . transforms) obj0 :: V3 Double

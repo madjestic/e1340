@@ -70,6 +70,7 @@ library
               Graphics.RedViz.PGeo
               Graphics.RedViz.VAO
               Graphics.RedViz.FromVector
+              Graphics.RedViz.Object
               
   other-modules:
                 Paths_e1340

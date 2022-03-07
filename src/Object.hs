@@ -8,6 +8,7 @@
 module Object
   ( Object (..)
   , defaultObj
+  , base
   , materials
   , programs
   , descriptors
@@ -47,6 +48,7 @@ import Graphics.RedViz.Utils           as U
 import Graphics.RedViz.Rendering (initVAO, toDescriptor)
 import Graphics.RedViz.VAO (VAO', VAO'')
 import Graphics.RedViz.PGeo      (readBGeo, fromVGeo', fromVGeo'', fromSVGeo,  VGeo(..), SVGeo(..), smp, sxf, svl, sms)
+import Graphics.RedViz.Object    as RV
 import qualified Graphics.RedViz as SVGeo
 
 --import Debug.Trace    as DT
@@ -58,27 +60,17 @@ data Object
   =  Empty {}  -- a unit
   |  Planet
      {
-      _descriptors  :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
-               -- data Descriptor =
-                    -- Descriptor VertexArrayObject NumArrayIndices
+       _base         :: RV.Object'
      , _nameP       :: String
-     , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
-     , _programs    :: [Program]    -- | Shader Programs
-     , _transforms  :: ![M44 Double]
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
      , _mass        :: Double
      , _density     :: Double
-     , _time        :: Double
      , _solvers     :: [Solver]
      } 
   |  Sprite
-     { 
-       _descriptors :: [Descriptor] -- | Material is bound in Descriptor, but we also use this data for draw-call separation per material.
-     , _materials   :: [Material]   -- | hence [Material] is present on the Object level too, we use that value, instead of looking it up from respective VGeo.
-     , _programs    :: [Program]    -- | Shader Programs
-     , _transforms  :: ![M44 Double]
-     , _time        :: Double
+     {
+       _base        :: RV.Object'
      }
   -- |  Comp Object Object
   -- |  Graph
@@ -89,12 +81,6 @@ data Object
   --    }
   deriving Show
 $(makeLenses ''Object)
-
-fromProject' :: (([Int], Int, [Float]) -> IO Descriptor) -> Project -> IO [Object]
-fromProject' initVAO proj0 = do
-  return objs
-    where
-      objs = undefined :: [Object]
 
 data ObjectClass = Foreground | Background | Font
 
@@ -119,16 +105,17 @@ $(makeLenses ''ObjectTree)
 defaultObj :: Object
 defaultObj =
   Object.Planet
-    []
+    (RV.Object'
+     []
+     [defaultMat]
+     []
+     [(identity::M44 Double)]
+     0.0)
     ""
-    [defaultMat]
-    []
-    [(identity::M44 Double)]
     (V3 0 0 0)
     (V3 0 0 0)
     (1.0)
     (1.0)
-    (0.0)
     []
 
 fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
@@ -168,33 +155,37 @@ fromPreObject prj0 cls pObj0 = do
   case cls of
     Font -> return $
       Object.Sprite
-      ds'
-      materials'
-      programs'
-      transforms'
-      time'
+      --RV.defaultObject'
+      (RV.Object'
+       ds'
+       materials'
+       programs'
+       transforms'
+       time')
     _ ->
       case _ptype pObj0 of
         "planet" -> return $
           Planet
-          ds'
+          (RV.Object'
+           ds'
+           materials'
+           programs'
+           transforms'
+           time')
           name'
-          materials'
-          programs'
-          transforms'
           velocity'
           avelocity'
           mass'
           density'
-          time'
           solvers'
         "sprite" -> return $
           Sprite
-          ds'
-          materials'
-          programs'
-          transforms'
-          time'
+          (RV.Object'
+           ds'
+           materials'
+           programs'
+           transforms'
+           time')
         ""       -> return Object.Empty :: IO Object
         _        -> return Object.Empty :: IO Object    
 
@@ -268,11 +259,16 @@ initFontObject' project (vgeo, idx) = do
                          , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
   return $
     Object.Sprite
-    { _descriptors = ds
-    , _materials   = mats'
-    , _programs    = progs
-    , _transforms  = preTransforms
-    , _time        = 0.1
+    {
+      _base =
+        RV.Object'
+        {
+          _descriptors = ds
+        , _materials   = mats'
+        , _programs    = progs
+        , _transforms  = preTransforms
+        , _time        = 0.1
+        }
     } 
 
 -- | Linear Objects that only depend on initial conditions, i.e. Linear.
@@ -294,7 +290,8 @@ solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
     mtxs    <- (parB . fmap (Object.transform obj0)) slvs0 -< ()
-    returnA -< obj0 { _transforms = vectorizedCompose mtxs }
+    --returnA -< obj0 { _transforms = vectorizedCompose mtxs }
+    returnA -< obj0 & base . transforms .~ vectorizedCompose mtxs
       where
         slvs0 = view Object.solvers obj0
 
@@ -305,7 +302,7 @@ transform obj0 slv0 =
       mtxs <- (parB . fmap (transform' slv0)) mtxs0 -< () -- TODO: pass object as arg to transformer
       returnA -< mtxs
         where
-          mtxs0 = view transforms obj0 :: [M44 Double]
+          mtxs0 = obj0 ^. base . transforms :: [M44 Double]
 
 transform' :: Solver -> M44 Double -> SF () (M44 Double)
 transform' solver mtx0 =
@@ -343,11 +340,11 @@ gravitySolver' :: (Object, [Object]) -> Object
 gravitySolver' (obj0, objs0) = obj
   where
     m0     =  _mass obj0               :: Double
-    xform0 = (head . _transforms) obj0 :: M44 Double
+    xform0 = head $ obj0 ^. base . transforms :: M44 Double
     p0     = ( view (_w._xyz) . LM.transpose ) xform0  :: V3 Double
 
     ms'    = fmap _mass objs0          :: [Double]
-    xforms = fmap (head . _transforms) objs0              :: [M44 Double]
+    xforms = fmap (head . _transforms) $ _base <$> objs0      :: [M44 Double]
     ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms :: [V3 Double]
 
     acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double
@@ -367,8 +364,10 @@ gravitySolver' (obj0, objs0) = obj
         rot = view _m33 xform0
         tr  = vel + p0
 
-    obj = obj0 { _transforms = [mtx]
-               , _velocity   = vel }
+    obj = obj0
+          & base . transforms .~ [mtx]
+          & velocity .~ vel
+    
 g :: Double
 g = 6.673**(-11.0) :: Double
 
