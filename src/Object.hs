@@ -60,7 +60,7 @@ data Object
   =  Empty {}  -- a unit
   |  Planet
      {
-       _base         :: RV.Object'
+       _base        :: Object'
      , _nameP       :: String
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
@@ -70,7 +70,7 @@ data Object
      } 
   |  Sprite
      {
-       _base        :: RV.Object'
+       _base        :: Object'
      }
   -- |  Comp Object Object
   -- |  Graph
@@ -105,7 +105,7 @@ $(makeLenses ''ObjectTree)
 defaultObj :: Object
 defaultObj =
   Object.Planet
-    (RV.Object'
+    (Object'
      []
      [defaultMat]
      []
@@ -155,8 +155,7 @@ fromPreObject prj0 cls pObj0 = do
   case cls of
     Font -> return $
       Object.Sprite
-      --RV.defaultObject'
-      (RV.Object'
+      (Object'
        ds'
        materials'
        programs'
@@ -166,7 +165,7 @@ fromPreObject prj0 cls pObj0 = do
       case _ptype pObj0 of
         "planet" -> return $
           Planet
-          (RV.Object'
+          (Object'
            ds'
            materials'
            programs'
@@ -180,7 +179,7 @@ fromPreObject prj0 cls pObj0 = do
           solvers'
         "sprite" -> return $
           Sprite
-          (RV.Object'
+          (Object'
            ds'
            materials'
            programs'
@@ -261,7 +260,7 @@ initFontObject' project (vgeo, idx) = do
     Object.Sprite
     {
       _base =
-        RV.Object'
+        Object'
         {
           _descriptors = ds
         , _materials   = mats'
@@ -290,7 +289,6 @@ solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
     mtxs    <- (parB . fmap (Object.transform obj0)) slvs0 -< ()
-    --returnA -< obj0 { _transforms = vectorizedCompose mtxs }
     returnA -< obj0 & base . transforms .~ vectorizedCompose mtxs
       where
         slvs0 = view Object.solvers obj0
@@ -311,7 +309,6 @@ transform' solver mtx0 =
       Rotate _ _ ->
         do
           mtx' <- rotate mtx0 pv0 ypr0 -< ()
-          --mtx' <- translate mtx0 ypr0 -< ()
           returnA -< mtx'
       Translate _ ->
         do
@@ -327,12 +324,10 @@ transform' solver mtx0 =
       where
         Rotate     pv0 ypr0 = solver
         Translate  txyz     = solver
-        -- Gravity    idxs     = solver
 
 gravitySolver :: SF [Object] [Object]
 gravitySolver =
   proc objs0 -> do
-    -- let objsG = filter (\x -> any (\case Gravity {} -> True; _ -> False) (view Object.solvers x)) objs'
     let objs = (gravitySolver' <$> decomp objs0) :: [Object]
     returnA -< objs
 

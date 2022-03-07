@@ -6,6 +6,7 @@ module Application
   ( Application (..)
   , GUI         (..)
   , Interface   (..)
+  , Planet      (..)
   , fromApplication
 --  , hmap
   , init
@@ -32,8 +33,13 @@ instance Show GUI where
   show (ContextMenu t) = show t
   show t = show t
 
+data Planet =
+    None
+  | Earth
+
 data Interface =
      Intro
+   | Info Planet
    | Main GUI
    | Finished
 

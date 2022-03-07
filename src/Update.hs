@@ -338,7 +338,9 @@ appRun app' =
   proc (input, appState) -> do
     as <- case _interface appState of
             Intro        -> appIntro -< (input, appState)
-            Main Default -> appMain app' { _interface =  Main Default } -< input
+            Main Default -> appMain    app' { _interface = Main Default } -< input
+            --Info Earth   -> planetView app' { _interface = Info Earth }   -< input
+            Info Earth   -> appIntro -< (input, appState)
             _ -> appMain app' { _interface =  Main Default } -< input
     returnA -< (as, as)
 
@@ -363,10 +365,28 @@ appMain app0 =
                app'        <- updateApp (fromApplication app0) -< input
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
 
-               let result = app0 { _main = app' }
+               --let result = app0 { _main = app' }
+               let result = app0 { _main      = app'
+                                 , _interface = select app' }
                returnA     -< (result, reset $> app0)
+                 where
+                   select app =
+                     case _selected app of
+                       [] -> Main Default :: Interface
+                       _  -> Info Earth
+                         -- case _nameP $ head (_selected (_main app0)) of
+                         --   "earth" -> Info Earth
+                         --   _       -> Main Default :: Interface
                
            cont = appRun
+
+planetView :: Application -> SF AppInput Application
+planetView app0 =
+  switch sf cont
+    where sf =
+            proc input -> do
+              returnA -< undefined
+          cont = appRun
 
 updateSelection :: App -> SF Camera [Object]
 updateSelection app0 =
