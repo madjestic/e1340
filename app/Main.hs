@@ -112,13 +112,12 @@ toDrawable' mpos time0 res cam obj = drs
 
     names  = objectNames obj
     mats   = obj ^. base . materials :: [Material]
-    progs  = obj ^. base . programs :: [Program]
+    progs  = obj ^. base . programs  :: [Program]
     xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]
     ds     = obj ^. base . descriptors :: [Descriptor]
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
-
   -- ticks   <- SDL.ticks
   -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
 
@@ -152,9 +151,12 @@ output lastInteraction window application = do
   mapM_ (render txs hmap (opts { primitiveMode = Triangles })) objsDrs
   mapM_ (render txs hmap (opts { primitiveMode = Points })) bgrsDrs
 
+  -- render GUI elements? (text, icons, etc.)
   currentTime' <- SDL.time
   dt <- (currentTime' -) <$> readMVar lastInteraction
-  renderString (render txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+  let render' = render txs hmap (opts { primitiveMode = Triangles }) :: Drawable -> IO ()
+      text'   = "fps:" ++ show (round (1/dt) :: Integer)
+  renderString render' fntsDrs text'
   
   -- TODO:
   -- render' front

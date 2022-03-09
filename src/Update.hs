@@ -340,12 +340,12 @@ appRun app' =
             Intro        -> appIntro -< (input, appState)
             Main Default -> appMain    app' { _interface = Main Default } -< input
             --Info Earth   -> planetView app' { _interface = Info Earth }   -< input
-            Info Earth   -> appIntro -< (input, appState)
+            Info _       -> appIntro -< (input, appState)
             _ -> appMain app' { _interface =  Main Default } -< input
     returnA -< (as, as)
 
 appIntro :: SF (AppInput, Application) Application
-appIntro = 
+appIntro  = 
   switch sf cont
      where sf =
              proc (input, appState) -> do
@@ -374,10 +374,7 @@ appMain app0 =
                      case _selected app of
                        [] -> Main Default :: Interface
                        _  -> Info Earth
-                         -- case _nameP $ head (_selected (_main app0)) of
-                         --   "earth" -> Info Earth
-                         --   _       -> Main Default :: Interface
-               
+                              
            cont = appRun
 
 planetView :: Application -> SF AppInput Application

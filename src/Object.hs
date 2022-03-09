@@ -350,7 +350,7 @@ gravitySolver' (obj0, objs0) = obj
     s    = 100000000.0*1.0
     s1   = 0.0
 
-    vel = (_velocity obj0)*s1 + (acc*s)     :: V3 Double
+    vel = _velocity obj0*s1 + (acc*s)     :: V3 Double
     mtx =
       mkTransformationMat
       rot
