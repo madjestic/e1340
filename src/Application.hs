@@ -8,8 +8,6 @@ module Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
---  , hmap
-  , init
   ) where
 
 import Control.Lens
@@ -53,7 +51,6 @@ data Application
     _interface  :: Interface
   , _intro      :: App
   , _main       :: App
---  , _menu       :: App
   , _planetInfo :: App
   , _hmap       :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   } deriving Show
@@ -61,10 +58,8 @@ $(makeLenses ''Application)
 
 fromApplication :: Application -> App
 fromApplication app =
-  case (view interface app) of
-  --case (view interface (DT.trace ("fromApplication.app :" ++ show app) app)) of
+  case view interface app of
     Intro        -> view intro app
     Main Default -> view main  app
     Main (ContextMenu PlanetInfo) -> view planetInfo app
-    --Menu 
     _ -> view main app

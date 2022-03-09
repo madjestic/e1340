@@ -29,6 +29,7 @@ import Application
 import Graphics.RedViz.Input
 import Solvable
 import Object
+import ObjectTree
 import App
 import Graphics.RedViz.Camera       as Camera
 import Graphics.RedViz.Controllable as Controllable
@@ -370,18 +371,18 @@ appMain app0 =
                                  , _interface = select app' }
                returnA     -< (result, reset $> app0)
                  where
-                   select app =
-                     case _selected app of
+                   select app' =
+                     case _selected app' of
                        [] -> Main Default :: Interface
                        _  -> Info Earth
                               
            cont = appRun
 
 planetView :: Application -> SF AppInput Application
-planetView app0 =
+planetView _ =
   switch sf cont
     where sf =
-            proc input -> do
+            proc _ -> do
               returnA -< undefined
           cont = appRun
 
@@ -391,7 +392,7 @@ updateSelection app0 =
   where
     sf =
       proc cam -> do
-        (objs, sev) <- selectObjectE (view (objects . foreground) app0)  -< cam
+        (_, sev) <- selectObjectE (view (objects . foreground) app0)  -< cam
 
         let
           result = app0 & selected .~ fromEvent sev :: App
@@ -407,7 +408,7 @@ selectObject app0 =
   where
     sf =
       proc cam -> do
-        (objs, sev) <- unselectObjectE (view (objects . foreground) app0)  -< cam
+        (_, sev) <- unselectObjectE (view (objects . foreground) app0)  -< cam
 
         let
           result = app0 & selected .~ []

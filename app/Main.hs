@@ -27,6 +27,7 @@ import Unsafe.Coerce             ( unsafeCoerce )
 import Linear.Matrix
     
 import Application
+import App
 import Update (handleExit, appRun, objectNames)
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
@@ -37,11 +38,11 @@ import Graphics.RedViz.Drawable
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
 import Object             as O
+import ObjectTree         as OT
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
-import App
 
 -- import Debug.Trace    as DT
 
@@ -184,10 +185,10 @@ initResources app0 =
 
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intro app0) :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . gui . OT.fonts) (_main app0)  :: [Object]
+        fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
+        bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
 
 main :: IO ()
@@ -219,16 +220,17 @@ main = do
   _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
-  intro <- initApp initVAO introProj
-  main' <- initApp initVAO mainProj
+  introApp <- App.fromProject introProj
+  mainApp  <- App.fromProject mainProj
+
 
   let
     planetInfo = undefined :: App -- intro
     initApp' =
       Application
       Intro
-      intro
-      main'
+      introApp
+      mainApp
       planetInfo
       []
 
