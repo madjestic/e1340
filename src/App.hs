@@ -10,7 +10,9 @@ module App
   , App.App.cameras
   , selected
   , App.App.fromProject
+  , toDrawable
+  , updateApp
   ) where
 
 import App.App
--- import App.Update
+import App.Update

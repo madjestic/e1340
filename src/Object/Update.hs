@@ -99,7 +99,7 @@ gravitySolver' (obj0, objs0) = obj
           & base . transforms .~ [mtx]
           & velocity .~ vel'
 
-transform :: Object -> Solver -> SF () ([M44 Double])
+transform :: Object -> Solver -> SF () [M44 Double]
 transform obj0 slv0 =
   proc () ->
     do

@@ -14,8 +14,7 @@ import Data.Functor        (($>))
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import Application.Application
-import App.App
-import App.Update
+import App
 
 appRun :: Application -> SF AppInput Application
 appRun app' =
