@@ -199,13 +199,23 @@ executable e1340
               , Graphics.RedViz.Input
               , Graphics.RedViz.Input.FRP.Yampa
               , Graphics.RedViz.Input.FRP.Yampa.AppInput
+              , Graphics.RedViz.Input.FRP.Yampa.Update
+              , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+              , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
               , Graphics.RedViz.Object
               , ObjectTree
               , App
+              , App.App
+              , App.Update
               , Application
+              , Application.Application
+              , Application.Update
+              , Camera
+              , Camera.Update
               , Object
+              , Object.Object
+              , Object.Update
               , Solvable
-              , Update
               
   default-language:
                 Haskell2010

@@ -26,9 +26,6 @@ import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
 import Linear.Matrix
     
-import Application
-import App
-import Update (handleExit, appRun, objectNames)
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
 import Graphics.RedViz.Rendering as R
@@ -37,6 +34,9 @@ import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
+
+import Application
+import App
 import Object             as O
 import ObjectTree         as OT
 import Graphics.RedViz.Descriptor
@@ -240,4 +240,4 @@ main = do
   animate
     window
     (parseWinInput >>> appRun app &&& handleExit)
-  return ()    
+  return ()
