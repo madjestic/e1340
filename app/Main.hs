@@ -6,7 +6,8 @@
 module Main where 
 
 import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar )
-import Control.Lens       ( toListOf, view, (^..) )
+import Control.Lens       ( toListOf, view, (^..), (^.) )
+import Control.Monad      (when)
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
 import Foreign.C          ( CInt )
@@ -78,6 +79,8 @@ animate window sf =
             output lastInteraction window app
             return shouldExit
 
+-- App -> GUI -> Drawable
+
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
   -- ticks   <- SDL.ticks
@@ -97,8 +100,9 @@ output lastInteraction window application = do
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
 
     app  = fromApplication application
-    txs  = --concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
-      concat . concat $ (\obj -> obj ^.. base . materials . traverse . textures) <$> (fgrObjs ++ fntObjs) :: [Texture]
+    txs  = concat . concat
+           $   (\obj -> obj ^.. base . materials . traverse . textures)
+           <$> (fgrObjs ++ fntObjs) :: [Texture]
     hmap = _hmap application
 
     opts =
@@ -107,26 +111,37 @@ output lastInteraction window application = do
       , bgrColor      = Color4 0.0 0.0 0.0 1.0
       , ptSize        = 1.0 }
     
-  clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
+  clearColor $= bgrColor opts
   clear [ColorBuffer, DepthBuffer]
 
-  mapM_ (render txs hmap (opts { primitiveMode = Triangles })) objsDrs
-  mapM_ (render txs hmap (opts { primitiveMode = Points })) bgrsDrs
+  let renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles }) :: Drawable -> IO ()
+      renderAsPoints    = render txs hmap (opts { primitiveMode = Points })    :: Drawable -> IO ()
 
-  -- render GUI elements? (text, icons, etc.)
-  currentTime' <- SDL.time
-  dt <- (currentTime' -) <$> readMVar lastInteraction
-  let render' = render txs hmap (opts { primitiveMode = Triangles }) :: Drawable -> IO ()
-      text'   = "fps:" ++ show (round (1/dt) :: Integer)
-  renderString render' fntsDrs text'
+  mapM_ renderAsTriangles objsDrs
+  mapM_ renderAsPoints    bgrsDrs
   
-  -- TODO:
-  -- render' front
-  -- render' backs
-  -- render' fonts
-    
+  -- ct <- SDL.time -- current time
+  -- dt <- (ct -) <$> readMVar lastInteraction
+  -- renderString renderAsTriangles fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
+
+-- TODO: Add FPS Widget
+  --renderGUI renderAsTriangles app
+  --let wgts = app ^. objects . gui . widgets :: [Widget]
+  mapM_ (renderWidget lastInteraction fntsDrs renderAsTriangles) $ app ^. objects . gui . widgets
+  
   glSwapWindow window
 
+renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderWidget lastInteraction drs cmds wgt =
+  case wgt of
+    TextField a t ->
+      when a $ renderString cmds drs $ concat t
+    FPS a -> 
+      if a then do
+        ct <- SDL.time -- current time
+        dt <- (ct -) <$> readMVar lastInteraction
+        renderString cmds drs $ "fps:" ++ show (round (1/dt) :: Integer)
+      else return ()
 
 -- < Main Function > -----------------------------------------------------------
 

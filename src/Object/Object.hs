@@ -47,7 +47,6 @@ data Object
      {
        _base        :: Object'
      }
-  -- |  Comp Object Object
   -- |  Graph
   --    {
   --      _sz     :: Sz2

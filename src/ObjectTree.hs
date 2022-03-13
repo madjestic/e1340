@@ -2,12 +2,14 @@
 
 module ObjectTree
   ( ObjectTree (..)
-  , gui
+  , ObjectTree.gui
   , ObjectTree.foreground
   , ObjectTree.background
   , fromProject
   , GUI (..)
+  , Widget (..)
   , ObjectTree.fonts
+  , ObjectTree.widgets
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -17,16 +19,6 @@ import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
 import Graphics.RedViz.Project as Project
-    ( solverAttrs,
-      solvers,
-      pname,
-      fonts,
-      modelIDXs,
-      models,
-      background,
-      objects,
-      PreObject(_ptype),
-      Project )
 import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
@@ -40,12 +32,24 @@ import Graphics.RedViz.LoadShaders
 import Object
 import Solvable
 
-data GUI =
-     GUI
+data Widget
+  =  TextField
+     { _active :: Bool
+     , _text   :: [String] }
+  |  FPS
+     { _active :: Bool }
+$(makeLenses ''Widget)
+
+instance Show Widget where
+  show (TextField b t) = show "TextField" ++ show(b, t)
+  show (FPS b)         = show "FPS" ++ show b
+
+data GUI
+  =  GUI
      {
        _fonts   :: [Object]
      , _icons   :: [Object]
---     , _widgets :: [Object] -- TODO: think about a widget set?     
+     , _widgets :: [Widget]
      } deriving Show
 $(makeLenses ''GUI)
 
@@ -60,6 +64,25 @@ $(makeLenses ''ObjectTree)
 
 data ObjectClass = Foreground | Background | Font
 
+--fromWidget' :: Widget' -> Widget
+     -- Fonts -> Text -> TextField
+-- toTextField :: [Object] -> [String] -> Widget
+-- toTextField fnts txt = undefined
+--   where
+--     fntsDrs = toDrawable app fnts currentTime :: [Drawable]
+
+toWidgets :: Project -> [Widget]
+toWidgets prj0 = ws
+  where
+    ws' = prj0 ^. Project.gui . Project.widgets
+    ws  = toWidget <$> ws'
+
+toWidget :: Project.Widget' -> Widget
+toWidget ws' =
+  case ws' of
+    TextField' b t -> TextField b t
+    FPS' b         -> FPS b
+
 fromProject :: Project -> IO ObjectTree
 fromProject prj0 = do
   let
@@ -69,12 +92,14 @@ fromProject prj0 = do
   
   objs <- mapM (fromPreObject prj0 Foreground) pobjs :: IO [Object]
   bgrs <- mapM (fromPreObject prj0 Background) pbgrs :: IO [Object]
-  fnts <- initFontObject prj0 :: IO [Object]
-  let result =
-        ObjectTree
-        (GUI fnts [])
-        objs
-        bgrs
+  fnts <- initFontObject prj0 :: IO [Object] -- TODO
+  let
+    wgts   = toWidgets prj0
+    result =
+      ObjectTree
+      (GUI fnts [] wgts)
+      objs
+      bgrs
   putStrLn "Finished loading objects."
   return result
 
@@ -87,7 +112,7 @@ modelPaths cls project = modelList
       case cls of
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
-        Font       -> (toListOf (Project.fonts . traverse . Model.path) project)
+        Font       -> project ^.. Project.gui . Project.fonts . traverse . path
 
 fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
 fromPreObject prj0 cls pObj0 = do
