@@ -28,21 +28,10 @@ import Graphics.RedViz.Object
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
+import Graphics.RedViz.Widget as Widget
 
 import Object
 import Solvable
-
-data Widget
-  =  TextField
-     { _active :: Bool
-     , _text   :: [String] }
-  |  FPS
-     { _active :: Bool }
-$(makeLenses ''Widget)
-
-instance Show Widget where
-  show (TextField b t) = show "TextField" ++ show(b, t)
-  show (FPS b)         = show "FPS" ++ show b
 
 data GUI
   =  GUI
@@ -64,24 +53,40 @@ $(makeLenses ''ObjectTree)
 
 data ObjectClass = Foreground | Background | Font
 
---fromWidget' :: Widget' -> Widget
-     -- Fonts -> Text -> TextField
--- toTextField :: [Object] -> [String] -> Widget
--- toTextField fnts txt = undefined
---   where
---     fntsDrs = toDrawable app fnts currentTime :: [Drawable]
-
 toWidgets :: Project -> [Widget]
 toWidgets prj0 = ws
   where
     ws' = prj0 ^. Project.gui . Project.widgets
     ws  = toWidget <$> ws'
 
+toFormat :: Format' -> Format
+toFormat f' =
+  Format
+  {
+    Widget._alignment =
+      case f'^.Project.alignment of
+        "TL" -> TL
+        "TC" -> TC
+        "TR" -> TR
+        "CL" -> CL
+        "CC" -> CC
+        "CR" -> CR
+        "BL" -> BL
+        "BC" -> BC
+        "BR" -> BR
+        _    -> CC
+        
+  , Widget._voffset = f'^.Project.voffset
+  , Widget._hoffset = f'^.Project.hoffset
+  , Widget._soffset = f'^.Project.soffset
+  , Widget._ssize   = f'^.Project.ssize
+  }
+
 toWidget :: Project.Widget' -> Widget
 toWidget ws' =
   case ws' of
-    TextField' b t -> TextField b t
-    FPS' b         -> FPS b
+    TextField' b t f -> TextField b t (toFormat f)
+    FPS' b f         -> FPS b (toFormat f)
 
 fromProject :: Project -> IO ObjectTree
 fromProject prj0 = do

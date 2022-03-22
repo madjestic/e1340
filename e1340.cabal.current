@@ -71,6 +71,7 @@ library
               Graphics.RedViz.VAO
               Graphics.RedViz.FromVector
               Graphics.RedViz.Object
+              Graphics.RedViz.Widget
               
   other-modules:
                 Paths_e1340
@@ -203,6 +204,7 @@ executable e1340
               , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
               , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
               , Graphics.RedViz.Object
+              , Graphics.RedViz.Widget
               , ObjectTree
               , App
               , App.App

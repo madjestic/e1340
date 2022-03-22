@@ -98,6 +98,7 @@ output lastInteraction window application = do
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    wgts    = app ^. objects . gui . widgets
 
     app  = fromApplication application
     txs  = concat . concat
@@ -116,31 +117,24 @@ output lastInteraction window application = do
 
   let renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles }) :: Drawable -> IO ()
       renderAsPoints    = render txs hmap (opts { primitiveMode = Points })    :: Drawable -> IO ()
+      renderWidgets     = renderWidget lastInteraction fntsDrs renderAsTriangles
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
-  
-  -- ct <- SDL.time -- current time
-  -- dt <- (ct -) <$> readMVar lastInteraction
-  -- renderString renderAsTriangles fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
-
--- TODO: Add FPS Widget
-  --renderGUI renderAsTriangles app
-  --let wgts = app ^. objects . gui . widgets :: [Widget]
-  mapM_ (renderWidget lastInteraction fntsDrs renderAsTriangles) $ app ^. objects . gui . widgets
+  mapM_ renderWidgets wgts
   
   glSwapWindow window
 
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget lastInteraction drs cmds wgt =
   case wgt of
-    TextField a t ->
-      when a $ renderString cmds drs $ concat t
-    FPS a -> 
+    TextField a t f->
+      when a $ renderString cmds drs f $ concat t
+    FPS a f -> 
       if a then do
         ct <- SDL.time -- current time
         dt <- (ct -) <$> readMVar lastInteraction
-        renderString cmds drs $ "fps:" ++ show (round (1/dt) :: Integer)
+        renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
       else return ()
 
 -- < Main Function > -----------------------------------------------------------
@@ -171,7 +165,8 @@ main :: IO ()
 main = do
 
   --let argsDebug = return ["./projects/intro", "./projects/view_model"]
-  let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
+  --let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
+  let argsDebug = return ["./projects/test", "./projects/test"]
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)

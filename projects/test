@@ -219,13 +219,27 @@
         "widgets": [
             {
                 "active": true,
+                "format": {
+                    "alignment": "TC",
+                    "hoffset": 0,
+                    "soffset": 8.5e-2,
+                    "ssize": 1,
+                    "voffset": -0.4
+                },
                 "tag": "TextField'",
                 "text": [
-                    "Hi!"
+                    "Hello, World!"
                 ]
             },
             {
                 "active": true,
+                "format": {
+                    "alignment": "CC",
+                    "hoffset": 0,
+                    "soffset": 8.5e-2,
+                    "ssize": 1,
+                    "voffset": -0.4
+                },
                 "tag": "FPS'"
             }
         ]
