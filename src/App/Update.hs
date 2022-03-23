@@ -23,7 +23,7 @@ import Object
 import Camera
 import Solvable
 
-import Debug.Trace as DT (trace)
+-- import Debug.Trace as DT (trace)
 
 updateApp :: App -> SF AppInput App
 updateApp app' =
@@ -49,8 +49,8 @@ updateApp app' =
         , _selected    = selected'
         }
 
-    --returnA  -< result
-    returnA  -< DT.trace ("updateApp.result.selected : " ++ show (concat $ fmap objectNames $ view selected result)) $ result
+    returnA  -< result
+    --returnA  -< DT.trace ("updateApp.result.selected : " ++ show (concat $ fmap objectNames $ view selected result)) $ result
       where
         idxObjs    = DLI.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -103,9 +103,8 @@ selectObjectE objs0 =
       camPos' = camPos * (-1)
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
-      --objPos     = view translation $ head $ view transforms $ head sortedObjs :: V3 Double
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
+      dist       = 5000000.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
 
@@ -137,5 +136,5 @@ unselectObjectE objs0 =
 distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist
   where
-    dist    = distance camPos0 objPos
+    dist    = distance camPos0 objPos 
     objPos  = view translation $ head $ view (base . transforms) obj0 :: V3 Double

@@ -97,3 +97,22 @@ stars:
 	./resources/convertGeo.sh body_0
 	./resources/convertGeo.sh body_1
 	./resources/convertGeo.sh body_2
+
+newtest:
+	cabal build exe:e1340
+	cabal run exe:genProject -- ./projects/newtest
+	cabal run exe:genUUID -- -p ./projects/newtest
+	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
+
+newtest:
+	cabal build exe:e1340
+	cabal run exe:genProject -- ./projects/newtest
+	cabal run exe:genUUID -- -p ./projects/newtest
+	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
+
+solarsystem:
+	cabal build exe:e1340
+	cabal run exe:genProject -- ./projects/solarsystem
+	cabal run exe:genUUID -- -p ./projects/solarsystem
+	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
+

@@ -49,15 +49,15 @@ appMain app0 =
                app'        <- updateApp (fromApplication app0) -< input
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
 
-               --let result = app0 { _main = app' }
-               let result = app0 { _main      = app'
-                                 , _interface = select app' }
+               let result = app0 { _main = app' }
+               -- let result = app0 { _main      = app'
+               --                   , _interface = select app' }
                returnA     -< (result, reset $> app0)
-                 where
-                   select app' =
-                     case _selected app' of
-                       [] -> Main Default :: Interface
-                       _  -> Info Earth
+                 -- where
+                 --   select app' =
+                 --     case _selected app' of
+                 --       [] -> Main Default :: Interface
+                 --       _  -> Info Earth
                               
            cont = appRun
 

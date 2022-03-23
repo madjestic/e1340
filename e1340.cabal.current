@@ -218,6 +218,7 @@ executable e1340
               , Object.Object
               , Object.Update
               , Solvable
+              , Projects.Test
               
   default-language:
                 Haskell2010
@@ -291,6 +292,8 @@ executable genProject
               , Graphics.RedViz.Project.Project
               , Graphics.RedViz.Texture
               , Graphics.RedViz.Utils
+              , Projects.Test
+              , Projects.SolarSystem
 
   default-language:
                 Haskell2010

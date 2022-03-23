@@ -121,7 +121,7 @@ output lastInteraction window application = do
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
-  mapM_ renderWidgets wgts
+  mapM_ renderWidgets     wgts
   
   glSwapWindow window
 
@@ -166,7 +166,8 @@ main = do
 
   --let argsDebug = return ["./projects/intro", "./projects/view_model"]
   --let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
-  let argsDebug = return ["./projects/test", "./projects/test"]
+  --let argsDebug = return ["./projects/test", "./projects/test"]
+  let argsDebug = return ["./projects/solarsystem", "./projects/solarsystem"]  
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)

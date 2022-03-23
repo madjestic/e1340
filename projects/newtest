@@ -1,28 +1,73 @@
 {
-    "name": "Intro: Earth, Moon, ISS, Stars",
-    "resx": 320,
-    "resy": 200,
+    "name": "Test Project",
+    "resx": 800,
+    "resy": 600,
     "camMode": "AbsoluteLocation",
     "models": [
-        { "path": "models/intro_square.bgeo" }
+        {
+            "path": "models/box.bgeo"
+        }
     ],
     "objects": [
         {
-            "pname": "IntroScreen",
-	    "ptype": "planet",
+            "pname": "Box",
             "modelIDXs": [
                 0
             ],
             "solvers": [
+                "rotate",
+                "translate"
             ],
             "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
             ],
-            "uuid": "00000000-0000-0000-0000-000000000000"
+            "ptype": "",
+            "uuid": "2ee7cdb1-eeba-4c6f-b4c1-3090a47b57e4"
         }
     ],
     "background": [],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -10,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 1,
+            "pKeyboardTS": 1,
+            "pcname": "PlayerCamera"
+        }
+    ],
     "gui": {
-	"fonts": [
+        "fonts": [
             {
                 "path": "models/fnt_0.bgeo"
             },
@@ -170,28 +215,33 @@
             {
                 "path": "models/fnt_quote.bgeo"
             }
-	],
-	"widgets": [
+        ],
+        "widgets": [
             {
+                "active": true,
+                "format": {
+                    "alignment": "CC",
+                    "hoffset": 0,
+                    "soffset": 8.5e-2,
+                    "ssize": 1,
+                    "voffset": -0.4
+                },
+                "tag": "TextField'",
                 "text": [
                     "Hello, World!"
                 ]
+            },
+            {
+                "active": true,
+                "format": {
+                    "alignment": "TC",
+                    "hoffset": 0,
+                    "soffset": 8.5e-2,
+                    "ssize": 1,
+                    "voffset": -0.4
+                },
+                "tag": "FPS'"
             }
         ]
-    },
-    "cameras": [
-        {
-            "pApt": 50,
-            "pFoc": 200,
-            "pTransform":
-            [1,0,0, 0,
-             0,1,0, 0,
-             0,0,1,-40,
-             0,0,0, 1],
-            "pMouseS": 1,
-            "pKeyboardRS": 1,
-            "pKeyboardTS": 1,
-	    "pcname": "IntroCamera"
-        }
-    ]
+    }
 }

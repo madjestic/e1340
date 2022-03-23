@@ -5,6 +5,9 @@ import System.Exit
 
 import Graphics.RedViz.Project as Project
 
+--import Projects.Test
+import Projects.SolarSystem
+
 -- import Debug.Trace as DT
 
 -- | This script generates a project file
@@ -14,7 +17,9 @@ import Graphics.RedViz.Project as Project
 -- | e.g.: `$ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0`
 
 main :: IO ()
-main = getArgs >>= parseArgs >>= Project.write defaultProject
+--main = getArgs >>= parseArgs >>= Project.write defaultProject
+--main = getArgs >>= parseArgs >>= Project.write Projects.Test.project
+main = getArgs >>= parseArgs >>= Project.write Projects.SolarSystem.project
 
 parseArgs :: [[Char]] -> IO String
 parseArgs ["-h"] = help    >> exit
