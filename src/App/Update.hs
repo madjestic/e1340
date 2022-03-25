@@ -3,7 +3,7 @@
 
 module App.Update where
 
-import Control.Lens
+import Control.Lens hiding (Empty)
 import Data.Functor                          (($>))
 import Data.IntMap.Lazy         as IM hiding (keys)
 import Data.List.Index          as DLI       (indexed)
@@ -16,14 +16,22 @@ import SDL                                   (distance)
 import Graphics.RedViz.Input
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Ctrl
+import Graphics.RedViz.Widget (text, Format(..), Alignment(..))
 
 import App.App as App
 import ObjectTree
-import Object
+import Object hiding (Empty)
 import Camera
 import Solvable
 
 -- import Debug.Trace as DT (trace)
+
+fromUI :: UI -> [Widget]
+fromUI ui' =
+  case ui' of
+    MainGUI fps' info' ->
+      [fps', info']
+    _ -> []
 
 updateApp :: App -> SF AppInput App
 updateApp app' =
@@ -36,18 +44,19 @@ updateApp app' =
     let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
     
     objs'       <- updateObjects' filteredNonLinObjs -< filteredNonLinObjs
-    let objs'IntMap = IM.fromList (zip filteredNonLinObjsIdxs objs')
-
     let
-      unionObjs = IM.union objs'IntMap objsIntMap
-      objTree = App._objects app'
+      objs'IntMap  = IM.fromList (zip filteredNonLinObjsIdxs objs')
+      selectedText = concat $ objectNames <$> view selected result :: [String]
+      app''        = app' & ui  . info . text .~ selectedText
+      unionObjs    = IM.union objs'IntMap objsIntMap -- Override GUI somewhere here...
+      --objTree = App._objects app' & gui . widgets .~ fromUI (app'^.ui)
+      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
       result =
         app'
         { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
         , App._cameras = cams
         , _playCam     = cam
-        , _selected    = selected'
-        }
+        , _selected    = selected' }
 
     returnA  -< result
     --returnA  -< DT.trace ("updateApp.result.selected : " ++ show (concat $ fmap objectNames $ view selected result)) $ result
@@ -104,7 +113,7 @@ selectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 5000000.0 :: Double
+      dist       = 50000000.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
 

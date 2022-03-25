@@ -5,19 +5,22 @@
 module App.App
   ( App     (..)
   , Options (..)
+  , UI      (..)
   , options
   , App.App.name
   , App.App.resx
   , App.App.resy
+  , App.App.ui
   , App.App.objects
   , playCam
   , App.App.cameras
   , selected
   , App.App.fromProject
   , toDrawable
+  , info
   ) where
 
-import Control.Lens
+import Control.Lens hiding (Empty)
 import Foreign.C                     (CInt)
 import Linear.Matrix
 import Unsafe.Coerce
@@ -31,18 +34,33 @@ import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
                                       
-import Object                         
+import Object hiding (Empty)                         
 import ObjectTree
 import Graphics.RedViz.Project       as P
 import Graphics.RedViz.Project.Utils
 
 -- import Debug.Trace as DT
 
+data UI
+  =  Empty
+  |  IntroGUI
+     {
+       _fps  :: Widget
+     , _info :: Widget
+     } 
+  |  MainGUI
+     {
+       _fps  :: Widget
+     , _info :: Widget
+     } deriving Show
+$(makeLenses ''UI)
+
 data App
   = App
   {
     _debug     :: (Double, Double)
   , _options   :: Options
+  , _ui        :: UI
   , _objects   :: ObjectTree
   , _playCam   :: Camera
   , _cameras   :: [Camera]
@@ -79,6 +97,7 @@ fromProject prj0 =
           resX'
           resY'
         )
+        Empty
         objTree
         pCam
         cams

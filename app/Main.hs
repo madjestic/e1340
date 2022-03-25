@@ -6,7 +6,7 @@
 module Main where 
 
 import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar )
-import Control.Lens       ( toListOf, view, (^..), (^.) )
+import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
 import Control.Monad      (when)
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
@@ -32,6 +32,7 @@ import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
+import Graphics.RedViz.Widget
 
 import Application
 import App
@@ -194,7 +195,11 @@ main = do
   putStrLn "\n Initializing App"
   introApp <- App.fromProject introProj
   mainApp  <- App.fromProject mainProj
-
+    
+  let mainAppUI
+        = MainGUI
+          { _fps  = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
+          , _info = TextField True ["suka, nah!"] (Format CC (-0.4) 0.0 0.085 1.0)}
 
   let
     planetInfo = undefined :: App -- intro
@@ -202,7 +207,8 @@ main = do
       Application
       Intro
       introApp
-      mainApp
+      (mainApp & ui .~ mainAppUI)
+--      mainAppGUI
       planetInfo
       []
 

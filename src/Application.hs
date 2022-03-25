@@ -1,6 +1,6 @@
 module Application
   ( Application (..)
-  , GUI         (..)
+--  , GUI         (..)
   , Interface   (..)
   , Planet      (..)
   , fromApplication

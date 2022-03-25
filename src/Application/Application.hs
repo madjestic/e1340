@@ -4,30 +4,48 @@
 
 module Application.Application
   ( Application (..)
-  , GUI         (..)
+  , Context     (..)
+--  , GUI         (..)
   , Interface   (..)
   , Planet      (..)
   , fromApplication
   ) where
 
-import Control.Lens
+import Control.Lens ( view, makeLenses )
 import Data.UUID
 import Graphics.Rendering.OpenGL as GL    (GLuint)
+--import Graphics.RedViz.Widget
 
-import App
+import App (App(..))
 
 -- import Debug.Trace as DT
+
+-- data GUI
+--   =  Default
+--   |  IntroGUI
+--      {
+--        fps  :: Widget
+--      , info :: Widget
+--      } 
+--   |  MainGUI
+--      {
+--        fps  :: Widget
+--      , info :: Widget
+--      } deriving Show
+
+-- fromMainGUI :: GUI -> [Widget]
+-- fromMainGUI (MainGUI fps' info') = [fps', info']
 
 data Menu =
     Start
   | PlanetInfo
   deriving Show
 
-data GUI =
+data Context =
     Default
   | ContextMenu Menu
 
-instance Show GUI where
+instance Show Context where
   show (ContextMenu t) = show t
   show t = show t
 
@@ -38,7 +56,7 @@ data Planet =
 data Interface =
      Intro
    | Info Planet
-   | Main GUI
+   | Main Context
    | Finished
 
 instance Show Interface where
@@ -49,6 +67,7 @@ data Application
   = Application
   {
     _interface  :: Interface
+--  , _mainGUI    :: GUI
   , _intro      :: App
   , _main       :: App
   , _planetInfo :: App
@@ -59,7 +78,11 @@ $(makeLenses ''Application)
 fromApplication :: Application -> App
 fromApplication app =
   case view interface app of
-    Intro        -> view intro app
-    Main Default -> view main  app
-    Main (ContextMenu PlanetInfo) -> view planetInfo app
-    _ -> view main app
+    Intro        ->
+      view intro app
+    Main Default ->
+      view main  app
+    Main (ContextMenu PlanetInfo) ->
+      view planetInfo app
+    _ ->
+      view main app

@@ -24,7 +24,7 @@ appRun app' =
             Intro        -> appIntro -< (input, appState)
             Main Default -> appMain    app' { _interface = Main Default } -< input
             --Info Earth   -> planetView app' { _interface = Info Earth }   -< input
-            Info _       -> appIntro -< (input, appState)
+            --Info _       -> appIntro -< (input, appState)
             _ -> appMain app' { _interface =  Main Default } -< input
     returnA -< (as, as)
 
