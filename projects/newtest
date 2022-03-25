@@ -10,7 +10,7 @@
     ],
     "objects": [
         {
-            "pname": "Box",
+            "pname": "box",
             "modelIDXs": [
                 0
             ],
@@ -33,8 +33,8 @@
                     0
                 ]
             ],
-            "ptype": "",
-            "uuid": "2ee7cdb1-eeba-4c6f-b4c1-3090a47b57e4"
+            "ptype": "planet",
+            "uuid": "b8564a0f-a32c-4d4b-915c-0cdcece6d6f7"
         }
     ],
     "background": [],
@@ -54,15 +54,15 @@
                 0,
                 0,
                 1,
-                -10,
+                -15,
                 0,
                 0,
                 0,
                 1
             ],
             "pMouseS": 1,
-            "pKeyboardRS": 1,
-            "pKeyboardTS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
             "pcname": "PlayerCamera"
         }
     ],

@@ -136,7 +136,7 @@ toDrawable' mpos time0 res cam obj = drs
     cam_a_ = replicate n $ _apt cam :: [Double]
     cam_f_ = replicate n $ _foc cam :: [Double]
 
-    names  = objectNames obj
+    names  = repeat $ objectNames obj
     mats   = obj ^. base . materials :: [Material]
     progs  = obj ^. base . programs  :: [Program]
     xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]

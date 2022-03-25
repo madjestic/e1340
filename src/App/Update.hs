@@ -46,11 +46,11 @@ updateApp app' =
     objs'       <- updateObjects' filteredNonLinObjs -< filteredNonLinObjs
     let
       objs'IntMap  = IM.fromList (zip filteredNonLinObjsIdxs objs')
-      selectedText = concat $ objectNames <$> view selected result :: [String]
+      selectedText = objectNames <$> view selected result :: [String]
       app''        = app' & ui  . info . text .~ selectedText
-      unionObjs    = IM.union objs'IntMap objsIntMap -- Override GUI somewhere here...
-      --objTree = App._objects app' & gui . widgets .~ fromUI (app'^.ui)
+
       objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
+      unionObjs    = IM.union objs'IntMap objsIntMap
       result =
         app'
         { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
@@ -113,7 +113,8 @@ selectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
+      --dist       = 50000000.0 :: Double
+      dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
 
@@ -132,7 +133,8 @@ unselectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
+      --dist       = 50000000.0 :: Double
+      dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos > dist
 

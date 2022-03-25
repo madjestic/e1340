@@ -9,6 +9,7 @@ module Object.Object
   ( Object (..)
   , defaultObj
   , base
+  , nameP
   , materials
   , programs
   , descriptors
@@ -72,5 +73,6 @@ defaultObj =
     (1.0)
     []
 
-objectNames :: Object -> [String]
-objectNames obj = obj ^.. base . materials . traverse . Material.name
+objectNames :: Object -> String
+--objectNames obj = obj ^.. base . materials . traverse . Material.name
+objectNames obj = obj ^. nameP

@@ -199,7 +199,7 @@ main = do
   let mainAppUI
         = MainGUI
           { _fps  = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
-          , _info = TextField True ["suka, nah!"] (Format CC (-0.4) 0.0 0.085 1.0)}
+          , _info = TextField True [""] (Format CC (-0.4) 0.0 0.085 1.0)}
 
   let
     planetInfo = undefined :: App -- intro
