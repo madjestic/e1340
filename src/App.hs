@@ -10,6 +10,7 @@ module App
   , App.App.ui
   , playCam
   , App.App.cameras
+  , selectable
   , selected
   , App.App.fromProject
   , toDrawable

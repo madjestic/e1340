@@ -9,6 +9,7 @@ module Application.Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
+  , main
   ) where
 
 import Control.Lens ( view, makeLenses )
@@ -19,22 +20,6 @@ import Graphics.Rendering.OpenGL as GL    (GLuint)
 import App (App(..))
 
 -- import Debug.Trace as DT
-
--- data GUI
---   =  Default
---   |  IntroGUI
---      {
---        fps  :: Widget
---      , info :: Widget
---      } 
---   |  MainGUI
---      {
---        fps  :: Widget
---      , info :: Widget
---      } deriving Show
-
--- fromMainGUI :: GUI -> [Widget]
--- fromMainGUI (MainGUI fps' info') = [fps', info']
 
 data Menu =
     Start
@@ -82,7 +67,9 @@ fromApplication app =
       view intro app
     Main Default ->
       view main  app
-    Main (ContextMenu PlanetInfo) ->
+    -- Main (ContextMenu PlanetInfo) ->
+    --   view planetInfo app
+    Info _ ->
       view planetInfo app
     _ ->
       view main app

@@ -61,89 +61,89 @@
     ],
     "objects": [
         {
-            "pname": "Sun",
+            "pname": "sun",
             "modelIDXs": [
                 10
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "e39697f1-77e1-48ac-9d11-fbdd12e95f46"
+            "uuid": "994ccce8-caa4-41b8-b8ac-65ab627449e9"
         },
         {
-            "pname": "Mercury",
+            "pname": "mercury",
             "modelIDXs": [
                 11
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "f282f804-505a-4d7c-82b3-c60582e64c06"
+            "uuid": "3075f55d-158a-43bc-8010-e65ed6dbd72d"
         },
         {
-            "pname": "Venus",
+            "pname": "venus",
             "modelIDXs": [
                 12
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "9b242781-7f8e-438b-81fe-bf697ae9e01b"
+            "uuid": "c23fafaa-3d8f-4e7c-adff-594840d56ae8"
         },
         {
-            "pname": "Earth",
+            "pname": "earth",
             "modelIDXs": [
                 13
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "c1c851cb-7ee0-4eaf-9271-554d793e3f65"
+            "uuid": "0cfe84ff-5378-4b1a-af83-cdcb5fa31d59"
         },
         {
-            "pname": "Moon",
+            "pname": "moon",
             "modelIDXs": [
                 14
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "0bd3d4d3-927e-4567-bdd9-e2978323e247"
+            "uuid": "932ad120-f5aa-4b82-b245-07f0d9851512"
         },
         {
-            "pname": "Mars",
+            "pname": "mars",
             "modelIDXs": [
                 15
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "95af3497-9930-4fbc-bdfb-b6020d14e076"
+            "uuid": "7326c127-252d-41f3-89c8-b672b99ff407"
         },
         {
-            "pname": "Jupiter",
+            "pname": "jupiter",
             "modelIDXs": [
                 16
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "d7ecc76b-827a-4154-8256-8d4755cf5a80"
+            "uuid": "7eb9da96-153b-48b8-8065-f0683c57301a"
         },
         {
-            "pname": "Gizmo",
+            "pname": "gizmo",
             "modelIDXs": [
                 17
             ],
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "f69877ee-0af7-4580-acbf-4fb3e3c331a5"
+            "uuid": "ea8bef21-8985-497e-bb7c-fdc05c901246"
         }
     ],
     "background": [
         {
-            "pname": "Stars",
+            "pname": "stars",
             "modelIDXs": [
                 0,
                 1,
@@ -159,7 +159,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "d42b1aad-5656-4ee5-9355-a65f6e45765b"
+            "uuid": "3f161756-9426-426e-8a0f-96aeaf395975"
         }
     ],
     "cameras": [
@@ -187,7 +187,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Earth Camera"
+            "pcname": "earth Camera"
         },
         {
             "pApt": 50,
@@ -213,7 +213,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Moon Camera"
+            "pcname": "moon Camera"
         },
         {
             "pApt": 50,
@@ -239,7 +239,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Mercury Camera"
+            "pcname": "mercury Camera"
         },
         {
             "pApt": 50,
@@ -265,7 +265,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Venus Camera"
+            "pcname": "venus Camera"
         },
         {
             "pApt": 50,
@@ -291,7 +291,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Mars Camera"
+            "pcname": "mars Camera"
         },
         {
             "pApt": 50,
@@ -317,7 +317,7 @@
             "pMouseS": 1,
             "pKeyboardRS": 5,
             "pKeyboardTS": 1,
-            "pcname": "Jupiter Camera"
+            "pcname": "jupiter Camera"
         }
     ],
     "gui": {
@@ -474,6 +474,17 @@
             {
                 "active": true,
                 "format": {
+                    "alignment": "TC",
+                    "hoffset": 0,
+                    "soffset": 8.5e-2,
+                    "ssize": 1,
+                    "voffset": -0.4
+                },
+                "tag": "FPS'"
+            },
+            {
+                "active": true,
+                "format": {
                     "alignment": "CC",
                     "hoffset": 0,
                     "soffset": 8.5e-2,
@@ -482,19 +493,8 @@
                 },
                 "tag": "TextField'",
                 "text": [
-                    "Hello, World!"
+                    "hello, world!"
                 ]
-            },
-            {
-                "active": true,
-                "format": {
-                    "alignment": "TC",
-                    "hoffset": 0,
-                    "soffset": 8.5e-2,
-                    "ssize": 1,
-                    "voffset": -0.4
-                },
-                "tag": "FPS'"
             }
         ]
     }

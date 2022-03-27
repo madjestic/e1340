@@ -9,44 +9,44 @@ gui =
   GUI'
   [
     FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0)
-  , TextField' True ["Hello, World!"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
+  , TextField' True ["hello, world!"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
   ]
   defaultFonts
 
 sun     :: [Int] -> PreObject
 sun     idxs =
-  PreObject "Sun"     "planet" nil idxs [] []
+  PreObject "sun"     "planet" nil idxs [] []
 mercury :: [Int] -> PreObject
 mercury idxs =
-  PreObject "Mercury" "planet" nil idxs [] []
+  PreObject "mercury" "planet" nil idxs [] []
 venus   :: [Int] -> PreObject
 venus   idxs =
-  PreObject "Venus"   "planet" nil idxs [] []
+  PreObject "venus"   "planet" nil idxs [] []
 earth   :: [Int] -> PreObject
 earth   idxs =
-  PreObject "Earth"   "planet" nil idxs [] []
+  PreObject "earth"   "planet" nil idxs [] []
 moon   :: [Int] -> PreObject
 moon   idxs =
-  PreObject "Moon"    "planet" nil idxs [] []
+  PreObject "moon"    "planet" nil idxs [] []
 mars    :: [Int] -> PreObject
 mars    idxs =
-  PreObject "Mars"    "planet" nil idxs [] []
+  PreObject "mars"    "planet" nil idxs [] []
 jupiter :: [Int] -> PreObject
 jupiter idxs =
-  PreObject "Jupiter" "planet" nil idxs [] []
+  PreObject "jupiter" "planet" nil idxs [] []
 
 gizmo   :: [Int] -> PreObject
 gizmo   idxs =
-  PreObject "Gizmo" "planet" nil idxs [] []
+  PreObject "gizmo" "planet" nil idxs [] []
 
 stars :: [Int] -> PreObject
 stars idxs =
-  PreObject "Stars" "planet" nil idxs [] []
+  PreObject "stars" "planet" nil idxs [] []
 
 earthCam :: ProjectCamera
 earthCam =
   ProjectCamera
-   "Earth Camera"
+   "earth Camera"
    50.0
    100.0
    [1, 0, 0, 0,
@@ -60,7 +60,7 @@ earthCam =
 moonCam :: ProjectCamera
 moonCam =
   ProjectCamera
-   "Moon Camera"
+   "moon Camera"
    50.0
    100.0
    [
@@ -76,7 +76,7 @@ moonCam =
 marsCam :: ProjectCamera
 marsCam =
   ProjectCamera
-   "Mars Camera"
+   "mars Camera"
    50.0
    100.0
    [1, 0, 0, 0,
@@ -90,7 +90,7 @@ marsCam =
 venusCam :: ProjectCamera
 venusCam =
   ProjectCamera
-   "Venus Camera"
+   "venus Camera"
    50.0
    100.0
    [1, 0, 0, 0,
@@ -104,7 +104,7 @@ venusCam =
 mercuryCam :: ProjectCamera
 mercuryCam =
   ProjectCamera
-   "Mercury Camera"
+   "mercury Camera"
    50.0
    100.0
    [1, 0, 0, 0,
@@ -118,7 +118,7 @@ mercuryCam =
 jupiterCam :: ProjectCamera
 jupiterCam =
   ProjectCamera
-   "Jupiter Camera"
+   "jupiter Camera"
    50.0
    100.0
    [1, 0, 0, 0,

@@ -14,6 +14,7 @@ module App.App
   , App.App.objects
   , playCam
   , App.App.cameras
+  , selectable
   , selected
   , App.App.fromProject
   , toDrawable
@@ -58,13 +59,14 @@ $(makeLenses ''UI)
 data App
   = App
   {
-    _debug     :: (Double, Double)
-  , _options   :: Options
-  , _ui        :: UI
-  , _objects   :: ObjectTree
-  , _playCam   :: Camera
-  , _cameras   :: [Camera]
-  , _selected  :: [Object]
+    _debug       :: (Double, Double)
+  , _options     :: Options
+  , _ui          :: UI
+  , _objects     :: ObjectTree
+  , _playCam     :: Camera
+  , _cameras     :: [Camera]
+  , _selectable  :: [Object]
+  , _selected    :: [Object]
   } deriving Show
 
 data Options
@@ -102,6 +104,8 @@ fromProject prj0 =
         pCam
         cams
         []
+        []
+
 
     print "finished initializing app resources..."
     return app

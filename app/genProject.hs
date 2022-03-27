@@ -18,8 +18,8 @@ import Projects.SolarSystem
 
 main :: IO ()
 --main = getArgs >>= parseArgs >>= Project.write defaultProject
-main = getArgs >>= parseArgs >>= Project.write Projects.Test.project
---main = getArgs >>= parseArgs >>= Project.write Projects.SolarSystem.project
+--main = getArgs >>= parseArgs >>= Project.write Projects.Test.project
+main = getArgs >>= parseArgs >>= Project.write Projects.SolarSystem.project
 
 parseArgs :: [[Char]] -> IO String
 parseArgs ["-h"] = help    >> exit

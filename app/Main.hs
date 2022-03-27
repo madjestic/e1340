@@ -173,6 +173,7 @@ main = do
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
   mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
+  testProj  <- P.read ("./projects/newtest" :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -195,6 +196,7 @@ main = do
   putStrLn "\n Initializing App"
   introApp <- App.fromProject introProj
   mainApp  <- App.fromProject mainProj
+  testApp  <- App.fromProject testProj
     
   let mainAppUI
         = MainGUI
@@ -209,7 +211,8 @@ main = do
       introApp
       (mainApp & ui .~ mainAppUI)
 --      mainAppGUI
-      planetInfo
+--      planetInfo
+      testApp
       []
 
   app <- initResources initApp'
