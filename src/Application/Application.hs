@@ -9,7 +9,9 @@ module Application.Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
+  , intro
   , main
+  , planetInfo
   ) where
 
 import Control.Lens ( view, makeLenses )
@@ -72,4 +74,5 @@ fromApplication app =
     Info _ ->
       view planetInfo app
     _ ->
-      view main app
+      view planetInfo app
+      --view main app

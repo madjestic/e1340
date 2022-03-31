@@ -5,6 +5,7 @@ module Application
   , Planet      (..)
   , fromApplication
   , appRun
+  , appRunPre
   , handleExit
   , appIntro
   , appMain

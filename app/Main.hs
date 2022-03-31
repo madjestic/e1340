@@ -39,7 +39,7 @@ import App
 import Object             as O
 import ObjectTree         as OT
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUG
@@ -123,6 +123,7 @@ output lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
+  --mapM_ renderWidgets     (DT.trace ("output.wgts : " ++ show wgts) wgts)
   
   glSwapWindow window
 
@@ -137,6 +138,7 @@ renderWidget lastInteraction drs cmds wgt =
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
       else return ()
+--    _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
 
@@ -144,10 +146,13 @@ initResources :: Application -> IO Application
 initResources app0 =
   do
     let
-      objs  = introObjs ++ [head fntObjs] ++ fgrObjs ++ bgrObjs
-      txs   = concat $ objs ^.. traverse . base . materials . traverse . textures :: [Texture]
-      uuids = fmap (view T.uuid) txs
-      hmap  = toList . fromList $ zip uuids [0..]
+      fntObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      objs   = introObjs ++ fntObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
+      uuids  = fmap (view T.uuid) txs
+      hmap   = toList . fromList $ zip uuids [0..]
 
     putStrLn "Initializing Resources..."
     putStrLn "Loading Textures..."
@@ -160,7 +165,7 @@ initResources app0 =
         fntObjs   = concat $ toListOf (App.objects . gui . OT.fonts) (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
-
+        --testObjs  = concat $ toListOf (App.objects . OT.background)  (_planetInfo app0)  :: [Object]
 
 main :: IO ()
 main = do
@@ -168,12 +173,15 @@ main = do
   --let argsDebug = return ["./projects/intro", "./projects/view_model"]
   --let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
   --let argsDebug = return ["./projects/test", "./projects/test"]
-  let argsDebug = return ["./projects/solarsystem", "./projects/solarsystem"]  
+  let argsDebug = return ["./projects/solarsystem", "./projects/solarsystem"]
+  --let argsDebug = return ["./projects/testred", "./projects/testgreen"]
+  --let argsDebug = return ["./projects/testblue", "./projects/testblue"]  
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
   mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
-  testProj  <- P.read ("./projects/newtest" :: FilePath)
+  --pInfoProj <- P.read ("./projects/testblue" :: FilePath)
+  pInfoProj <- P.read ("./projects/newtest" :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -194,25 +202,24 @@ main = do
   _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
-  introApp <- App.fromProject introProj
-  mainApp  <- App.fromProject mainProj
-  testApp  <- App.fromProject testProj
-    
+  introApp    <- App.fromProject introProj
+  mainApp     <- App.fromProject mainProj
+  planetInfo  <- App.fromProject pInfoProj
+
+  putStrLn "\n Initializing GUI"
   let mainAppUI
         = MainGUI
           { _fps  = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
           , _info = TextField True [""] (Format CC (-0.4) 0.0 0.085 1.0)}
 
   let
-    planetInfo = undefined :: App -- intro
     initApp' =
       Application
+      --(Info Earth)
       Intro
       introApp
       (mainApp & ui .~ mainAppUI)
---      mainAppGUI
---      planetInfo
-      testApp
+      planetInfo
       []
 
   app <- initResources initApp'
@@ -220,5 +227,5 @@ main = do
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> appRun app &&& handleExit)
+    (parseWinInput >>> appRunPre app &&& handleExit)
   return ()

@@ -110,3 +110,25 @@ solarsystem:
 	cabal run exe:genUUID -- -p ./projects/solarsystem
 	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
 
+testred:
+	cabal build exe:e1340
+	cabal run exe:genProject -- ./projects/testred
+	cabal run exe:genUUID -- -p ./projects/testred
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testred
+
+testgreen:
+	cabal build exe:e1340
+	./resources/convertGeo.sh box_green
+	cabal run exe:genProject -- ./projects/testgreen 
+	cabal run exe:genUUID -- -p ./projects/testgreen 
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testgreen ./projects/testgreen
+
+testblue:
+	cabal build exe:e1340
+	./resources/convertGeo.sh box_blue
+	cabal run exe:genProject -- ./projects/testblue 
+	cabal run exe:genUUID -- -p ./projects/testblue 
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testblue ./projects/testblue
+
+
+

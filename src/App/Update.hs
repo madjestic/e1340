@@ -37,7 +37,6 @@ fromUI ui' =
 updateApp :: App -> SF AppInput App
 updateApp app' =
   proc input -> do
--- Something like this, similar to camera switching?    
     (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
     selectable' <- updateSelectable app' -< (cam, input)
     selected'   <- updateSelected   app' -< (input, selectable')
@@ -49,7 +48,6 @@ updateApp app' =
     let
       objs'IntMap  = IM.fromList (zip filteredNonLinObjsIdxs objs')
       selectedText = objectNames <$> view selectable result :: [String]
-      --selectedText = objectNames <$> view selected result :: [String]
       app''        = app' & ui  . info . text .~ selectedText -- SUKA!
 
       objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
@@ -63,11 +61,7 @@ updateApp app' =
         , _selected    = selected'
         }
 
-    --returnA  -< result
-    --returnA  -< DT.trace ("updateApp.result.selected : " ++ show (concat $ fmap objectNames $ view selected result)) $ result
-    returnA  -< DT.trace ("updateApp.result.selected : "   ++ show (concat $ objectNames <$> view selected   result) ++
-                          "updateApp.result.selectable : " ++ show (concat $ objectNames <$> view selectable result)
-                         ) result
+    returnA  -< result
       where
         idxObjs    = DLI.indexed $ _foreground (App._objects app')
         intObjMap  = IM.fromList idxObjs :: IntMap Object
@@ -120,7 +114,6 @@ updateSelectable app0 =
     sf =
       proc (cam, input) -> do
         (_, sev) <- selectObjectE (view (objects . foreground) app0)  -< cam
-        --kev      <- keyInput SDL.ScancodeI "Pressed" -< input
 
         let
           result = app0 & selectable .~ fromEvent sev :: App
@@ -159,6 +152,46 @@ selectObjectE objs0 =
       --dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
+
+    let
+      result  = objs0
+      result' = sortedObjs' :: [Object]
+
+    returnA -< (result, proxE $> result')
+
+selectObjectE' :: SF (Camera, [Object]) ([Object], Event [Object])
+selectObjectE' =
+  proc (cam', objs0) -> do
+    let
+      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
+      camPos' = camPos * (-1)
+      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
+      sortedObjs' = [head sortedObjs]
+      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
+      dist       = 50000000.0 :: Double
+      --dist       = 10.0 :: Double
+
+    proxE <- iEdge True -< distance camPos' objPos <= dist
+
+    let
+      result  = objs0
+      result' = sortedObjs' :: [Object]
+
+    returnA -< (result, proxE $> result')
+
+unselectObjectE' :: SF (Camera, [Object]) ([Object], Event [Object])
+unselectObjectE' =
+  proc (cam', objs0) -> do
+    let
+      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
+      camPos' = camPos * (-1)
+      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
+      sortedObjs' = [head sortedObjs]
+      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
+      dist       = 50000000.0 :: Double
+      --dist       = 10.0 :: Double
+
+    proxE <- iEdge True -< distance camPos' objPos > dist
 
     let
       result  = objs0

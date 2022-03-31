@@ -68,7 +68,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "994ccce8-caa4-41b8-b8ac-65ab627449e9"
+            "uuid": "ee420c0b-176c-4f02-a51c-e529f5d79a0c"
         },
         {
             "pname": "mercury",
@@ -78,7 +78,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "3075f55d-158a-43bc-8010-e65ed6dbd72d"
+            "uuid": "929035e6-f8f0-4b3a-b0c7-840557873674"
         },
         {
             "pname": "venus",
@@ -88,7 +88,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "c23fafaa-3d8f-4e7c-adff-594840d56ae8"
+            "uuid": "36575240-4707-4ee4-a91d-477969c4f1ca"
         },
         {
             "pname": "earth",
@@ -98,7 +98,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "0cfe84ff-5378-4b1a-af83-cdcb5fa31d59"
+            "uuid": "7733afc6-3e21-4f74-869c-7c852f36d9a4"
         },
         {
             "pname": "moon",
@@ -108,7 +108,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "932ad120-f5aa-4b82-b245-07f0d9851512"
+            "uuid": "33f69bbe-866b-4f76-af65-27b21c976f67"
         },
         {
             "pname": "mars",
@@ -118,7 +118,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "7326c127-252d-41f3-89c8-b672b99ff407"
+            "uuid": "631d591f-403e-45ac-bd26-a17d84f8e5fc"
         },
         {
             "pname": "jupiter",
@@ -128,7 +128,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "7eb9da96-153b-48b8-8065-f0683c57301a"
+            "uuid": "b1c6f181-9875-4df7-b8d2-170b8997800b"
         },
         {
             "pname": "gizmo",
@@ -138,7 +138,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "ea8bef21-8985-497e-bb7c-fdc05c901246"
+            "uuid": "af406875-3c78-42a5-ab1f-d71d0bc9d42b"
         }
     ],
     "background": [
@@ -159,7 +159,7 @@
             "solvers": [],
             "solverAttrs": [],
             "ptype": "planet",
-            "uuid": "3f161756-9426-426e-8a0f-96aeaf395975"
+            "uuid": "fefe2630-773a-47e9-8eb4-e8492740a16e"
         }
     ],
     "cameras": [

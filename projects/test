@@ -1,16 +1,16 @@
 {
-    "name": "Test Project",
+    "name": "Test Red",
     "resx": 800,
     "resy": 600,
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/box.bgeo"
+            "path": "models/box_red.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "Box",
+            "pname": "box",
             "modelIDXs": [
                 0
             ],
@@ -33,7 +33,7 @@
                     0
                 ]
             ],
-            "ptype": "",
+            "ptype": "planet",
             "uuid": "00000000-0000-0000-0000-000000000000"
         }
     ],
@@ -54,15 +54,15 @@
                 0,
                 0,
                 1,
-                -10,
+                -11,
                 0,
                 0,
                 0,
                 1
             ],
             "pMouseS": 1,
-            "pKeyboardRS": 1,
-            "pKeyboardTS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
             "pcname": "PlayerCamera"
         }
     ],
@@ -220,7 +220,7 @@
             {
                 "active": true,
                 "format": {
-                    "alignment": "TC",
+                    "alignment": "CC",
                     "hoffset": 0,
                     "soffset": 8.5e-2,
                     "ssize": 1,
@@ -228,13 +228,13 @@
                 },
                 "tag": "TextField'",
                 "text": [
-                    "Hello, World!"
+                    "Test Red"
                 ]
             },
             {
                 "active": true,
                 "format": {
-                    "alignment": "CC",
+                    "alignment": "TC",
                     "hoffset": 0,
                     "soffset": 8.5e-2,
                     "ssize": 1,

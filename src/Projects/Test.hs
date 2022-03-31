@@ -4,9 +4,6 @@ import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
 
--- defaultFormat :: Format'
--- defaultFormat =  Format' "CC" (-0.4) 0.0 0.085 1.0
-
 gui :: GUI'
 gui =
   GUI'
@@ -46,3 +43,114 @@ project =
     5.0
     0.000001
   ]
+
+guiTestRed :: GUI'
+guiTestRed =
+  GUI'
+  [ TextField' True ["Test Red"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
+  , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
+  defaultFonts
+
+emptyGUI :: GUI'
+emptyGUI =
+  GUI'
+  []
+  []--defaultFonts
+  
+
+projectTestRed :: Project
+projectTestRed =
+  Project
+  "test red"
+  800
+  600
+  "AbsoluteLocation"
+  [ (Model   "models/box_red.bgeo")]
+  [ (PreObject
+    "red box"
+    "planet"
+    nil
+    [0]
+    []
+    []
+    )
+  ]
+  []
+  emptyGUI
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]
+
+projectTestGreen :: Project
+projectTestGreen =
+  Project
+  "test green"
+  800
+  600
+  "AbsoluteLocation"
+  [ (Model   "models/box_green.bgeo")]
+  [ (PreObject
+    "green box"
+    "planet"
+    nil
+    [0]
+    []
+    []
+    )
+  ]
+  []
+  emptyGUI
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]
+
+projectTestBlue :: Project
+projectTestBlue =
+  Project
+  "test blue"
+  800
+  600
+  "AbsoluteLocation"
+  [ (Model   "models/box_blue.bgeo")]
+  [ (PreObject
+    "blue box"
+    "planet"
+    nil
+    [0]
+    []
+    []
+    )
+  ]
+  []
+  emptyGUI
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]
+ 

@@ -11,7 +11,7 @@ import Data.Time.LocalTime.Compat
 
 import Options.Applicative
 
-import PGeo
+import Graphics.RedViz.PGeo
 
 --import Debug.Trace as DT
 
@@ -79,10 +79,10 @@ main = do
   pgeo <- readPGeo (fileIn args)
   -- print $ "geoIndexer.pgeo :" ++ show pgeo
   putStrLn "running indexer..."
-  let vgeo =
-        if skip args 
-        then fromPGeo  pgeo
-        else fromPGeo' pgeo
+  let vgeo = fromPGeo pgeo
+        -- if skip args 
+        -- then fromPGeo  pgeo
+        -- else fromPGeo' pgeo
   -- _ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
   currentTime' <- getCurrentTime
   putStrLn $ "Finished converting PGeo: " ++ formatTime'' currentTime'
