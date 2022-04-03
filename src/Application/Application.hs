@@ -11,11 +11,14 @@ module Application.Application
   , fromApplication
   , intro
   , main
-  , planetInfo
+  , info
+  , counter
   ) where
 
 import Control.Lens ( view, makeLenses )
 import Data.UUID
+import Control.Concurrent.MVar
+
 import Graphics.Rendering.OpenGL as GL    (GLuint)
 --import Graphics.RedViz.Widget
 
@@ -30,6 +33,7 @@ data Menu =
 
 data Context =
     Default
+  | Debug
   | ContextMenu Menu
 
 instance Show Context where
@@ -55,12 +59,16 @@ data Application
   {
     _interface  :: Interface
 --  , _mainGUI    :: GUI
-  , _intro      :: App
-  , _main       :: App
-  , _planetInfo :: App
-  , _hmap       :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
-  } deriving Show
+  , _intro   :: App
+  , _main    :: App
+  , _info    :: App
+  , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
+  , _counter :: MVar Int
+  } -- deriving Show
 $(makeLenses ''Application)
+
+instance Show (MVar a) where
+  show t = show t
 
 fromApplication :: Application -> App
 fromApplication app =
@@ -70,9 +78,9 @@ fromApplication app =
     Main Default ->
       view main  app
     -- Main (ContextMenu PlanetInfo) ->
-    --   view planetInfo app
+    --   view info app
     Info _ ->
-      view planetInfo app
+      view info app
     _ ->
-      view planetInfo app
+      view main app
       --view main app

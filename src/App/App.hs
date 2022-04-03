@@ -16,6 +16,7 @@ module App.App
   , App.App.cameras
   , selectable
   , selected
+  , debug
   , App.App.fromProject
   , toDrawable
   , info

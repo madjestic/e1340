@@ -148,50 +148,10 @@ selectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
+      --dist       = 50000000.0 :: Double
+      dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
-
-    let
-      result  = objs0
-      result' = sortedObjs' :: [Object]
-
-    returnA -< (result, proxE $> result')
-
-selectObjectE' :: SF (Camera, [Object]) ([Object], Event [Object])
-selectObjectE' =
-  proc (cam', objs0) -> do
-    let
-      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
-      camPos' = camPos * (-1)
-      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
-      sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
-
-    proxE <- iEdge True -< distance camPos' objPos <= dist
-
-    let
-      result  = objs0
-      result' = sortedObjs' :: [Object]
-
-    returnA -< (result, proxE $> result')
-
-unselectObjectE' :: SF (Camera, [Object]) ([Object], Event [Object])
-unselectObjectE' =
-  proc (cam', objs0) -> do
-    let
-      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
-      camPos' = camPos * (-1)
-      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
-      sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
-
-    proxE <- iEdge True -< distance camPos' objPos > dist
 
     let
       result  = objs0
@@ -208,8 +168,8 @@ unselectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
+      --dist       = 50000000.0 :: Double
+      dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos > dist
 

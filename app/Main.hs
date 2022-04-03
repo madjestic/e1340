@@ -5,7 +5,7 @@
 
 module Main where 
 
-import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar )
+import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
 import Control.Monad      (when)
 import Data.Set           ( fromList, toList )
@@ -35,7 +35,7 @@ import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget
 
 import Application
-import App
+import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 
@@ -123,7 +123,12 @@ output lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  --mapM_ renderWidgets     (DT.trace ("output.wgts : " ++ show wgts) wgts)
+
+  -- putStrLn "///////////////////////// MVar TEST OUT : \n"
+  -- let ct = application ^. counter
+  
+  -- takeMVar ct >>= \i -> putMVar ct (i + 1)
+  -- takeMVar ct >>= \i -> print i >> putMVar ct i 
   
   glSwapWindow window
 
@@ -132,13 +137,11 @@ renderWidget lastInteraction drs cmds wgt =
   case wgt of
     TextField a t f->
       when a $ renderString cmds drs f $ concat t
-    FPS a f -> 
-      if a then do
+    FPS a f ->
+      when a $ do
         ct <- SDL.time -- current time
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
-      else return ()
---    _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
 
@@ -165,17 +168,13 @@ initResources app0 =
         fntObjs   = concat $ toListOf (App.objects . gui . OT.fonts) (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
-        --testObjs  = concat $ toListOf (App.objects . OT.background)  (_planetInfo app0)  :: [Object]
 
 main :: IO ()
 main = do
 
-  --let argsDebug = return ["./projects/intro", "./projects/view_model"]
+
   --let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
-  --let argsDebug = return ["./projects/test", "./projects/test"]
   let argsDebug = return ["./projects/solarsystem", "./projects/solarsystem"]
-  --let argsDebug = return ["./projects/testred", "./projects/testgreen"]
-  --let argsDebug = return ["./projects/testblue", "./projects/testblue"]  
   args <- if debug then argsDebug else getArgs
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
@@ -202,30 +201,39 @@ main = do
   _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
-  introApp    <- App.fromProject introProj
-  mainApp     <- App.fromProject mainProj
-  planetInfo  <- App.fromProject pInfoProj
+  introApp <- App.fromProject introProj
+  mainApp  <- App.fromProject mainProj
+  info     <- App.fromProject pInfoProj
+  counter     <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
   let mainAppUI
         = MainGUI
-          { _fps  = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
-          , _info = TextField True [""] (Format CC (-0.4) 0.0 0.085 1.0)}
+          { _fps      = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
+          , App._info = TextField True [""] (Format CC (-0.4) 0.0 0.085 1.0)}
 
   let
     initApp' =
       Application
-      --(Info Earth)
       Intro
       introApp
       (mainApp & ui .~ mainAppUI)
-      planetInfo
+      info
       []
+      counter
+
+  -- do
+  --   putStrLn "///////////////////////// MVar TEST : \n"
+  --   --takeMVar counter >>= print
+  --   x <- takeMVar counter
+  --   print x
+  --   putMVar counter 1
+  --   -- takeMVar counter >>= print
 
   app <- initResources initApp'
   
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> appRunPre app &&& handleExit)
+    (parseWinInput >>> appLoop app &&& handleExit)
   return ()

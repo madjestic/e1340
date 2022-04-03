@@ -4,11 +4,12 @@ module Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
+  , appLoop
   , appRun
-  , appRunPre
   , handleExit
   , appIntro
   , appMain
+  , counter
   ) where
 
 import Application.Application

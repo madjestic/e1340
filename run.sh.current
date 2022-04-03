@@ -4,13 +4,13 @@
 cabal build exe:e1340
 # cabal run +RTS -sstderr -RTS e1340 ./projects/intro_XXII ./projects/solar_system
 # cabal run +RTS -sstderr -RTS e1340 ./projects/test ./projects/solar_system
-cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
+# cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
 # cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/newtest
 # cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testred
 # cabal run +RTS -sstderr -RTS e1340 ./projects/testgreen ./projects/testgreen
 # cabal run +RTS -sstderr -RTS e1340 ./projects/testblue ./projects/testblue
 # cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testgreen
-# cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
+cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
 # cabal build exe:Grapher
 # cabal run +RTS -xnc -sstderr -RTS exe:Grapher ./projects/graph ./projects/graph
