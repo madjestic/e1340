@@ -34,10 +34,11 @@ import Graphics.RedViz.Controllable hiding (_debug)
 --     returnA -< ()
 
 formatDebug :: Application -> String
-formatDebug app0 = show $ app0 ^. main . App.debug
+formatDebug app0 = "main : " ++ show (app0 ^. Appl.main . App.playCam . controller . transform . translation) ++ "\n" ++
+                   "info : " ++ show (app0 ^. Appl.info . App.playCam . controller . transform . translation) ++ "\n"
 
 formatDebug' :: App -> String
-formatDebug' app0 = show (app0 ^. debug) ++
+formatDebug' app0 = -- show (app0 ^. debug) ++
                     show (app0 ^. App.playCam . controller . transform . translation)
 
 appLoop :: Application -> SF AppInput Application
@@ -51,7 +52,6 @@ appRun :: Application -> SF (AppInput, Application) Application
 appRun app0 =
   proc (input, app') -> do
     as <- case _interface app0 of
-    --as <- case _interface (DT.trace ("debug : " ++ formatDebug app0) app0) of
             Intro        -> appIntro   app0 -< (input, app')
             Main Default -> appMainPre app0 -< input
             Main Debug   -> appMain    app0 -< (input, app')
@@ -80,29 +80,28 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp (fromApplication app0) -< input
+               app'        <- updateApp' (fromApplication app0) -< (input, app1^.Appl.main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
-               -- debug:
-               (x', y') <- arr (\(x0,y0) -> (x0+1.0, y0)) -< app1^.main.App.debug
 
                let
                  result =
-                   app1 { _main =
-                            app' { _debug = (x', y') }
-                        }
+                   app1 { _main = app' }
                           
                returnA     -< if isEvent reset
                               then (result, reset $> app0 { _interface = Intro } )
                               else (result, zE    $> result { _interface = fromSelected app' } )
-                              --else (result, zE    $> app1 { _interface = fromSelected (DT.trace ("debug : " ++ formatDebug' app') app')} )
                
                  where
                    fromSelected app' =
                      case _selected app' of
                        [] -> Main Default
                        _  -> Info Earth
-           cont = appRun
+
+           cont app0 =
+             proc (input', app') -> do
+               result <- appLoop app0 -< input'
+               returnA -< result
 
 appInfoPre :: Application -> SF AppInput Application
 appInfoPre app0 =
@@ -116,15 +115,24 @@ appInfo app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp (fromApplication app0) -< input
+               app'        <- updateApp' (fromApplication app0) -< (input, app1^.Appl.info)
                exitE       <- keyInput SDL.ScancodeZ "Pressed" -< input
 
                let
                  result =
                    app1 { Appl._info = app' }
+
+                 result' =
+                   app1
+                   { _interface = Main Default
+                   , Appl._info = app' }
                           
                returnA     -< (result, exitE $> result { _interface = Main Default } )
-           cont = appRun
+
+           cont app0 =
+             proc (input', app') -> do
+               result <- appLoop app0 -< input'
+               returnA -< result
            
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent

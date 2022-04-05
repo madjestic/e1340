@@ -16,6 +16,7 @@ module App
   , App.App.fromProject
   , toDrawable
   , updateApp
+  , updateApp'
   , info
   ) where
 

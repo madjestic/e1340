@@ -30,7 +30,7 @@ updateCameraController cam0 =
           (kbrd',  kevs) <- updateKeyboard (view (controller.device.keyboard) cam0) -< (input, (view (controller.device.keyboard) cam))
 
           let
-            s'       = 1.0  :: Double -- | mouse sensiticity scale
+            s'       = 1.0  :: Double -- | mouse sensitivity scale
             t'       = 2    :: Double -- | mouse idle threshold
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
@@ -131,21 +131,23 @@ updateCameraController cam0 =
 
     cont = updateCameraController
 
+-- somehwere here is a problem with camera memorisation: 
 updateCamera :: Camera -> SF (AppInput, Camera) Camera
 updateCamera cam0 = 
-  proc (input, _) -> do
+  proc (input, cam1) -> do
     rec cam  <- iPre cam0 -< cam'
         cam' <- updateCameraController cam0 -< (input, cam)
     returnA -< cam
 
 updateCameras :: ([Camera], Camera) -> SF (AppInput, Camera) ([Camera], Camera)
-updateCameras (cams0, _) =
+updateCameras (cams0, cam0) =
   switch sf cont
   where
     sf =
       proc (input, cam') -> do
         cams <- switchCameras cams0 -< ()
-        cam  <- updateCamera  $ head cams0 -< (input, cam')
+        --cam  <- updateCamera  $ head cams0 -< (input, cam')
+        cam  <- updateCamera  cam0 -< (input, cam')
 
         kev <- keyInput SDL.ScancodeC "Pressed" -< input -- switch camera
 
@@ -158,13 +160,6 @@ updateCameras (cams0, _) =
           , kev $> result' )
           
     cont = updateCameras
-
-switchCameras' :: SF [Camera] [Camera]
-switchCameras' =
-  proc cams ->
-    do
-      let result = rotateList 1 cams
-      returnA -< result
 
 switchCameras :: [Camera] -> SF () [Camera]
 switchCameras cams0 =

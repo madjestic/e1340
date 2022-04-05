@@ -74,6 +74,46 @@ updateApp app' =
         filteredLinObjs     = snd <$> IM.toList filterLinIntObjMap
         filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
 
+updateApp' :: App -> SF (AppInput, App) App
+updateApp' app0 =
+ proc (input, app') -> do
+    (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
+    selectable' <- updateSelectable app0 -< (cam, input)
+    selected'   <- updateSelected   app0 -< (input, selectable')
+
+    objs        <- updateObjects        (filteredLinObjs app0) -< ()
+    let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
+    
+    objs'       <- updateObjects' (filteredNonLinObjs app0) -< (filteredNonLinObjs app')
+    let
+      objs'IntMap  = IM.fromList (zip (filteredNonLinObjsIdxs app') objs')
+      selectedText = objectNames <$> view selectable result :: [String]
+      app''        = app' & ui  . info . text .~ selectedText
+
+      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
+      unionObjs    = IM.union objs'IntMap objsIntMap
+      result =
+        app'
+        { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+        , App._cameras = cams
+        , _playCam     = cam -- (DT.trace ("updateApp'.cam : " ++ show (cam ^. controller.Ctrl.transform.translation))cam)
+        , _selectable  = selectable'
+        , _selected    = selected'
+        }
+
+    returnA  -< result
+      where
+        idxObjs app'    = DLI.indexed $ _foreground (App._objects app')
+        intObjMap app'  = IM.fromList $ idxObjs app' :: IntMap Object
+        
+        filterNonLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) $ intObjMap app'
+        filteredNonLinObjs app'     = snd <$> IM.toList (filterNonLinIntObjMap app')
+        filteredNonLinObjsIdxs app' = fst <$> IM.toList (filterNonLinIntObjMap app')
+
+        filterLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) (intObjMap app')
+        filteredLinObjs app'     = snd <$> IM.toList (filterLinIntObjMap app') 
+        filteredLinObjsIdxs app' = fst <$> IM.toList (filterLinIntObjMap app') 
+
 updateSelected :: App -> SF (AppInput, [Object]) [Object]
 updateSelected app0 =
   switch sf cont
@@ -148,8 +188,8 @@ selectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      --dist       = 50000000.0 :: Double
-      dist       = 10.0 :: Double
+      dist       = 50000000.0 :: Double
+      --dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos <= dist
 
@@ -168,8 +208,8 @@ unselectObjectE objs0 =
       sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
       sortedObjs' = [head sortedObjs]
       objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      --dist       = 50000000.0 :: Double
-      dist       = 10.0 :: Double
+      dist       = 50000000.0 :: Double
+      --dist       = 10.0 :: Double
 
     proxE <- iEdge True -< distance camPos' objPos > dist
 

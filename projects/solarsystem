@@ -96,17 +96,8 @@
                 13
             ],
             "solvers": [
-                "rotate"
             ],
             "solverAttrs": [
-                [
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1000
-                ]
             ],
             "ptype": "planet",
             "uuid": "7733afc6-3e21-4f74-869c-7c852f36d9a4"
