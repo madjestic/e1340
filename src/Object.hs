@@ -11,6 +11,7 @@ module Object
   , updateObjects
   , updateObjects'
   , objectNames
+  , nameP
   ) where
 
 import Object.Object

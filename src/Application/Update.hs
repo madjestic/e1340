@@ -34,8 +34,8 @@ import Graphics.RedViz.Controllable hiding (_debug)
 --     returnA -< ()
 
 formatDebug :: Application -> String
-formatDebug app0 = "main : " ++ show (app0 ^. Appl.main . App.playCam . controller . transform . translation) ++ "\n" ++
-                   "info : " ++ show (app0 ^. Appl.info . App.playCam . controller . transform . translation) ++ "\n"
+formatDebug app0 = "main : " ++ show (app0 ^. Appl.main . App.playCam . controller . transform . translation) ++ "\n" -- ++
+                   -- "info : " ++ show (app0 ^. Appl.info . App.playCam . controller . transform . translation) ++ "\n"
 
 formatDebug' :: App -> String
 formatDebug' app0 = -- show (app0 ^. debug) ++
@@ -80,7 +80,7 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp' (fromApplication app0) -< (input, app1^.Appl.main)
+               app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 
@@ -91,6 +91,7 @@ appMain app0 =
                returnA     -< if isEvent reset
                               then (result, reset $> app0 { _interface = Intro } )
                               else (result, zE    $> result { _interface = fromSelected app' } )
+                              --else (result, zE    $> app1 { _interface = fromSelected (DT.trace ("debug main : " ++ "\n" ++ formatDebug result) app')} )
                
                  where
                    fromSelected app' =
@@ -115,7 +116,7 @@ appInfo app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp' (fromApplication app0) -< (input, app1^.Appl.info)
+               app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.info)
                exitE       <- keyInput SDL.ScancodeZ "Pressed" -< input
 
                let

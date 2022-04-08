@@ -21,7 +21,7 @@ import Graphics.RedViz.Widget (text, Format(..), Alignment(..))
 
 import App.App as App
 import ObjectTree
-import Object hiding (Empty)
+import Object as Obj-- (Empty)
 import Camera
 import Solvable
 
@@ -34,54 +34,42 @@ fromUI ui' =
       [fps', info']
     _ -> []
 
-updateApp :: App -> SF AppInput App
-updateApp app' =
-  proc input -> do
-    (cams, cam) <- updateCameras (App._cameras app', App._playCam app') -< (input, App._playCam app')
-    selectable' <- updateSelectable app' -< (cam, input)
-    selected'   <- updateSelected   app' -< (input, selectable')
+formatDebug' :: App -> String
+formatDebug' app0 = -- show (app0 ^. debug) ++
+                    "App.Update playCam          : " ++ show (app0 ^. App.playCam . controller . Ctrl.transform . translation) ++ "\n" ++
+                    "App.Update obj name         : " ++ show (obj0 ^. nameP) ++ "\n" ++
+                    "App.Update obj tr           : " ++ show (head(obj0 ^.base.transforms)^.translation) ++ "\n" ++
+                    "App.Update selectable name  : " ++ show (sobj0 ^. nameP) ++ "\n" ++
+                    "App.Update selectable tr    : " ++ show sobj0tr ++ "\n"
+                    where
+                      obj0  = head $ app0 ^. App.objects.foreground :: Object
+                      sobj0 = case app0 ^. App.selectable of
+                        [] -> Obj.Empty
+                        _  -> (head (app0 ^. App.selectable)::Object)
+                      sobj0tr = case sobj0 of
+                        Obj.Empty -> V3 (-1) (-1) (-1)
+                        _ -> (head $ sobj0^.base.transforms::M44 Double)^.translation :: V3 Double
+                      -- sobj = case sobj0tr of
+                      --   [] -> ""
+                      --   _  -> show (head(sobj0tr ^.base.transforms)^.translation)
 
-    objs        <- updateObjects        filteredLinObjs -< ()
-    let objsIntMap = IM.fromList (zip filteredLinObjsIdxs objs)
-    
-    objs'       <- updateObjects' filteredNonLinObjs -< filteredNonLinObjs
-    let
-      objs'IntMap  = IM.fromList (zip filteredNonLinObjsIdxs objs')
-      selectedText = objectNames <$> view selectable result :: [String]
-      app''        = app' & ui  . info . text .~ selectedText -- SUKA!
+selectByDist :: Double -> Camera -> [Object] -> [Object]
+selectByDist dist cam0 objs0 = selectable
+  where
+    camPos     = cam0 ^. controller.Ctrl.transform.translation :: V3 Double
+    camPos'    = camPos * (-1)
+    selectable = Prelude.filter (\obj -> distCamPosObj camPos' obj < dist) objs0
 
-      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
-      unionObjs    = IM.union objs'IntMap objsIntMap
-      result =
-        app'
-        { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-        , App._cameras = cams
-        , _playCam     = cam
-        , _selectable  = selectable'
-        , _selected    = selected'
-        }
-
-    returnA  -< result
-      where
-        idxObjs    = DLI.indexed $ _foreground (App._objects app')
-        intObjMap  = IM.fromList idxObjs :: IntMap Object
-        
-        filterNonLinIntObjMap  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) intObjMap
-        filteredNonLinObjs     = snd <$> IM.toList filterNonLinIntObjMap
-        filteredNonLinObjsIdxs = fst <$> IM.toList filterNonLinIntObjMap
-
-        filterLinIntObjMap  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) intObjMap
-        filteredLinObjs     = snd <$> IM.toList filterLinIntObjMap
-        filteredLinObjsIdxs = fst <$> IM.toList filterLinIntObjMap
-
-updateApp' :: App -> SF (AppInput, App) App
-updateApp' app0 =
+updateApp :: App -> SF (AppInput, App) App
+updateApp app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-    selectable' <- updateSelectable app0 -< (cam, input)
-    selected'   <- updateSelected   app0 -< (input, selectable')
-
     objs        <- updateObjects        (filteredLinObjs app0) -< ()
+    
+    --let selectable' = selectByDist (10.0 :: Double) cam objs
+    let selectable' = selectByDist (50000000.0 :: Double) cam objs
+    selected'    <- updateSelected   app0 -< (input, selectable')
+
     let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
     
     objs'       <- updateObjects' (filteredNonLinObjs app0) -< (filteredNonLinObjs app')
@@ -95,22 +83,24 @@ updateApp' app0 =
       result =
         app'
         { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+          -- App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
-        , _playCam     = cam -- (DT.trace ("updateApp'.cam : " ++ show (cam ^. controller.Ctrl.transform.translation))cam)
+        , _playCam     = cam
         , _selectable  = selectable'
         , _selected    = selected'
         }
 
     returnA  -< result
+    --returnA  -< (DT.trace (formatDebug' result) result)
       where
         idxObjs app'    = DLI.indexed $ _foreground (App._objects app')
         intObjMap app'  = IM.fromList $ idxObjs app' :: IntMap Object
         
-        filterNonLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Object.solvers) $ intObjMap app'
+        filterNonLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Obj.solvers) $ intObjMap app'
         filteredNonLinObjs app'     = snd <$> IM.toList (filterNonLinIntObjMap app')
         filteredNonLinObjsIdxs app' = fst <$> IM.toList (filterNonLinIntObjMap app')
 
-        filterLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Object.solvers) (intObjMap app')
+        filterLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Obj.solvers) (intObjMap app')
         filteredLinObjs app'     = snd <$> IM.toList (filterLinIntObjMap app') 
         filteredLinObjsIdxs app' = fst <$> IM.toList (filterLinIntObjMap app') 
 
@@ -146,78 +136,6 @@ updateSelected' app0 =
           , kev $> result )
           
     cont = updateSelected
-
-updateSelectable :: App -> SF (Camera, AppInput) [Object]
-updateSelectable app0 =
-  switch sf cont
-  where
-    sf =
-      proc (cam, input) -> do
-        (_, sev) <- selectObjectE (view (objects . foreground) app0)  -< cam
-
-        let
-          result = app0 & selectable .~ fromEvent sev :: App
-        
-        returnA -<
-            ( app0 ^. selectable
-            , sev $> result)
-    cont = selectObject
-
-selectObject :: App -> SF (Camera, AppInput) [Object]
-selectObject app0 =
-  switch sf cont
-  where
-    sf =
-      proc (cam, _) -> do
-        (_, sev) <- unselectObjectE (view (objects . foreground) app0)  -< cam
-
-        let
-          result = app0 & selectable .~ []
-        
-        returnA -<
-            ( app0 ^. selectable
-            , sev $> result)
-    cont = updateSelectable
-
-selectObjectE :: [Object] -> SF Camera ([Object], Event [Object])
-selectObjectE objs0 =
-  proc cam' -> do
-    let
-      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
-      camPos' = camPos * (-1)
-      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
-      sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
-
-    proxE <- iEdge True -< distance camPos' objPos <= dist
-
-    let
-      result  = objs0
-      result' = sortedObjs' :: [Object]
-
-    returnA -< (result, proxE $> result')
-
-unselectObjectE :: [Object] -> SF Camera ([Object], Event [Object])
-unselectObjectE objs0 =
-  proc cam' -> do
-    let
-      camPos = cam' ^. controller.Ctrl.transform.translation :: V3 Double
-      camPos' = camPos * (-1)
-      sortedObjs = sortOn (distCamPosObj (camPos')) $ objs0 :: [Object]
-      sortedObjs' = [head sortedObjs]
-      objPos     = view translation $ head $ view (base . transforms) $ head sortedObjs :: V3 Double
-      dist       = 50000000.0 :: Double
-      --dist       = 10.0 :: Double
-
-    proxE <- iEdge True -< distance camPos' objPos > dist
-
-    let
-      result  = objs0
-      result' = sortedObjs' :: [Object]
-
-    returnA -< (result, proxE $> result')
 
 distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist

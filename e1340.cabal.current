@@ -149,8 +149,8 @@ executable e1340
   hs-source-dirs:
                 app
               , src
-  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
-  ghc-options:   -O2 -threaded
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:   -O2 -threaded
   --cpp-options:   -DDEBUG
   build-depends:
                  base                
