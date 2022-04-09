@@ -134,7 +134,7 @@ updateCameraController cam0 =
 -- somehwere here is a problem with camera memorisation: 
 updateCamera :: Camera -> SF (AppInput, Camera) Camera
 updateCamera cam0 = 
-  proc (input, cam1) -> do
+  proc (input, _) -> do
     rec cam  <- iPre cam0 -< cam'
         cam' <- updateCameraController cam0 -< (input, cam)
     returnA -< cam

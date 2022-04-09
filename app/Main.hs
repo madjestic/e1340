@@ -5,7 +5,8 @@
 
 module Main where 
 
-import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
+--import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
+import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
 import Control.Monad      (when)
 import Data.Set           ( fromList, toList )
@@ -39,7 +40,7 @@ import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 
-import Debug.Trace    as DT
+-- import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUG
@@ -122,7 +123,9 @@ output lastInteraction window application = do
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
-  mapM_ renderWidgets     wgts
+  case app ^. objects . gui . fonts of
+    [] -> return ()
+    _  -> mapM_ renderWidgets     wgts
 
   -- putStrLn "///////////////////////// MVar TEST OUT : \n"
   -- let ct = application ^. counter
@@ -179,8 +182,8 @@ main = do
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
   mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
-  --pInfoProj <- P.read ("./projects/testblue" :: FilePath)
-  pInfoProj <- P.read ("./projects/newtest" :: FilePath)
+  pInfoProj <- P.read ("./projects/testred" :: FilePath)
+  --pInfoProj <- P.read ("./projects/newtest" :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -203,8 +206,8 @@ main = do
   putStrLn "\n Initializing App"
   introApp <- App.fromProject introProj
   mainApp  <- App.fromProject mainProj
-  info     <- App.fromProject pInfoProj
-  counter     <- newMVar 0 :: IO (MVar Int)
+  info'    <- App.fromProject pInfoProj
+  counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
   let mainAppUI
@@ -218,9 +221,9 @@ main = do
       Intro
       introApp
       (mainApp & ui .~ mainAppUI)
-      info
+      info'
       []
-      counter
+      counter'
 
   -- do
   --   putStrLn "///////////////////////// MVar TEST : \n"

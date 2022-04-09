@@ -20,9 +20,9 @@ main :: IO ()
 --main = getArgs >>= parseArgs >>= Project.write defaultProject
 --main = getArgs >>= parseArgs >>= Project.write Projects.Test.project
 --main = getArgs >>= parseArgs >>= Project.write Projects.SolarSystem.project
---main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestRed
+main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestRed
 --main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestGreen
-main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestBlue
+--main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestBlue
 
 parseArgs :: [[Char]] -> IO String
 parseArgs ["-h"] = help    >> exit

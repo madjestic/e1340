@@ -11,35 +11,19 @@ module Application.Update
 import FRP.Yampa
 import SDL          hiding ((*^), Event, Mouse, Debug)
 import Data.Functor        (($>))
-import Control.Lens ((^.), (&), (.~), view)
-import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
+import Control.Lens ((^.))
+-- import Control.Lens ((^.), (&), (.~), view)
+-- import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 
-import Control.Monad.IO.Class
-import System.IO.Unsafe
+-- import Control.Monad.IO.Class
+-- import System.IO.Unsafe
 
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import Application.Application as Appl
 import App
 
-import Debug.Trace    as DT
-import Graphics.RedViz.Camera
-import Graphics.RedViz.Controllable hiding (_debug)
-
--- Kleisli Arrows?  How to embed IO in arrows?
--- arrIO _ =
---   proc _ -> do
---     counter <- newMVar 0 :: IO (MVar Int)
---     takeMVar counter >>= print
---     returnA -< ()
-
-formatDebug :: Application -> String
-formatDebug app0 = "main : " ++ show (app0 ^. Appl.main . App.playCam . controller . transform . translation) ++ "\n" -- ++
-                   -- "info : " ++ show (app0 ^. Appl.info . App.playCam . controller . transform . translation) ++ "\n"
-
-formatDebug' :: App -> String
-formatDebug' app0 = -- show (app0 ^. debug) ++
-                    show (app0 ^. App.playCam . controller . transform . translation)
+-- import Debug.Trace    as DT
 
 appLoop :: Application -> SF AppInput Application
 appLoop app0 =
@@ -63,7 +47,8 @@ appIntro :: Application -> SF (AppInput, Application) Application
 appIntro app0  = 
   switch sf cont
      where sf =
-             proc (input, app') -> do
+             --proc (input, app') -> do
+             proc (input, _) -> do
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
                returnA    -< (app0, skipE $> app0 { _interface =  Main Default })
            cont = appRun
@@ -99,9 +84,9 @@ appMain app0 =
                        [] -> Main Default
                        _  -> Info Earth
 
-           cont app0 =
-             proc (input', app') -> do
-               result <- appLoop app0 -< input'
+           cont arg =
+             proc (input', _) -> do
+               result <- appLoop arg -< input'
                returnA -< result
 
 appInfoPre :: Application -> SF AppInput Application
@@ -123,16 +108,16 @@ appInfo app0 =
                  result =
                    app1 { Appl._info = app' }
 
-                 result' =
-                   app1
-                   { _interface = Main Default
-                   , Appl._info = app' }
+                 -- result' =
+                 --   app1
+                 --   { _interface = Main Default
+                 --   , Appl._info = app' }
                           
                returnA     -< (result, exitE $> result { _interface = Main Default } )
 
-           cont app0 =
-             proc (input', app') -> do
-               result <- appLoop app0 -< input'
+           cont arg =
+             proc (input', _) -> do
+               result <- appLoop arg -< input'
                returnA -< result
            
 handleExit :: SF AppInput Bool
