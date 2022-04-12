@@ -14,10 +14,12 @@ import Linear.V3
 import Linear.V4
 
 import Graphics.RedViz.Utils
-import Graphics.RedViz.Object
+import Graphics.RedViz.Object as Obj
 
-import Object.Object
+import Object.Object as Obj
 import Solvable
+
+import Debug.Trace as DT (trace)
 
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
@@ -36,8 +38,18 @@ updateObjects' objs0 =
 solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
-    mtxs    <- (parB . fmap (transform obj0)) slvs0 -< ()
-    returnA -< obj0 & base . transforms .~ vectorizedCompose mtxs
+    trs     <- (parB . fmap (transform obj0)) slvs0 -< ()
+    time'   <- ((obj0 ^. base . Obj.time :: Double) ^+^) ^<< integral -< (1.0 :: Double)
+
+    let
+      (mtxs, yprs) = unzip trs
+      result =
+        obj0 & base . transforms .~ vectorizedCompose mtxs
+        --obj0 & base . transforms .~ vectorizedCompose (DT.trace ("Objec.Update mtxs len : " ++ show (length mtxs)) mtxs)
+             & base . ypr        .~ (head . head $ yprs)
+             & base . Obj.time   .~ time'
+    
+    returnA -< result
       where
         slvs0 = view solvers obj0
 
@@ -48,6 +60,7 @@ vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
 (^*^) mtx0 mtx1 = mkTransformationMat rot tr
   where
     rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
+    --rot = LM.identity :: M33 Double -- DEBUG
     tr  = view translation mtx0 ^+^ view translation mtx1
 
 gravitySolver :: SF [Object] [Object]
@@ -99,36 +112,39 @@ gravitySolver' (obj0, objs0) = obj
           & base . transforms .~ [mtx]
           & velocity .~ vel'
 
-transform :: Object -> Solver -> SF () [M44 Double]
+--transform :: Object -> Solver -> SF () [(M44 Double, V3 Double)]
+transform :: Object -> Solver -> SF () ([M44 Double], [V3 Double])
 transform obj0 slv0 =
   proc () ->
     do
-      mtxs <- (parB . fmap (transform' slv0)) mtxs0 -< () -- TODO: pass object as arg to transformer
-      returnA -< mtxs
+      result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
+      returnA -< unzip result
         where
           mtxs0 = obj0 ^. base . transforms :: [M44 Double]
+          ypr0'  = obj0 ^. base . ypr0 :: V3 Double
 
-transform' :: Solver -> M44 Double -> SF () (M44 Double)
-transform' solver mtx0 =
+transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
+transform' solver ypr0 mtx0 =
   proc () -> do
     state <- case solver of
-      Rotate _ _ ->
+      Rotate pv0 ypr0 ->
         do
-          mtx' <- Solvable.rotate mtx0 pv0 ypr0 -< ()
-          returnA -< mtx'
+          --(mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
+          (mtx', ypr') <- Solvable.rotate (LM.identity :: M44 Double) pv0 ypr0 ypr1 -< ()
+          returnA -< (mtx', ypr')
       Translate _ ->
         do
           mtx' <- translate mtx0 txyz -< ()
-          returnA -< mtx'
+          returnA -< (mtx', ypr0)
       Gravity _ ->
         do
-          returnA -< LM.identity :: M44 Double
+          returnA -< (LM.identity :: M44 Double, ypr0)
       _ ->
         do
-          returnA -< mtx0
+          returnA -< (mtx0, ypr0)
     returnA -< state
       where
-        Rotate     pv0 ypr0 = solver
+        Rotate     pv0 ypr1 = solver
         Translate  txyz     = solver
 
 g :: Double

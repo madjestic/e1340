@@ -15,6 +15,7 @@ module Solvable
 import Control.Lens      hiding (Identity)
 import GHC.Float
 import Linear.Matrix     hiding (identity)
+import Linear.Matrix     as LM
 import Linear.V3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
@@ -23,7 +24,7 @@ import FRP.Yampa         hiding (identity)
 import Graphics.RedViz.Utils
 -- import Utils
 
--- import Debug.Trace as DT
+import Debug.Trace as DT
 
 data Solver =
      Identity
@@ -76,7 +77,7 @@ preTransformer solver mtx0 = mtx
     mtx = case solver of
       PreTranslate v0    -> preTranslate mtx0 v0
       PreRotate pv0 ypr0 -> preRotate mtx0 pv0 ypr0
-      Identity           -> identity mtx0
+      Identity           -> Solvable.identity mtx0
       _                  -> mtx0
 
 identity :: M44 Double -> M44 Double
@@ -117,22 +118,12 @@ preRotate mtx0 _ ypr0 = mtx
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
               tr  = view (_w._xyz) mtx0
 
--- newtype V3Double = V3Double (V3 Double)
-
--- instance VectorSpace V3Double Double where
---   zeroVector                   = V3Double (V3 0 0 0)
---   (*^) s (V3Double (V3 x y z)) = V3Double (V3 (s*x) (s*y) (s*z))
---   (^+^)  (V3Double (V3 x y z)) (V3Double(V3 k l m)) = V3Double (V3 (x+k) (y+l) (z+m))
---   dot    (V3Double (V3 x y z)) (V3Double(V3 k l m)) = (x*k) + (y*l) + (z*m)
-
--- instance VectorSpace V3Double s0 where
---   zeroVector                   = undefined
---   (^+^)  (V3Double (V3 x y z)) (V3Double(V3 k l m)) = undefined
-
 translate :: M44 Double -> V3 Double -> SF () (M44 Double)
 translate mtx0 v0 =
   proc () -> do
-    tr' <- (V3 0 0 0 +) ^<< integral -< v0
+    --tr' <- (V3 0 0 0 +) ^<< integral -< v0 -- maybe that's why translation is reset?
+    --tr' <- ((DT.trace ("translate.translation : " ++ show (mtx0 ^. translation))mtx0 ^. translation) +) ^<< integral -< v0 -- maybe that's why translation is reset?
+    tr' <- (mtx0 ^. translation +) ^<< integral -< v0 -- maybe that's why translation is reset?
     let mtx =
           mkTransformationMat
             (view _m33 mtx0)
@@ -140,19 +131,26 @@ translate mtx0 v0 =
 
     returnA -< mtx
 
-rotate :: M44 Double -> V3 Double -> V3 Double -> SF () (M44 Double)
-rotate mtx0 _ ypr0 =
+rotate :: M44 Double -> V3 Double -> V3 Double -> V3 Double -> SF () (M44 Double, V3 Double)
+rotate mtx0 _ ypr0 ypr1 =
   proc () -> do
-    ypr' <- (V3 0 0 0 +) ^<< integral -< ypr0
+    -- ypr' <- (V3 0 0 0 +) ^<< integral -< ypr0
+    ypr' <- (ypr0 +) ^<< integral -< ypr1
     let mtx =
           mkTransformationMat
             rot
             tr
             where
+              -- rot =
+              --   view _m33 mtx0
+              --   !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
+              --   !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
+              --   !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
               rot =
-                view _m33 mtx0
-                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
-                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
-                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
+                (LM.identity :: M33 Double)
+                !*! fromQuaternion (axisAngle (view _x (LM.identity :: M33 Double)) (view _x ypr')) -- yaw
+                !*! fromQuaternion (axisAngle (view _y (LM.identity :: M33 Double)) (view _y ypr')) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (LM.identity :: M33 Double)) (view _z ypr')) -- roll
+              
               tr  = (view (_w._xyz)) mtx0
-    returnA -< mtx
+    returnA -< (mtx, ypr')

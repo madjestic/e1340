@@ -25,7 +25,31 @@ import Object as Obj-- (Empty)
 import Camera
 import Solvable
 
--- import Debug.Trace as DT (trace)
+import Debug.Trace as DT (trace)
+
+formatDebug' :: App -> String
+formatDebug' app0 =
+  "App.Cam pos     : " ++ show camPos ++ "\n" ++
+  "App.Object name : " ++ show obj0Name ++ "\n" ++
+  "App.Object time : " ++ show (obj0 ^. base . Obj.time) ++ "\n" ++
+  "App.Object tr   : " ++ show obj0tr ++ "\n" ++
+  "App.Object ypr  : " ++ show obj0ypr ++ "\n"
+  where
+    obj0  = head $ app0 ^. App.objects.foreground :: Object
+    obj0Name =
+      case obj0 of
+        Obj.Empty _ -> "Empty"
+        _ -> obj0 ^. nameP
+    obj0tr =
+      case obj0 of
+        Obj.Empty _ -> V3 (-1) (-1) (-1)
+        _ -> (head $ obj0^.base.transforms::M44 Double)^.translation :: V3 Double
+    obj0ypr =
+      case obj0 of
+        Obj.Empty _ -> V3 (-1) (-1) (-1)
+        _ -> obj0^.base.Obj.ypr :: V3 Double
+    camPos =
+      app0 ^. playCam . controller . Ctrl.transform . translation  :: V3 Double
 
 fromUI :: UI -> [Widget]
 fromUI ui' =
@@ -63,16 +87,16 @@ updateApp app0 =
       unionObjs    = IM.union objs'IntMap objsIntMap
       result =
         app'
-        { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-          -- App._objects = (objTree {_foreground = objs })
+        { -- App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+          App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
         , _playCam     = cam
         , _selectable  = selectable'
         , _selected    = selected'
         }
 
-    returnA  -< result
-    --returnA  -< (DT.trace (formatDebug' result) result)
+    --returnA  -< result
+    returnA  -< (DT.trace (formatDebug' result) result)
       where
         idxObjs app'    = DLI.indexed $ _foreground (App._objects app')
         intObjMap app'  = IM.fromList $ idxObjs app' :: IntMap Object

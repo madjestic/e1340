@@ -7,6 +7,7 @@
 
 module Object.Object
   ( Object (..)
+  , emptyObj
   , defaultObj
   , base
   , nameP
@@ -14,9 +15,12 @@ module Object.Object
   , programs
   , descriptors
   , transforms
+  , ypr0
+  , ypr
   , velocity
   , solvers
   , objectNames
+  , time
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -33,7 +37,10 @@ import Graphics.RedViz.Object
 -- < Object > ------------------------------------------------------------------
 
 data Object
-  =  Empty {}  -- a unit
+  =  Empty
+     {
+       _base        :: Object'
+     }  -- a unit
   |  Planet
      {
        _base        :: Object'
@@ -57,6 +64,13 @@ data Object
   deriving Show
 $(makeLenses ''Object)
 
+emptyObj :: Object
+emptyObj =
+  Object.Object.Empty
+  defaultObject'
+  -- (Object' [] [] [] [] 0.0)
+
+
 defaultObj :: Object
 defaultObj =
   Planet
@@ -65,6 +79,8 @@ defaultObj =
      [defaultMat]
      []
      [(identity::M44 Double)]
+     (V3 0 0 0 :: V3 Double)
+     (V3 0 0 0 :: V3 Double)
      0.0)
     ""
     (V3 0 0 0)

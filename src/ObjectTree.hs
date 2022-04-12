@@ -24,7 +24,7 @@ import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo (readBGeo, fromVGeo, fromSVGeo, VGeo(..), SVGeo(..), smp, sxf, svl)
 import Graphics.RedViz.Utils as U
-import Graphics.RedViz.Object
+import Graphics.RedViz.Object as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
@@ -32,6 +32,7 @@ import Graphics.RedViz.Widget as Widget
 
 import Object
 import Solvable
+import Data.Aeson.Types (emptyObject)
 
 data GUI
   =  GUI
@@ -161,6 +162,8 @@ fromPreObject prj0 cls pObj0 = do
        materials'
        programs'
        transforms'
+       (V3 0 0 0 :: V3 Double)
+       (V3 0 0 0 :: V3 Double)
        time')
     _ ->
       case _ptype pObj0 of
@@ -171,6 +174,8 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
+           (V3 0 0 0 :: V3 Double)
+           (V3 0 0 0 :: V3 Double)
            time')
           name'
           velocity'
@@ -185,9 +190,11 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
+           (V3 0 0 0 :: V3 Double)
+           (V3 0 0 0 :: V3 Double)
            time')
-        ""       -> return Object.Empty :: IO Object
-        _        -> return Object.Empty :: IO Object    
+        ""       -> return emptyObj :: IO Object
+        _        -> return emptyObj :: IO Object
 
 initFontObject :: Project -> IO [Object]
 initFontObject prj0 = do
@@ -220,6 +227,8 @@ initFontObject' vgeo = do
         , _materials   = mats'
         , _programs    = progs
         , _transforms  = preTransforms
+        , Obj._ypr     = V3 0 0 0 :: V3 Double
+        , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1
         }
     } 

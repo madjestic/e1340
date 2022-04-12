@@ -37,9 +37,9 @@ appRun app0 =
   proc (input, app') -> do
     as <- case _interface app0 of
             Intro        -> appIntro   app0 -< (input, app')
-            Main Default -> appMainPre app0 -< input
+            Main Default -> appMainPre app0 -<  input
             Main Debug   -> appMain    app0 -< (input, app')
-            Info Earth   -> appInfoPre app0 -< input
+            Info Earth   -> appInfoPre app0 -<  input
             _ -> appMainPre app0  -< input
     returnA -< as
 
@@ -73,10 +73,10 @@ appMain app0 =
                  result =
                    app1 { _main = app' }
                           
-               returnA     -< if isEvent reset
+               returnA     -< if isEvent reset 
                               then (result, reset $> app0 { _interface = Intro } )
                               else (result, zE    $> result { _interface = fromSelected app' } )
-                              --else (result, zE    $> app1 { _interface = fromSelected (DT.trace ("debug main : " ++ "\n" ++ formatDebug result) app')} )
+                              --else (result, zE    $> app1 { _interface = fromSelected app' } )
                
                  where
                    fromSelected app' =
@@ -84,9 +84,13 @@ appMain app0 =
                        [] -> Main Default
                        _  -> Info Earth
 
+           -- cont arg =
+           --   proc (input', _) -> do
+           --     result <- appLoop arg -< input'
+           --     returnA -< result
            cont arg =
-             proc (input', _) -> do
-               result <- appLoop arg -< input'
+             proc (input', app') -> do
+               result <- appRun arg -< (input', app')
                returnA -< result
 
 appInfoPre :: Application -> SF AppInput Application
