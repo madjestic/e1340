@@ -153,7 +153,7 @@ updateCameras (cams0, cam0) =
 
         let
           result  = (cams0, cam)  
-          result' = (tail $ cams ++ [cam],  cam)
+          result' = (tail $ cams ++ [cam],  head cams)
           
         returnA -<
           ( result

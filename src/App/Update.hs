@@ -71,8 +71,8 @@ updateApp app0 =
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
     objs        <- updateObjects        (filteredLinObjs app0) -< ()
     
-    let selectable' = selectByDist (10.0 :: Double) cam objs
-    --let selectable' = selectByDist (50000000.0 :: Double) cam objs
+    --let selectable' = selectByDist (10.0 :: Double) cam objs
+    let selectable' = selectByDist (50000000.0 :: Double) cam objs
     selected'    <- updateSelected   app0 -< (input, selectable')
 
     let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
