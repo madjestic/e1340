@@ -146,14 +146,14 @@ updateCameras (cams0, cam0) =
     sf =
       proc (input, cam') -> do
         cams <- switchCameras cams0 -< ()
-        cam  <- updateCamera  $ head cams0 -< (input, cam')
-        --cam  <- updateCamera  cam0 -< (input, cam')
+        --cam  <- updateCamera  $ head cams0 -< (input, cam')
+        cam  <- updateCamera  cam0 -< (input, cam')
 
         kev <- keyInput SDL.ScancodeC "Pressed" -< input -- switch camera
 
         let
           result  = (cams0, cam)  
-          result' = (cams,  cam)
+          result' = (tail $ cams ++ [cam],  cam)
           
         returnA -<
           ( result

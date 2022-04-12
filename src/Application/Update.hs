@@ -38,7 +38,7 @@ appRun app0 =
     as <- case _interface app0 of
             Intro        -> appIntro   app0 -< (input, app')
             Main Default -> appMainPre app0 -<  input
-            Main Debug   -> appMain    app0 -< (input, app')
+            -- Main Debug   -> appMain    app0 -< (input, app')
             Info Earth   -> appInfoPre app0 -<  input
             _ -> appMainPre app0  -< input
     returnA -< as
