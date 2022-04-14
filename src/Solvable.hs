@@ -7,6 +7,7 @@
 module Solvable
   ( Solver (..)
   , preTransformer
+  , preTransformer'
   , translate
   , rotate
   , toSolver
@@ -46,6 +47,11 @@ data Solver =
        _pivot :: V3 Double
      , _ypr   :: V3 Double
      }
+  |  RotateConst
+     {
+       _pivot :: V3 Double
+     , _ypr   :: V3 Double
+     }
   |  Scale
      {
        _sxyz   :: V3 Double
@@ -68,7 +74,9 @@ toSolver (solver, parms) =
     "translate"    -> Translate    (toV3 parms)
     "prerotate"    -> PreRotate    (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "rotate"       -> Rotate       (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
+    "rotateconst"  -> RotateConst  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "gravity"      -> Gravity      (double2Int <$> parms)
+    "identity"     -> Identity
     _              -> Identity
 
 preTransformer :: Solver -> M44 Double -> M44 Double
@@ -76,9 +84,18 @@ preTransformer solver mtx0 = mtx
   where
     mtx = case solver of
       PreTranslate v0    -> preTranslate mtx0 v0
-      PreRotate pv0 ypr0 -> preRotate mtx0 pv0 ypr0
+      PreRotate pv0 ypr1 -> preRotate mtx0 pv0 ypr1
       Identity           -> Solvable.identity mtx0
       _                  -> mtx0
+
+preTransformer' :: Solver -> (M44 Double, V3 Double) -> (M44 Double, V3 Double)
+preTransformer' solver (mtx0, ypr0) = (mtx, ypr)
+  where
+    (mtx, ypr) = case solver of
+      PreTranslate v0    -> preTranslate' mtx0 v0
+      PreRotate pv0 ypr1 -> preRotate' mtx0 pv0 ypr1
+      Identity           -> Solvable.identity' mtx0
+      _                  -> (mtx0, V3 0 0 0)
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx
@@ -91,9 +108,33 @@ identity mtx0 = mtx
           rot = view _m33 mtx0
           tr  = view (_w._xyz) mtx0
 
+identity' :: M44 Double -> (M44 Double, V3 Double)
+identity' mtx0 = (mtx, ypr)
+  where
+    ypr = V3 0 0 0
+    mtx =
+      mkTransformationMat
+        rot
+        tr
+        where
+          rot = view _m33 mtx0
+          tr  = view (_w._xyz) mtx0
+
 preTranslate :: M44 Double -> V3 Double -> M44 Double
 preTranslate mtx0 v0 = mtx
   where
+    mtx =
+      mkTransformationMat
+        rot
+        tr
+        where
+          rot = view _m33 mtx0
+          tr  = v0 + view (_w._xyz) mtx0
+
+preTranslate' :: M44 Double -> V3 Double -> (M44 Double, V3 Double)
+preTranslate' mtx0 v0 = (mtx, ypr)
+  where
+    ypr = V3 0 0 0
     mtx =
       mkTransformationMat
         rot
@@ -116,6 +157,21 @@ preRotate mtx0 _ ypr0 = mtx
                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
+              tr  = view (_w._xyz) mtx0
+
+preRotate' :: M44 Double -> V3 Double -> V3 Double -> (M44 Double, V3 Double)
+preRotate' mtx0 _ ypr1 = (mtx, ypr1)
+    where
+      mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              rot =
+                view _m33 mtx0
+                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr1)) -- yaw
+                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr1)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr1)) -- roll
               tr  = view (_w._xyz) mtx0
 
 translate :: M44 Double -> V3 Double -> SF () (M44 Double)

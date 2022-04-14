@@ -38,6 +38,7 @@ updateObjects' objs0 =
 solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
+    --trs     <- (parB . fmap (transform obj0)) slvs0 -< ()
     trs     <- (parB . fmap (transform obj0)) slvs0 -< ()
     time'   <- ((obj0 ^. base . Obj.time :: Double) ^+^) ^<< integral -< (1.0 :: Double)
 
@@ -121,7 +122,7 @@ transform obj0 slv0 =
       returnA -< unzip result
         where
           mtxs0 = obj0 ^. base . transforms :: [M44 Double]
-          ypr0'  = obj0 ^. base . ypr0 :: V3 Double
+          ypr0' = obj0 ^. base . ypr0 :: V3 Double
 
 transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
 transform' solver ypr0 mtx0 =
@@ -129,8 +130,8 @@ transform' solver ypr0 mtx0 =
     state <- case solver of
       Rotate pv0 ypr0 ->
         do
-          --(mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
-          (mtx', ypr') <- Solvable.rotate (LM.identity :: M44 Double) pv0 ypr0 ypr1 -< ()
+          (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
+          --(mtx', ypr') <- Solvable.rotate (LM.identity :: M44 Double) pv0 ypr0 ypr1 -< ()
           returnA -< (mtx', ypr')
       Translate _ ->
         do

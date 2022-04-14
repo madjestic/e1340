@@ -142,11 +142,14 @@ fromPreObject prj0 cls pObj0 = do
                      _  -> solverAttrs'  :: [[Double]]
     solvers'     = toSolver <$> zip solversF attrsF :: [Solver]
     xforms'      = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
-    transforms'  =
+    ypr0         = V3 0 0 0 :: V3 Double
+    (transforms', ypr')  =
+    -- transforms' =
       case cls of
-        Font -> xforms'
-        _    -> uncurry preTransformer <$> (zip solvers' xforms' ::[(Solver, M44 Double)]) :: [M44 Double]
-                  
+        Font -> unzip $ zip xforms' (repeat ypr0) :: ([M44 Double], [V3 Double])
+        --_    -> uncurry preTransformer <$> (zip solvers' xforms' ::[(Solver, M44 Double)]) :: [M44 Double]
+        _    -> unzip $ uncurry preTransformer' <$> zip solvers' (zip xforms' (repeat ypr0)) :: ([M44 Double], [V3 Double])
+
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?
     avelocity'   = V3 0 0 0 :: V3 Double
@@ -162,7 +165,8 @@ fromPreObject prj0 cls pObj0 = do
        materials'
        programs'
        transforms'
-       (V3 0 0 0 :: V3 Double)
+       --(V3 0 0 0 :: V3 Double)
+       (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
     _ ->
@@ -174,7 +178,8 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
-           (V3 0 0 0 :: V3 Double)
+           --(V3 0 0 0 :: V3 Double)
+           (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
           name'
@@ -190,7 +195,8 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
-           (V3 0 0 0 :: V3 Double)
+           --(V3 0 0 0 :: V3 Double)
+           (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
         ""       -> return emptyObj :: IO Object
