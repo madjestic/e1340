@@ -189,24 +189,10 @@ projectTestChecker =
     [
       [1000,0,0]
     ]
-    
-    -- [
-    --  "pretranslate'"
-    -- ]
-    -- [
-    --  [1.33,0,0]
-    -- ]
-
-    -- [
-    --  "prerotate"
-    -- ]
-    -- [
-    --  [0,0,0,0,0,1000]
-    -- ]
     )
   ]
   []
-  emptyGUI
+  gui
   [(ProjectCamera
     "PlayerCamera"
     50.0

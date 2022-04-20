@@ -212,11 +212,8 @@ fromPreObject prj0 cls pObj0 = do
            ds'
            materials'
            programs'
-           --transforms'
-           --(sum ypr')
-           (DT.trace ("fromPreObject.transforms' : " ++ "\n" ++ (concat $ show' <$> transforms')) transforms')
-           --(DT.trace ("fromPreObject.ypr' : " ++ show (ypr')) (sum ypr'))
-           (DT.trace ("fromPreObject.ypr' : " ++ show (head ypr')) (head ypr'))
+           transforms'
+           (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
           name'
@@ -231,9 +228,7 @@ fromPreObject prj0 cls pObj0 = do
            ds'
            materials'
            programs'
-           --transforms'
-           (DT.trace ("fromPreObject . transforms' length : " ++ show (length transforms')) transforms')
-           --(V3 0 0 0 :: V3 Double)
+           transforms'
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')

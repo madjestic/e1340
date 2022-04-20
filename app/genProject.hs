@@ -1,7 +1,10 @@
+--{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
 import System.Environment
 import System.Exit
+import Data.List.Split
 
 import Graphics.RedViz.Project as Project
 
@@ -17,19 +20,21 @@ import Projects.SolarSystem
 -- | e.g.: `$ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0`
 
 main :: IO ()
---main = getArgs >>= parseArgs >>= Project.write defaultProject
---main = getArgs >>= parseArgs >>= Project.write Projects.Test.project
---main = getArgs >>= parseArgs >>= Project.write Projects.SolarSystem.project
---main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestRed
---main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestGreen
---main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestBlue
-main = getArgs >>= parseArgs >>= Project.write Projects.Test.projectTestChecker
+main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) -> case projectName of
+                                   "testred"     -> Project.write Projects.Test.projectTestRed     filePath
+                                   "testgreen"   -> Project.write Projects.Test.projectTestGreen   filePath 
+                                   "testblue"    -> Project.write Projects.Test.projectTestBlue    filePath 
+                                   "testchecker" -> Project.write Projects.Test.projectTestChecker filePath 
+                                   _ -> Project.write Projects.Test.projectTestChecker             filePath
+                                   
+splitter :: String -> IO (String, String)
+splitter fs = return (last $ splitOn "/" fs, fs )
 
 parseArgs :: [[Char]] -> IO String
 parseArgs ["-h"] = help    >> exit
 parseArgs ["-v"] = version >> exit
 parseArgs []     = getContents
-parseArgs fs     = putStrLn ("Generating project file: " ++ show (head fs)) >> return (concat fs) 
+parseArgs fs     = putStrLn ("Generating project file: " ++ show (head fs)) >> return (concat fs)
 
 help :: IO ()
 help    = putStrLn "Usage: genProject [-- -vh] [file ..]"

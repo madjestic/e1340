@@ -70,11 +70,9 @@ updateApp app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
     objs        <- updateObjects (filteredLinObjs app0)                 -< ()
-    --objs        <- updateObjects (app0 ^. objects . foreground)           -< ()
-    --objs        <- returnA -< (filteredLinObjs app0)
     
-    --let selectable' = selectByDist (10.0 :: Double) cam objs
-    let selectable' = selectByDist (50000000.0 :: Double) cam objs
+    let selectable' = selectByDist (10.0 :: Double) cam objs
+    --let selectable' = selectByDist (50000000.0 :: Double) cam objs
     selected'    <- updateSelected   app0 -< (input, selectable')
 
     let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
@@ -90,16 +88,15 @@ updateApp app0 =
       result =
         app'
         { -- App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-          --App._objects = (objTree {_foreground = objs })
-          App._objects = (objTree {_foreground = (DT.trace ("NAH updateApp objs : " ++ show objs) objs) })
+          App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
         , _playCam     = cam
         , _selectable  = selectable'
         , _selected    = selected'
         }
 
-    --returnA  -< result
-    returnA  -< (DT.trace (formatDebug' result) result)
+    returnA  -< result
+    --returnA  -< (DT.trace (formatDebug' result) result)
       where
         idxObjs app'    = DLI.indexed $ _foreground (App._objects app')
         intObjMap app'  = IM.fromList $ idxObjs app' :: IntMap Object

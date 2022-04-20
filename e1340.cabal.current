@@ -285,7 +285,8 @@ executable genProject
               , text                
               , sort                
               , uuid                
-              , vector                           
+              , vector
+              , split
 
   other-modules:
                 Paths_e1340

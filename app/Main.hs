@@ -127,12 +127,6 @@ output lastInteraction window application = do
     [] -> return ()
     _  -> mapM_ renderWidgets     wgts
 
-  -- putStrLn "///////////////////////// MVar TEST OUT : \n"
-  -- let ct = application ^. counter
-  
-  -- takeMVar ct >>= \i -> putMVar ct (i + 1)
-  -- takeMVar ct >>= \i -> print i >> putMVar ct i 
-  
   glSwapWindow window
 
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
@@ -224,14 +218,6 @@ main = do
       info'
       []
       counter'
-
-  -- do
-  --   putStrLn "///////////////////////// MVar TEST : \n"
-  --   --takeMVar counter >>= print
-  --   x <- takeMVar counter
-  --   print x
-  --   putMVar counter 1
-  --   -- takeMVar counter >>= print
 
   app <- initResources initApp'
   
