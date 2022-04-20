@@ -6,7 +6,7 @@ module Object.Update
   )where
 
 import Control.Lens    hiding (transform)
-import Data.List       as DL  (transpose)
+--import Data.List       as DL  (transpose)
 import Data.List.Index as DLI (indexed)
 import FRP.Yampa
 import Linear.Matrix   as LM
@@ -25,6 +25,7 @@ updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
   proc () -> do
     objs' <- parB . fmap solve $ objs0 -< ()
+    --objs' <- returnA -< objs0
     returnA -< objs'
 
 -- | Objects that evolve over iterations, i.e. non-Linear
@@ -38,7 +39,6 @@ updateObjects' objs0 =
 solve :: Object -> SF () Object
 solve obj0 =
   proc () -> do
-    --trs     <- (parB . fmap (transform obj0)) slvs0 -< ()
     trs     <- (parB . fmap (transform obj0)) slvs0 -< ()
     time'   <- ((obj0 ^. base . Obj.time :: Double) ^+^) ^<< integral -< (1.0 :: Double)
 
@@ -54,15 +54,15 @@ solve obj0 =
       where
         slvs0 = view solvers obj0
 
-vectorizedCompose :: [[M44 Double]] -> [M44 Double]
-vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
+-- vectorizedCompose :: [[M44 Double]] -> [M44 Double]
+-- vectorizedCompose = fmap (foldr1 (^*^)) . DL.transpose
 
-(^*^) :: M44 Double -> M44 Double -> M44 Double
-(^*^) mtx0 mtx1 = mkTransformationMat rot tr
-  where
-    rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
-    --rot = LM.identity :: M33 Double -- DEBUG
-    tr  = view translation mtx0 ^+^ view translation mtx1
+-- (^*^) :: M44 Double -> M44 Double -> M44 Double
+-- (^*^) mtx0 mtx1 = mkTransformationMat rot tr
+--   where
+--     rot = view _m33 mtx0 !*! view _m33 mtx1 :: M33 Double
+--     --rot = LM.identity :: M33 Double -- DEBUG
+--     tr  = view translation mtx0 ^+^ view translation mtx1
 
 gravitySolver :: SF [Object] [Object]
 gravitySolver =
@@ -118,8 +118,10 @@ transform :: Object -> Solver -> SF () ([M44 Double], [V3 Double])
 transform obj0 slv0 =
   proc () ->
     do
-      result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
-      returnA -< unzip result
+      --result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
+      result <- (parB . fmap (transform' slv0 ypr0')) (DT.trace ("BLAD length mtxs0 : " ++ show (length mtxs0)) mtxs0) -< ()
+      --returnA -< unzip result
+      returnA -< unzip (DT.trace ("SUKANAH result : " ++ show result) result)
         where
           mtxs0 = obj0 ^. base . transforms :: [M44 Double]
           ypr0' = obj0 ^. base . ypr0 :: V3 Double
@@ -140,13 +142,70 @@ transform' solver ypr0 mtx0 =
       Gravity _ ->
         do
           returnA -< (LM.identity :: M44 Double, ypr0)
+      Solvable.Identity ->
+        --returnA -< (mtx0, ypr0)
+        --returnA -< (mtx0, V3 0 0 0 :: V3 Double)
+        returnA -< (LM.identity :: M44 Double, V3 0 0 0)
       _ ->
         do
-          returnA -< (mtx0, ypr0)
-    returnA -< state
+          --returnA -< (mtx0, V3 0 0 0 :: V3 Double)
+          --returnA -< (LM.identity :: M44 Double, ypr0)
+          returnA -< (LM.identity :: M44 Double, V3 0 0 0)
+    --returnA -< state
+    returnA -< ((DT.trace ("SUKA transform' mtx0 : " ++ show mtx0) mtx0), ypr0)
+    --returnA -< (LM.identity :: M44 Double, V3 0 0 0 :: V3 Double)
       where
         Rotate     pv0 ypr1 = solver
         Translate  txyz     = solver
+
+transform'' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
+transform'' solver ypr0 mtx0 =
+  proc () -> do
+    state <- case solver of
+      -- PreTranslate' WorldSpace _ -> do
+      --   returnA -< undefined
+      -- PreTranslate' ObjectSpace _ -> do
+      --   returnA -< undefined
+      Translate' Static _ _ -> do
+        state' <- case solver of
+          Translate' _ WorldSpace _ -> do
+            returnA -< undefined
+          Translate' _ ObjectSpace _ -> do
+            returnA -< undefined          
+        returnA -< state'
+      Translate' Dynamic _ _ -> do
+        state' <- case solver of
+          Translate' _ WorldSpace _ -> do
+            returnA -< undefined
+          Translate' _ ObjectSpace _ -> do
+            returnA -< undefined          
+        returnA -< state'
+      
+      -- PreRotate' WorldSpace _ _ -> do
+      --   returnA -< undefined
+      -- PreRotate' ObjectSpace _ _ -> do
+      --   returnA -< undefined        
+      Rotate' Static _ _ _ -> do
+        state' <- case solver of
+          Rotate' _ WorldSpace _ _ -> do
+            (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
+            returnA -< (mtx', ypr')
+          Rotate' _ ObjectSpace _ _ -> do
+            (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
+            returnA -< (mtx', ypr')
+        returnA -< state'
+      Rotate' Dynamic _ _ _ -> do
+        state' <- case solver of
+          Rotate' _ WorldSpace _ _ -> do
+            returnA -< undefined        
+          Rotate' _ ObjectSpace _ _ -> do
+            returnA -< undefined        
+        returnA -< state'
+
+    returnA -< state
+      where
+        pv0  = undefined
+        ypr1 = undefined
 
 g :: Double
 g = 6.673**(-11.0) :: Double

@@ -130,5 +130,11 @@ testblue:
 	cabal run exe:genUUID -- -p ./projects/testblue 
 	cabal run +RTS -sstderr -RTS e1340 ./projects/testblue ./projects/testblue
 
-
+testchecker:
+	cabal build exe:e1340
+	./resources/convertGeo.sh box
+	cabal run exe:genProject -- ./projects/testchecker 
+	cabal run exe:genUUID -- -p ./projects/testchecker 
+	# cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testchecker
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testchecker ./projects/testchecker	
 

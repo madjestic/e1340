@@ -153,4 +153,57 @@ projectTestBlue =
     5.0
     0.000001
   ]
+
+projectTestChecker :: Project
+projectTestChecker =
+  Project
+  "test checkerboard"
+  400
+  300
+  "AbsoluteLocation"
+  [ (Model   "models/box.bgeo")]
+  [ (PreObject
+    "Checker box"
+    "planet"
+    nil
+    [0]
+    [
+      "pretranslate'"
+    , "identity"
+    , "identity"    
+    ]
+    [
+      [1.33,0,0]
+    , []
+    ]
+    
+    -- [
+    --  "pretranslate'"
+    -- ]
+    -- [
+    --  [1.33,0,0]
+    -- ]
+
+    -- [
+    --  "prerotate"
+    -- ]
+    -- [
+    --  [0,0,0,0,0,1000]
+    -- ]
+    )
+  ]
+  []
+  emptyGUI
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]  
  

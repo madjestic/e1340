@@ -1,4 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 
 module ObjectTree
   ( ObjectTree (..)
@@ -15,8 +19,11 @@ module ObjectTree
 import Control.Lens hiding (transform, pre)
 import Linear.Matrix
 import Linear (V3(..))
+import Linear (V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
+
+import Data.VectorSpace
 
 import Graphics.RedViz.Project as Project
 import Graphics.RedViz.Project.Model as Model
@@ -33,6 +40,8 @@ import Graphics.RedViz.Widget as Widget
 import Object
 import Solvable
 import Data.Aeson.Types (emptyObject)
+
+import Debug.Trace as DT
 
 data GUI
   =  GUI
@@ -120,6 +129,13 @@ modelPaths cls project = modelList
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> project ^.. Project.gui . Project.fonts . traverse . path
 
+show' :: M44 Double -> String
+show' (V4 x y z w) =
+  show x ++ "\n" ++
+  show y ++ "\n" ++
+  show z ++ "\n" ++
+  show w ++ "\n"
+
 fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
 fromPreObject prj0 cls pObj0 = do
   (ds', svgeos') <- toDescriptorSVGeo prj0 pObj0 :: IO ([Descriptor], [SVGeo])
@@ -142,14 +158,18 @@ fromPreObject prj0 cls pObj0 = do
                      _  -> solverAttrs'  :: [[Double]]
     solvers'     = toSolver <$> zip solversF attrsF :: [Solver]
     xforms'      = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
-    ypr0         = V3 0 0 0 :: V3 Double
+    ypr0s        = repeat (V3 0 0 0 :: V3 Double)
+    
     (transforms', ypr')  =
-    -- transforms' =
       case cls of
-        Font -> unzip $ zip xforms' (repeat ypr0) :: ([M44 Double], [V3 Double])
-        --_    -> uncurry preTransformer <$> (zip solvers' xforms' ::[(Solver, M44 Double)]) :: [M44 Double]
-        _    -> unzip $ uncurry preTransformer' <$> zip solvers' (zip xforms' (repeat ypr0)) :: ([M44 Double], [V3 Double])
-
+        Font -> unzip $ zip xforms' ypr0s :: ([M44 Double], [V3 Double])
+        _ -> unzip $ (\ (mtx, ypr) -> foldPretransformers (mtx, ypr) (reverse solvers')) <$> zip xforms' ypr0s
+          where
+            foldPretransformers :: (M44 Double, V3 Double) -> [Solver] -> (M44 Double, V3 Double)
+            foldPretransformers (mtx0, ypr0) []     = (mtx0, ypr0)
+            foldPretransformers (mtx0, ypr0) [s]    = preTransformer s (foldPretransformers (mtx0, ypr0) [])
+            foldPretransformers (mtx0, ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, ypr0) ss)
+  
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?
     avelocity'   = V3 0 0 0 :: V3 Double
@@ -165,7 +185,6 @@ fromPreObject prj0 cls pObj0 = do
        materials'
        programs'
        transforms'
-       --(V3 0 0 0 :: V3 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -177,9 +196,11 @@ fromPreObject prj0 cls pObj0 = do
            ds'
            materials'
            programs'
-           transforms'
-           --(V3 0 0 0 :: V3 Double)
-           (sum ypr')
+           --transforms'
+           --(sum ypr')
+           (DT.trace ("fromPreObject.transforms' : " ++ "\n" ++ (concat $ show' <$> transforms')) transforms')
+           --(DT.trace ("fromPreObject.ypr' : " ++ show (ypr')) (sum ypr'))
+           (DT.trace ("fromPreObject.ypr' : " ++ show (head ypr')) (head ypr'))
            (V3 0 0 0 :: V3 Double)
            time')
           name'
@@ -194,7 +215,8 @@ fromPreObject prj0 cls pObj0 = do
            ds'
            materials'
            programs'
-           transforms'
+           --transforms'
+           (DT.trace ("fromPreObject . transforms' length : " ++ show (length transforms')) transforms')
            --(V3 0 0 0 :: V3 Double)
            (sum ypr')
            (V3 0 0 0 :: V3 Double)

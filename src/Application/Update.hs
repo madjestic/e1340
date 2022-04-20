@@ -36,12 +36,21 @@ appRun :: Application -> SF (AppInput, Application) Application
 appRun app0 =
   proc (input, app') -> do
     as <- case _interface app0 of
-            Intro        -> appIntro   app0 -< (input, app')
-            Main Default -> appMainPre app0 -<  input
+            --Intro        -> appIntro   app0 -< (input, app')
+            Intro        -> appIntroPre app0 -<  input
+            Main Default -> appMainPre  app0 -<  input
+            --Main Default -> appMain    app0 -< (input, app')
             -- Main Debug   -> appMain    app0 -< (input, app')
             Info Earth   -> appInfoPre app0 -<  input
             _ -> appMainPre app0  -< input
     returnA -< as
+
+appIntroPre :: Application -> SF AppInput Application
+appIntroPre app0 =
+  loopPre app0 $
+  proc (input, gameState) -> do
+    app1 <- appIntro app0 -< (input, gameState)
+    returnA -< (app1, app1)
 
 appIntro :: Application -> SF (AppInput, Application) Application
 appIntro app0  = 
@@ -66,6 +75,7 @@ appMain app0 =
      where sf =
              proc (input, app1) -> do
                app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.main)
+               --app'        <- returnA -< app0^.Appl.main
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 
