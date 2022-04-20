@@ -1,0 +1,56 @@
+{
+    "name": "test blue",
+    "resx": 800,
+    "resy": 600,
+    "camMode": "AbsoluteLocation",
+    "models": [
+        {
+            "path": "models/box_blue.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "blue box",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "ptype": "planet",
+            "uuid": "eb73631e-20ae-4c29-8898-69cb4fc65031"
+        }
+    ],
+    "background": [],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -11,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
+            "pcname": "PlayerCamera"
+        }
+    ],
+    "gui": {
+        "fonts": [],
+        "widgets": []
+    }
+}

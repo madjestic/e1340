@@ -1,0 +1,56 @@
+{
+    "name": "test green",
+    "resx": 800,
+    "resy": 600,
+    "camMode": "AbsoluteLocation",
+    "models": [
+        {
+            "path": "models/box_green.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "green box",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "ptype": "planet",
+            "uuid": "404b3357-8f96-4f89-8ccf-091bed73eaa2"
+        }
+    ],
+    "background": [],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -11,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
+            "pcname": "PlayerCamera"
+        }
+    ],
+    "gui": {
+        "fonts": [],
+        "widgets": []
+    }
+}

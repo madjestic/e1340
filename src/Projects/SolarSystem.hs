@@ -15,33 +15,33 @@ gui =
 
 sun     :: [Int] -> PreObject
 sun     idxs =
-  PreObject "sun"     "planet" nil idxs [] []
+  PreObject "sun"     "planet" nil idxs [] [] [] []
 mercury :: [Int] -> PreObject
 mercury idxs =
-  PreObject "mercury" "planet" nil idxs [] []
+  PreObject "mercury" "planet" nil idxs [] [] [] []
 venus   :: [Int] -> PreObject
 venus   idxs =
-  PreObject "venus"   "planet" nil idxs [] []
+  PreObject "venus"   "planet" nil idxs [] [] [] []
 earth   :: [Int] -> PreObject
 earth   idxs =
-  PreObject "earth"   "planet" nil idxs [] []
+  PreObject "earth"   "planet" nil idxs [] [] [] []
 moon   :: [Int] -> PreObject
 moon   idxs =
-  PreObject "moon"    "planet" nil idxs [] []
+  PreObject "moon"    "planet" nil idxs [] [] [] []
 mars    :: [Int] -> PreObject
 mars    idxs =
-  PreObject "mars"    "planet" nil idxs [] []
+  PreObject "mars"    "planet" nil idxs [] [] [] []
 jupiter :: [Int] -> PreObject
 jupiter idxs =
-  PreObject "jupiter" "planet" nil idxs [] []
+  PreObject "jupiter" "planet" nil idxs [] [] [] []
 
 gizmo   :: [Int] -> PreObject
 gizmo   idxs =
-  PreObject "gizmo" "planet" nil idxs [] []
+  PreObject "gizmo" "planet" nil idxs [] [] [] []
 
 stars :: [Int] -> PreObject
 stars idxs =
-  PreObject "stars" "planet" nil idxs [] []
+  PreObject "stars" "planet" nil idxs [] [] [] []
 
 earthCam :: ProjectCamera
 earthCam =

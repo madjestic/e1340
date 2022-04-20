@@ -150,29 +150,6 @@ identity' mtx0 = (mtx, ypr)
           rot = view _m33 mtx0
           tr  = view (_w._xyz) mtx0
 
--- preTranslate :: M44 Double -> V3 Double -> M44 Double
--- preTranslate mtx0 v0 = mtx
---   where
---     mtx =
---       mkTransformationMat
---         rot
---         tr
---         where
---           rot = view _m33 mtx0
---           tr  = v0 + view (_w._xyz) mtx0
-
--- preTranslate' :: M44 Double -> V3 Double -> (M44 Double, V3 Double)
--- preTranslate' mtx0 v0 = (mtx, ypr)
---   where
---     ypr = V3 0 0 0
---     mtx =
---       mkTransformationMat
---         rot
---         tr
---         where
---           rot = view _m33 mtx0
---           tr  = v0 + view (_w._xyz) mtx0
-
 preTranslate :: CoordSys -> M44 Double -> V3 Double -> V3 Double -> (M44 Double, V3 Double)
 preTranslate cs mtx0 ypr0 v0 = (mtx, ypr0)
   where
@@ -181,10 +158,6 @@ preTranslate cs mtx0 ypr0 v0 = (mtx, ypr0)
       !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
       !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
       !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
-      -- !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (0)) -- yaw
-      -- !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (0)) -- pitch
-      -- !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (100)) -- roll
-      
 
     v0' =
       case cs of

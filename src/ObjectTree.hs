@@ -26,6 +26,7 @@ import GHC.Float
 import Data.VectorSpace
 
 import Graphics.RedViz.Project as Project
+import Graphics.RedViz.Project as P
 import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
@@ -147,23 +148,38 @@ fromPreObject prj0 cls pObj0 = do
     materials'
 
   let
-    name'        = view pname pObj0     :: String
-    psolvers'    = view Project.solvers pObj0     :: [String]
-    solverAttrs' = view Project.solverAttrs pObj0 :: [[Double]]
+    name'           = view pname pObj0        :: String
+    
+    presolvers'     = pObj0 ^. P.presolvers   :: [String]
+    psolvers'       = pObj0 ^. P.solvers      :: [String]
+    
+    presolverAttrs' = pObj0 ^. presolverAttrs :: [[Double]]
+    solverAttrs'    = pObj0 ^. solverAttrs    :: [[Double]]
+
+    presolversF  = case presolvers' of
+                     [] -> [""]
+                     _  -> presolvers'        :: [String]
     solversF     = case psolvers' of
                      [] -> [""]
-                     _  -> psolvers'     :: [String]
+                     _  -> psolvers'          :: [String]
+
+    preattrsF    = case presolverAttrs' of
+                     [] -> [[]]
+                     _  -> presolverAttrs'  :: [[Double]]
     attrsF       = case solverAttrs' of
                      [] -> [[]]
                      _  -> solverAttrs'  :: [[Double]]
-    solvers'     = toSolver <$> zip solversF attrsF :: [Solver]
+
+    presolvers''  = toSolver <$> zip presolversF preattrsF :: [Solver]                     
+    solvers''     = toSolver <$> zip solversF    attrsF    :: [Solver]
+    
     xforms'      = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
     ypr0s        = repeat (V3 0 0 0 :: V3 Double)
     
     (transforms', ypr')  =
       case cls of
         Font -> unzip $ zip xforms' ypr0s :: ([M44 Double], [V3 Double])
-        _ -> unzip $ (\ (mtx, ypr) -> foldPretransformers (mtx, ypr) (reverse solvers')) <$> zip xforms' ypr0s
+        _ -> unzip $ (\ (mtx, ypr) -> foldPretransformers (mtx, ypr) (reverse presolvers'')) <$> zip xforms' ypr0s
           where
             foldPretransformers :: (M44 Double, V3 Double) -> [Solver] -> (M44 Double, V3 Double)
             foldPretransformers (mtx0, ypr0) []     = (mtx0, ypr0)
@@ -208,7 +224,7 @@ fromPreObject prj0 cls pObj0 = do
           avelocity'
           mass'
           density'
-          solvers'
+          solvers''
         "sprite" -> return $
           Sprite
           (Object'

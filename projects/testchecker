@@ -1,0 +1,83 @@
+{
+    "name": "test checkerboard",
+    "resx": 400,
+    "resy": 300,
+    "camMode": "AbsoluteLocation",
+    "models": [
+        {
+            "path": "models/box.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "Checker box",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [
+                "translate"
+            ],
+            "solverAttrs": [
+                [
+                    1000,
+                    0,
+                    0
+                ]
+            ],
+            "presolvers": [
+                "prerotate",
+                "pretranslate'"
+            ],
+            "presolverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    100
+                ],
+                [
+                    1.33,
+                    0,
+                    0
+                ]
+            ],
+            "ptype": "planet",
+            "uuid": "8a11e09a-f394-438e-b2fe-8de50165373e"
+        }
+    ],
+    "background": [],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -11,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
+            "pcname": "PlayerCamera"
+        }
+    ],
+    "gui": {
+        "fonts": [],
+        "widgets": []
+    }
+}

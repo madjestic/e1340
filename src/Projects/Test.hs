@@ -24,6 +24,8 @@ project =
     "planet"
     nil
     [0]
+    []
+    []
     ["rotate", "translate"]
     [[0,0,0,0,0,1000]
     ,[1000,0,0]]
@@ -73,6 +75,8 @@ projectTestRed =
     [0]
     []
     []
+    []
+    []
     )
   ]
   []
@@ -103,6 +107,8 @@ projectTestGreen =
     "planet"
     nil
     [0]
+    []
+    []
     []
     []
     )
@@ -137,6 +143,8 @@ projectTestBlue =
     [0]
     []
     []
+    []
+    []
     )
   ]
   []
@@ -168,13 +176,18 @@ projectTestChecker =
     nil
     [0]
     [
-      "pretranslate'"
-    , "identity"
-    , "identity"    
+      "prerotate"
+    , "pretranslate'"
     ]
     [
-      [1.33,0,0]
-    , []
+      [0,0,0,0,0,100]
+    , [1.33,0,0]
+    ]
+    [
+      "translate"
+    ]
+    [
+      [1000,0,0]
     ]
     
     -- [

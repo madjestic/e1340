@@ -143,16 +143,17 @@ transform' solver ypr0 mtx0 =
         do
           returnA -< (LM.identity :: M44 Double, ypr0)
       Solvable.Identity ->
-        --returnA -< (mtx0, ypr0)
+        returnA -< (mtx0, ypr0)
         --returnA -< (mtx0, V3 0 0 0 :: V3 Double)
-        returnA -< (LM.identity :: M44 Double, V3 0 0 0)
+        --returnA -< (LM.identity :: M44 Double, V3 0 0 0)
       _ ->
         do
+          returnA -< (mtx0, ypr0)
           --returnA -< (mtx0, V3 0 0 0 :: V3 Double)
           --returnA -< (LM.identity :: M44 Double, ypr0)
-          returnA -< (LM.identity :: M44 Double, V3 0 0 0)
-    --returnA -< state
-    returnA -< ((DT.trace ("SUKA transform' mtx0 : " ++ show mtx0) mtx0), ypr0)
+          --returnA -< (LM.identity :: M44 Double, V3 0 0 0)
+    returnA -< state
+    --returnA -< ((DT.trace ("SUKA transform' mtx0 : " ++ show mtx0) mtx0), ypr0)
     --returnA -< (LM.identity :: M44 Double, V3 0 0 0 :: V3 Double)
       where
         Rotate     pv0 ypr1 = solver
