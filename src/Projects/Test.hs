@@ -166,8 +166,8 @@ projectTestChecker :: Project
 projectTestChecker =
   Project
   "test checkerboard"
-  400
-  300
+  800
+  600
   "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
   [ (PreObject
@@ -177,17 +177,15 @@ projectTestChecker =
     [0]
     [
       "prerotate"
-    , "pretranslate'"
     ]
     [
       [0,0,0,0,0,100]
-    , [1.33,0,0]
     ]
     [
-      "translate"
+      "rotate"
     ]
     [
-      [1000,0,0]
+      [0,0,0,10000,0,0]
     ]
     )
   ]
@@ -204,5 +202,38 @@ projectTestChecker =
     1.0
     5.0
     0.000001
-  ]  
- 
+  ]
+
+projectTestCheckerOffset :: Project
+projectTestCheckerOffset =
+  Project
+  "test checkerboard"
+  800
+  600
+  "AbsoluteLocation"
+  [ (Model   "models/box.bgeo")]
+  [ (PreObject
+    "Checker box"
+    "planet"
+    nil
+    [0]
+    [    ]
+    [    ]
+    [    ]
+    [    ]
+    )
+  ]
+  []
+  gui
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]

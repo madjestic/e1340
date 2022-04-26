@@ -43,7 +43,7 @@ import ObjectTree         as OT
 -- import Debug.Trace    as DT
 
 debug :: Bool
-#ifdef DEBUG
+#ifdef DEBUGMAIN
 debug = True
 #else
 debug = False

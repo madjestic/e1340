@@ -1,7 +1,7 @@
 {
     "name": "test checkerboard",
-    "resx": 400,
-    "resy": 300,
+    "resx": 800,
+    "resy": 600,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -15,18 +15,20 @@
                 0
             ],
             "solvers": [
-                "translate"
+                "rotate"
             ],
             "solverAttrs": [
                 [
-                    1000,
+                    0,
+                    0,
+                    0,
+                    10000,
                     0,
                     0
                 ]
             ],
             "presolvers": [
-                "prerotate",
-                "pretranslate'"
+                "prerotate"
             ],
             "presolverAttrs": [
                 [
@@ -36,15 +38,10 @@
                     0,
                     0,
                     100
-                ],
-                [
-                    1.33,
-                    0,
-                    0
                 ]
             ],
             "ptype": "planet",
-            "uuid": "cbcf7ba1-e162-46fd-a994-a5443877c01f"
+            "uuid": "9a90e6fa-e9f6-4653-a1f8-5a6e3695217a"
         }
     ],
     "background": [],

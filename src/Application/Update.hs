@@ -29,7 +29,8 @@ appLoop app0 =
 
 appRun :: Application -> SF (AppInput, Application) Application
 appRun app0 =
-  proc (input, app') -> do
+  --proc (input, app') -> do
+  proc (input, _) -> do
     as <- case _interface app0 of
             Intro        -> appIntroPre app0 -<  input
             Main Default -> appMainPre  app0 -<  input

@@ -18,12 +18,9 @@ module ObjectTree
 
 import Control.Lens hiding (transform, pre)
 import Linear.Matrix
-import Linear (V3(..))
-import Linear (V4(..))
+import Linear (V3(..), V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
-
-import Data.VectorSpace
 
 import Graphics.RedViz.Project as Project
 import Graphics.RedViz.Project as P
@@ -40,9 +37,8 @@ import Graphics.RedViz.Widget as Widget
 
 import Object
 import Solvable
-import Data.Aeson.Types (emptyObject)
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data GUI
   =  GUI
@@ -179,12 +175,12 @@ fromPreObject prj0 cls pObj0 = do
     (transforms', ypr')  =
       case cls of
         Font -> unzip $ zip xforms' ypr0s :: ([M44 Double], [V3 Double])
-        _ -> unzip $ (\ (mtx, ypr) -> foldPretransformers (mtx, ypr) (reverse presolvers'')) <$> zip xforms' ypr0s
+        _ -> unzip $ (\ (mtx, _ypr) -> foldPretransformers (mtx, _ypr) (reverse presolvers'')) <$> zip xforms' ypr0s
           where
             foldPretransformers :: (M44 Double, V3 Double) -> [Solver] -> (M44 Double, V3 Double)
-            foldPretransformers (mtx0, ypr0) []     = (mtx0, ypr0)
-            foldPretransformers (mtx0, ypr0) [s]    = preTransformer s (foldPretransformers (mtx0, ypr0) [])
-            foldPretransformers (mtx0, ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, ypr0) ss)
+            foldPretransformers (mtx0, _ypr0) []     = (mtx0, _ypr0)
+            foldPretransformers (mtx0, _ypr0) [s]    = preTransformer s (foldPretransformers (mtx0, _ypr0) [])
+            foldPretransformers (mtx0, _ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, _ypr0) ss)
   
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?

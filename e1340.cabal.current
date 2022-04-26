@@ -152,6 +152,7 @@ executable e1340
   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
   ghc-options:   -O2 -threaded
   --cpp-options:   -DDEBUG
+  --cpp-options:   -DDEBUGMAIN
   build-depends:
                  base                
                , aeson               

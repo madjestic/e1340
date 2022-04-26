@@ -25,7 +25,7 @@ import Object as Obj-- (Empty)
 import Camera
 import Solvable
 
-import Debug.Trace as DT (trace)
+-- import Debug.Trace as DT (trace)
 
 formatDebug' :: App -> String
 formatDebug' app0 =
@@ -71,8 +71,8 @@ updateApp app0 =
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
     objs        <- updateObjects (filteredLinObjs app0)                 -< ()
     
-    let selectable' = selectByDist (10.0 :: Double) cam objs
-    --let selectable' = selectByDist (50000000.0 :: Double) cam objs
+    --let selectable' = selectByDist (10.0 :: Double) cam objs
+    let selectable' = selectByDist (50000000.0 :: Double) cam objs
     selected'    <- updateSelected   app0 -< (input, selectable')
 
     let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
@@ -87,8 +87,8 @@ updateApp app0 =
       unionObjs    = IM.union objs'IntMap objsIntMap
       result =
         app'
-        { -- App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-          App._objects = (objTree {_foreground = objs })
+        { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+          --App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
         , _playCam     = cam
         , _selectable  = selectable'

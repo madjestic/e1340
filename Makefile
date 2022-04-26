@@ -136,5 +136,12 @@ testchecker:
 	cabal run exe:genProject -- ./projects/testchecker 
 	cabal run exe:genUUID -- -p ./projects/testchecker 
 	# cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testchecker
-	cabal run +RTS -sstderr -RTS e1340 ./projects/testchecker ./projects/testchecker	
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testchecker ./projects/testchecker
 
+testcheckeroffset:
+	cabal build exe:e1340
+	./resources/convertGeo.sh box
+	cabal run exe:genProject -- ./projects/testcheckeroffset
+	cabal run exe:genUUID -- -p ./projects/testcheckeroffset
+	# cabal run +RTS -sstderr -RTS e1340 ./projects/testred ./projects/testchecker
+	cabal run +RTS -sstderr -RTS e1340 ./projects/testcheckeroffset ./projects/testcheckeroffset

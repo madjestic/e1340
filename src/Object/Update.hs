@@ -18,7 +18,7 @@ import Graphics.RedViz.Object as Obj
 import Object.Object as Obj
 import Solvable
 
-import Debug.Trace as DT (trace)
+--import Debug.Trace as DT (trace)
 
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
@@ -103,76 +103,96 @@ transform obj0 slv0 =
   proc () ->
     do
       result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
+      --result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
       returnA -< unzip result
         where
           mtxs0 = obj0 ^. base . transforms :: [M44 Double]
           ypr0' = obj0 ^. base . ypr0 :: V3 Double
 
+-- transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
+-- transform' solver ypr0' mtx0 =
+--   proc () -> do
+--     state <- case solver of
+--       --Rotate pv0 ypr0' ->
+--       Rotate _ _ ->
+--         do
+--           (mtx', ypr') <- Solvable.rotate mtx0 pv0' ypr0' ypr1 -< ()
+--           returnA -< (mtx', ypr')
+--       Translate _ ->
+--         do
+--           mtx' <- translate mtx0 txyz -< ()
+--           returnA -< (mtx', ypr0')
+--       Gravity _ ->
+--         do
+--           returnA -< (LM.identity :: M44 Double, ypr0')
+--       Solvable.Identity ->
+--         returnA -< (mtx0, ypr0')
+--       _ ->
+--         do
+--           returnA -< (mtx0, ypr0')
+--     returnA -< state
+--       where
+--         Rotate     pv0' ypr1 = solver
+--         Translate  txyz     = solver
+
 transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
-transform' solver ypr0 mtx0 =
+transform' solver ypr0' mtx0 =
   proc () -> do
     state <- case solver of
-      Rotate pv0 ypr0 ->
-        do
-          (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
-          returnA -< (mtx', ypr')
-      Translate _ ->
-        do
-          mtx' <- translate mtx0 txyz -< ()
-          returnA -< (mtx', ypr0)
-      Gravity _ ->
-        do
-          returnA -< (LM.identity :: M44 Double, ypr0)
-      Solvable.Identity ->
-        returnA -< (mtx0, ypr0)
-      _ ->
-        do
-          returnA -< (mtx0, ypr0)
+    --state <- case (DT.trace ("transform' solver : " ++ show solver) solver) of
+      --Translate Static _ _ -> do
+      Translate _ _ _ -> do
+        state' <- case solver of
+          Translate _ WorldSpace offset -> do
+            tr <- translate' WorldSpace mtx0 -< offset
+            returnA -< (tr, ypr0')
+          Translate _ ObjectSpace _ -> do
+            returnA -< undefined
+          _ -> do
+            returnA -< undefined
+        returnA -< state'
+      _ -> do
+        returnA -< (mtx0, ypr0')
     returnA -< state
-      where
-        Rotate     pv0 ypr1 = solver
-        Translate  txyz     = solver
-
-transform'' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
-transform'' solver ypr0 mtx0 =
-  proc () -> do
-    state <- case solver of
-      Translate' Static _ _ -> do
-        state' <- case solver of
-          Translate' _ WorldSpace _ -> do
-            returnA -< undefined
-          Translate' _ ObjectSpace _ -> do
-            returnA -< undefined          
-        returnA -< state'
-      Translate' Dynamic _ _ -> do
-        state' <- case solver of
-          Translate' _ WorldSpace _ -> do
-            returnA -< undefined
-          Translate' _ ObjectSpace _ -> do
-            returnA -< undefined          
-        returnA -< state'
+      -- Translate Dynamic _ _ -> do
+      --   state' <- case solver of
+      --     Translate _ WorldSpace _ -> do
+      --       returnA -< undefined
+      --     Translate _ ObjectSpace _ -> do
+      --       returnA -< undefined
+      --     _ -> do
+      --       returnA -< undefined                                
+      --   returnA -< state'
+    -- returnA -< state
       
-      Rotate' Static _ _ _ -> do
-        state' <- case solver of
-          Rotate' _ WorldSpace _ _ -> do
-            (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
-            returnA -< (mtx', ypr')
-          Rotate' _ ObjectSpace _ _ -> do
-            (mtx', ypr') <- Solvable.rotate mtx0 pv0 ypr0 ypr1 -< ()
-            returnA -< (mtx', ypr')
-        returnA -< state'
-      Rotate' Dynamic _ _ _ -> do
-        state' <- case solver of
-          Rotate' _ WorldSpace _ _ -> do
-            returnA -< undefined        
-          Rotate' _ ObjectSpace _ _ -> do
-            returnA -< undefined        
-        returnA -< state'
+    --   Rotate' Static _ _ _ -> do
+    --     state' <- case solver of
+    --       Rotate' _ WorldSpace _ _ -> do
+    --         (mtx', ypr') <- Solvable.rotate WorldSpace mtx0 pv0 ypr0' ypr1 -< ()
+    --         returnA -< (mtx', ypr')
+    --       Rotate' _ ObjectSpace _ _ -> do
+    --         (mtx', ypr') <- Solvable.rotate ObjectSpace mtx0 pv0 ypr0' ypr1 -< ()
+    --         returnA -< (mtx', ypr')
+    --       _ -> do
+    --         returnA -< undefined                    
+    --     returnA -< state'
+    --   Rotate' Dynamic _ _ _ -> do
+    --     state' <- case solver of
+    --       Rotate' _ WorldSpace _ _ -> do
+    --         returnA -< undefined        
+    --       Rotate' _ ObjectSpace _ _ -> do
+    --         returnA -< undefined
+    --       _ -> do
+    --         returnA -< undefined                    
+    --     returnA -< state'
+    --   _ ->
+    --     do
+    --       returnA -< (mtx0, ypr0')
 
-    returnA -< state
-      where
-        pv0  = undefined
-        ypr1 = undefined
+    -- returnA -< state
+    --   where
+    --     pv0  = undefined
+    --     ypr1 = undefined
 
 g :: Double
 g = 6.673**(-11.0) :: Double
