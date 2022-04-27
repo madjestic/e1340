@@ -26,9 +26,9 @@ earth   :: [Int] -> PreObject
 earth   idxs =
   PreObject "earth"   "planet" nil idxs
   ["prerotate"]
-  [[0,0,0,0,0,-100]]
-  ["translate"]
-  [[10000000000,0,0]]
+  [[0,0,0,0,0,0.3]]
+  ["rotate'"]
+  [[0,0,0,0,0,0]]
 moon   :: [Int] -> PreObject
 moon   idxs =
   PreObject "moon"    "planet" nil idxs [] [] [] []

@@ -136,34 +136,37 @@ transform obj0 slv0 =
 --         Translate  txyz     = solver
 
 transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
-transform' solver ypr0' mtx0 =
+transform' solver ypr0 mtx0 =
   proc () -> do
     state <- case solver of
     --state <- case (DT.trace ("transform' solver : " ++ show solver) solver) of
-      --Translate Static _ _ -> do
-      Translate _ _ _ -> do
+      Translate Dynamic _ _ -> do
         state' <- case solver of
           Translate _ WorldSpace offset -> do
-            tr <- translate' WorldSpace mtx0 -< offset
-            returnA -< (tr, ypr0')
-          Translate _ ObjectSpace _ -> do
-            returnA -< undefined
+            tr <- translate WorldSpace mtx0 ypr0  -< offset
+            returnA -< (tr, ypr0)
+          Translate _ ObjectSpace offset -> do
+            tr <- translate ObjectSpace mtx0 ypr0 -< offset
+            returnA -< (tr, ypr0)
           _ -> do
-            returnA -< undefined
+            returnA -< (mtx0, ypr0)
         returnA -< state'
+
+      Rotate Dynamic _ _ _ -> do
+        state' <- case solver of
+          Rotate _ WorldSpace pv0 avel -> do
+            (mtx', ypr') <- rotate WorldSpace mtx0 ypr0 -< (avel, pv0)
+            returnA -< (mtx', ypr')
+          Rotate _ ObjectSpace pv0 avel -> do
+            (mtx', ypr') <- rotate ObjectSpace mtx0 ypr0 -< (avel, pv0)
+            returnA -< (mtx', ypr')
+          _ -> do
+            returnA -< undefined                    
+        returnA -< state'
+        
       _ -> do
-        returnA -< (mtx0, ypr0')
+        returnA -< (mtx0, ypr0)
     returnA -< state
-      -- Translate Dynamic _ _ -> do
-      --   state' <- case solver of
-      --     Translate _ WorldSpace _ -> do
-      --       returnA -< undefined
-      --     Translate _ ObjectSpace _ -> do
-      --       returnA -< undefined
-      --     _ -> do
-      --       returnA -< undefined                                
-      --   returnA -< state'
-    -- returnA -< state
       
     --   Rotate' Static _ _ _ -> do
     --     state' <- case solver of
