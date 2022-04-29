@@ -28,7 +28,7 @@ earth   idxs =
   ["prerotate"]
   [[0,0,0,0,0,0.3]]
   ["rotate'"]
-  [[0,0,0,0,0,0]]
+  [[0,0,0,0.5,1,0]]
 moon   :: [Int] -> PreObject
 moon   idxs =
   PreObject "moon"    "planet" nil idxs [] [] [] []

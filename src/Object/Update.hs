@@ -18,7 +18,7 @@ import Graphics.RedViz.Object as Obj
 import Object.Object as Obj
 import Solvable
 
---import Debug.Trace as DT (trace)
+import Debug.Trace as DT (trace)
 
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
@@ -153,12 +153,15 @@ transform' solver ypr0 mtx0 =
         returnA -< state'
 
       Rotate Dynamic _ _ _ -> do
+      --Rotate Dynamic _ (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0) -> do
         state' <- case solver of
           Rotate _ WorldSpace pv0 avel -> do
-            (mtx', ypr') <- rotate WorldSpace mtx0 ypr0 -< (avel, pv0)
+            (mtx', ypr') <- rotate WorldSpace mtx0 ypr0  -< (avel, pv0)
+            --(mtx', ypr') <- rotate WorldSpace (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0)  -< (avel, pv0)
             returnA -< (mtx', ypr')
           Rotate _ ObjectSpace pv0 avel -> do
             (mtx', ypr') <- rotate ObjectSpace mtx0 ypr0 -< (avel, pv0)
+            --(mtx', ypr') <- rotate ObjectSpace (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0) -< (avel, pv0)
             returnA -< (mtx', ypr')
           _ -> do
             returnA -< undefined                    
