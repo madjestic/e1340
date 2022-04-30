@@ -6,7 +6,8 @@ module Object
   , materials
   , programs
   , descriptors
-  , transforms
+  , transforms0
+  , transforms1
   , ypr
   , velocity
   , solvers

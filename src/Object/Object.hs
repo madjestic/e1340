@@ -14,7 +14,8 @@ module Object.Object
   , materials
   , programs
   , descriptors
-  , transforms
+  , transforms0
+  , transforms1
   , ypr0
   , ypr
   , velocity
@@ -78,6 +79,7 @@ defaultObj =
      []
      [defaultMat]
      []
+     [(identity::M44 Double)]
      [(identity::M44 Double)]
      (V3 0 0 0 :: V3 Double)
      (V3 0 0 0 :: V3 Double)

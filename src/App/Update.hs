@@ -43,7 +43,7 @@ formatDebug' app0 =
     obj0tr =
       case obj0 of
         Obj.Empty _ -> V3 (-1) (-1) (-1)
-        _ -> (head $ obj0^.base.transforms::M44 Double)^.translation :: V3 Double
+        _ -> (head $ obj0^.base.transforms1::M44 Double)^.translation :: V3 Double
     obj0ypr =
       case obj0 of
         Obj.Empty _ -> V3 (-1) (-1) (-1)
@@ -146,4 +146,4 @@ distCamPosObj :: V3 Double -> Object -> Double
 distCamPosObj camPos0 obj0 = dist
   where
     dist    = distance camPos0 objPos 
-    objPos  = view translation $ head $ view (base . transforms) obj0 :: V3 Double
+    objPos  = view translation $ head $ view (base . transforms1) obj0 :: V3 Double

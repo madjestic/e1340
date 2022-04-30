@@ -144,5 +144,5 @@ toDrawable' mpos time0 res cam obj = drs
     names  = repeat $ objectNames obj
     mats   = obj ^. base . materials :: [Material]
     progs  = obj ^. base . programs  :: [Program]
-    xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]
+    xforms = concat $ replicate n $ obj ^. base . transforms1 :: [M44 Double]
     ds     = obj ^. base . descriptors :: [Descriptor]

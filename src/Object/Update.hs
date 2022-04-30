@@ -41,11 +41,12 @@ solve obj0 =
     time'   <- ((obj0 ^. base . Obj.time :: Double) ^+^) ^<< integral -< (1.0 :: Double)
 
     let
-      (mtxs, yprs) = unzip trs
+      --(mtxs, yprs) = unzip trs
+      (mtxs, yprs) = unzip (DT.trace ("DEBUG trs : " ++ show (fmap (100000*)$ concat $ snd $ unzip trs))trs)
       result =
-        obj0 & base . transforms .~ vectorizedCompose mtxs
-             & base . ypr        .~ (head . head $ yprs)
-             & base . Obj.time   .~ time'
+        obj0 & base . transforms1 .~ vectorizedCompose mtxs
+             & base . ypr         .~ (head . head $ yprs)
+             & base . Obj.time    .~ time'
     
     returnA -< result
       where
@@ -69,13 +70,13 @@ rotatedLists xs = rotateList' <$> DLI.indexed (replicate (length xs) xs)
 gravitySolver' :: (Object, [Object]) -> Object
 gravitySolver' (obj0, objs0) = obj
   where
-    m0     =  _mass obj0               :: Double
-    xform0 = head $ obj0 ^. base . transforms :: M44 Double
-    p0     = LM.transpose xform0 ^._w._xyz :: V3 Double
-
-    ms'    = fmap _mass objs0          :: [Double]
-    xforms = fmap (head . _transforms) $ _base <$> objs0      :: [M44 Double]
-    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms :: [V3 Double]
+    m0     =  _mass obj0                                   :: Double
+    xform0 = head $ obj0 ^. base . transforms1             :: M44 Double
+    p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
+                                                            
+    ms'    = fmap _mass objs0                              :: [Double]
+    xforms = fmap (head . _transforms1) $ _base <$> objs0  :: [M44 Double]
+    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
 
     acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double
     -- acc = sum $ fmap (gravity (DT.trace ("p0 :" ++ show p0) p0)
@@ -95,7 +96,7 @@ gravitySolver' (obj0, objs0) = obj
         tr  = vel'+ p0
 
     obj = obj0
-          & base . transforms .~ [mtx]
+          & base . transforms1 .~ [mtx]
           & velocity .~ vel'
 
 transform :: Object -> Solver -> SF () ([M44 Double], [V3 Double])
@@ -103,37 +104,10 @@ transform obj0 slv0 =
   proc () ->
     do
       result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
-      --result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
       returnA -< unzip result
         where
-          mtxs0 = obj0 ^. base . transforms :: [M44 Double]
-          ypr0' = obj0 ^. base . ypr0 :: V3 Double
-
--- transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
--- transform' solver ypr0' mtx0 =
---   proc () -> do
---     state <- case solver of
---       --Rotate pv0 ypr0' ->
---       Rotate _ _ ->
---         do
---           (mtx', ypr') <- Solvable.rotate mtx0 pv0' ypr0' ypr1 -< ()
---           returnA -< (mtx', ypr')
---       Translate _ ->
---         do
---           mtx' <- translate mtx0 txyz -< ()
---           returnA -< (mtx', ypr0')
---       Gravity _ ->
---         do
---           returnA -< (LM.identity :: M44 Double, ypr0')
---       Solvable.Identity ->
---         returnA -< (mtx0, ypr0')
---       _ ->
---         do
---           returnA -< (mtx0, ypr0')
---     returnA -< state
---       where
---         Rotate     pv0' ypr1 = solver
---         Translate  txyz     = solver
+          mtxs0 = obj0 ^. base . transforms0 :: [M44 Double]
+          ypr0' = obj0 ^. base . ypr        :: V3 Double
 
 transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
 transform' solver ypr0 mtx0 =
@@ -153,7 +127,6 @@ transform' solver ypr0 mtx0 =
         returnA -< state'
 
       Rotate Dynamic _ _ _ -> do
-      --Rotate Dynamic _ (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0) -> do
         state' <- case solver of
           Rotate _ WorldSpace pv0 avel -> do
             (mtx', ypr') <- rotate WorldSpace mtx0 ypr0  -< (avel, pv0)

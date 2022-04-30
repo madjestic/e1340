@@ -40,7 +40,7 @@ import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
@@ -125,7 +125,7 @@ output lastInteraction window application = do
   mapM_ renderAsPoints    bgrsDrs
   case app ^. objects . gui . fonts of
     [] -> return ()
-    _  -> mapM_ renderWidgets     wgts
+    _  -> mapM_ renderWidgets wgts
 
   glSwapWindow window
 

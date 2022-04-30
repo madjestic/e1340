@@ -106,6 +106,8 @@ newtest:
 
 solarsystem:
 	cabal build exe:e1340
+	cabal run exe:genProject -- ./projects/testred
+	cabal run exe:genUUID -- -p ./projects/testred
 	cabal run exe:genProject -- ./projects/solarsystem
 	cabal run exe:genUUID -- -p ./projects/solarsystem
 	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
