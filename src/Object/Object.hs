@@ -81,6 +81,7 @@ defaultObj =
      []
      [(identity::M44 Double)]
      [(identity::M44 Double)]
+     (identity::M44 Double)
      (V3 0 0 0 :: V3 Double)
      (V3 0 0 0 :: V3 Double)
      0.0)

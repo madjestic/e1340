@@ -9,8 +9,9 @@ import Control.Lens    hiding (transform)
 import Data.List.Index as DLI (indexed)
 import FRP.Yampa
 import Linear.Matrix   as LM
-import Linear.V3
+import Linear.V3       as LV3
 import Linear.V4
+import Linear.Quaternion hiding (rotate)
 
 import Graphics.RedViz.Utils
 import Graphics.RedViz.Object as Obj
@@ -20,6 +21,8 @@ import Solvable
 
 import Debug.Trace as DT (trace)
 
+-- | Linear evolving objects (result depends only on initial condition and
+-- | can be extrapolated
 updateObjects :: [Object] -> SF () [Object]
 updateObjects objs0 =
   proc () -> do
@@ -41,16 +44,40 @@ solve obj0 =
     time'   <- ((obj0 ^. base . Obj.time :: Double) ^+^) ^<< integral -< (1.0 :: Double)
 
     let
-      --(mtxs, yprs) = unzip trs
-      (mtxs, yprs) = unzip (DT.trace ("DEBUG trs : " ++ show (fmap (100000*)$ concat $ snd $ unzip trs))trs)
-      result =
-        obj0 & base . transforms1 .~ vectorizedCompose mtxs
-             & base . ypr         .~ (head . head $ yprs)
+      (mtx1, ypr1) = postTransform trs
+      transforms1' = postRotate ypr1 . (!*!) mtx1 <$> obj0 ^. base . transforms0
+      
+      result = 
+        obj0 & base . transforms1 .~ transforms1'
+             & base . transformC  .~ mtx1
+             & base . ypr         .~ ypr1
              & base . Obj.time    .~ time'
     
     returnA -< result
       where
         slvs0 = view solvers obj0
+
+postTransform :: [(M44 Double, V3 Double)] -> (M44 Double, V3 Double)
+postTransform trs = (mtx, ypr)
+  where
+    (mtxs, yprs) = unzip trs
+    mtx          = foldl1 (!*!) mtxs
+    ypr          = sum yprs
+
+postRotate :: V3 Double -> M44 Double -> M44 Double
+postRotate ypr0 mtx0 = mtx
+  where
+    mtx =
+      mkTransformationMat
+        rot
+        tr
+        where
+          rot =
+            view _m33 mtx0
+            !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
+            !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
+            !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
+          tr  = view (_w._xyz) (transpose mtx0)
 
 gravitySolver :: SF [Object] [Object]
 gravitySolver =
@@ -99,79 +126,46 @@ gravitySolver' (obj0, objs0) = obj
           & base . transforms1 .~ [mtx]
           & velocity .~ vel'
 
-transform :: Object -> Solver -> SF () ([M44 Double], [V3 Double])
+transform :: Object -> Solver -> SF () (M44 Double, V3 Double)
 transform obj0 slv0 =
   proc () ->
     do
-      result <- (parB . fmap (transform' slv0 ypr0')) mtxs0 -< ()
-      returnA -< unzip result
-        where
-          mtxs0 = obj0 ^. base . transforms0 :: [M44 Double]
-          ypr0' = obj0 ^. base . ypr        :: V3 Double
+      result <- transform' obj0 slv0 -< obj0
+      returnA -< result
 
-transform' :: Solver -> V3 Double -> M44 Double -> SF () (M44 Double, V3 Double)
-transform' solver ypr0 mtx0 =
-  proc () -> do
-    state <- case solver of
-    --state <- case (DT.trace ("transform' solver : " ++ show solver) solver) of
-      Translate Dynamic _ _ -> do
-        state' <- case solver of
-          Translate _ WorldSpace offset -> do
-            tr <- translate WorldSpace mtx0 ypr0  -< offset
-            returnA -< (tr, ypr0)
-          Translate _ ObjectSpace offset -> do
-            tr <- translate ObjectSpace mtx0 ypr0 -< offset
-            returnA -< (tr, ypr0)
-          _ -> do
-            returnA -< (mtx0, ypr0)
-        returnA -< state'
-
-      Rotate Dynamic _ _ _ -> do
-        state' <- case solver of
-          Rotate _ WorldSpace pv0 avel -> do
-            (mtx', ypr') <- rotate WorldSpace mtx0 ypr0  -< (avel, pv0)
-            --(mtx', ypr') <- rotate WorldSpace (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0)  -< (avel, pv0)
-            returnA -< (mtx', ypr')
-          Rotate _ ObjectSpace pv0 avel -> do
-            (mtx', ypr') <- rotate ObjectSpace mtx0 ypr0 -< (avel, pv0)
-            --(mtx', ypr') <- rotate ObjectSpace (DT.trace ("transform mtx0 : " ++ show mtx0) mtx0) (DT.trace ("transform ypr0 : " ++ show ypr0) ypr0) -< (avel, pv0)
-            returnA -< (mtx', ypr')
-          _ -> do
-            returnA -< undefined                    
-        returnA -< state'
-        
-      _ -> do
-        returnA -< (mtx0, ypr0)
-    returnA -< state
+transform' :: Object -> Solver -> SF Object (M44 Double, V3 Double)
+transform' obj0 slv0 =
+  proc obj -> do
+      state <- case slv0 of
+        Translate _ WorldSpace vel ->
+          do
+            result  <- translate obj0 -< (obj, vel)
+            returnA -< result
+        Rotate _ WorldSpace pv0 avel ->
+          do
+            result  <- rotate obj0 -< (obj, pv0, avel)
+            returnA -< result
+        _ ->
+          do
+            returnA -< (LM.identity::M44 Double, V3 0 0 0)
       
-    --   Rotate' Static _ _ _ -> do
-    --     state' <- case solver of
-    --       Rotate' _ WorldSpace _ _ -> do
-    --         (mtx', ypr') <- Solvable.rotate WorldSpace mtx0 pv0 ypr0' ypr1 -< ()
-    --         returnA -< (mtx', ypr')
-    --       Rotate' _ ObjectSpace _ _ -> do
-    --         (mtx', ypr') <- Solvable.rotate ObjectSpace mtx0 pv0 ypr0' ypr1 -< ()
-    --         returnA -< (mtx', ypr')
-    --       _ -> do
-    --         returnA -< undefined                    
-    --     returnA -< state'
-    --   Rotate' Dynamic _ _ _ -> do
-    --     state' <- case solver of
-    --       Rotate' _ WorldSpace _ _ -> do
-    --         returnA -< undefined        
-    --       Rotate' _ ObjectSpace _ _ -> do
-    --         returnA -< undefined
-    --       _ -> do
-    --         returnA -< undefined                    
-    --     returnA -< state'
-    --   _ ->
-    --     do
-    --       returnA -< (mtx0, ypr0')
+      returnA -< state
 
-    -- returnA -< state
-    --   where
-    --     pv0  = undefined
-    --     ypr1 = undefined
+translate :: Object -> SF (Object, V3 Double) (M44 Double, V3 Double)
+translate obj0 = 
+  proc (obj, vel) -> do
+    tr' <- ((obj0 ^. base . transformC . translation) +) ^<< integral -< vel
+
+    let
+      result = obj0 ^. base . transformC & translation .~ tr'
+    returnA -< (result, V3 0 0 0)
+
+rotate :: Object -> SF (Object, V3 Double, V3 Double) (M44 Double, V3 Double)
+rotate obj0 =
+  proc (obj, pv, avel) -> do
+       ypr' <- ((obj0 ^. base . ypr) +) ^<< integral -< avel
+
+       returnA -< (LM.identity::M44 Double, ypr')
 
 g :: Double
 g = 6.673**(-11.0) :: Double

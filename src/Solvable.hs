@@ -9,8 +9,6 @@ module Solvable
   , CoordSys (..)
   , Animation (..)
   , preTransformer
-  , translate
-  , rotate
   , toSolver
   ) where
 
@@ -39,10 +37,10 @@ data Animation =
 
 data Solver =
      Identity
-  |  PreTranslate
-     {
-       _txyz   :: V3 Double
-     }
+  -- |  PreTranslate
+  --    {
+  --      _txyz   :: V3 Double
+  --    }
   |  PreTranslate'
      {
        _space :: CoordSys
@@ -54,11 +52,11 @@ data Solver =
      , _space :: CoordSys
      , _txyz  :: V3 Double
      }
-  |  PreRotate
-     {
-       _pivot :: V3 Double
-     , _ypr   :: V3 Double
-     }
+  -- |  PreRotate
+  --    {
+  --      _pivot :: V3 Double
+  --    , _ypr   :: V3 Double
+  --    }
   |  PreRotate'
      {
        _space :: CoordSys
@@ -72,18 +70,6 @@ data Solver =
      , _pivot :: V3 Double
      , _ypr   :: V3 Double
      }
-  -- |  Rotate' 
-  --    {
-  --      _anim  :: Animation
-  --    , _space :: CoordSys
-  --    , _pivot :: V3 Double
-  --    , _ypr   :: V3 Double
-  --    }
-  -- |  RotateConst
-  --    {
-  --      _pivot :: V3 Double
-  --    , _ypr   :: V3 Double
-  --    }
   |  Scale
      {
        _sxyz   :: V3 Double
@@ -199,59 +185,80 @@ preRotate cs mtx0 ypr0 ypr1 = (mtx, ypr')
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr'')) -- roll
               tr  = view (_w._xyz) mtx0
 
--- entry point from src/Object/Update.hs
-translate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double) (M44 Double)
-translate cs mtx0 ypr0 =
-  proc vel -> do
-    let
-      rot =
-        view _m33 mtx0
-        !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
-        !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
-        !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
+-- translate' :: CoordSys -> M44 Double -> V3 Double -> V3 Double -> (M44 Double, V3 Double)
+-- translate' cs mtx0 ypr0 vel0 = (mtx, ypr0)
+--   where
+--       rot =
+--         view _m33 mtx0
+--         !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
+--         !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
+--         !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
       
-      vel' =
-        case cs of
-          WorldSpace  -> vel
-          ObjectSpace -> vel *! rot
+--       vel =
+--         case cs of
+--           WorldSpace  -> vel0
+--           ObjectSpace -> vel0 *! rot
 
-    tr' <- (mtx0 ^. translation +) ^<< integral -< vel'
-    let mtx =
-          mkTransformationMat
-            (view _m33 mtx0)
-            tr'
+--       tr = mtx0 ^. translation + vel
 
-    returnA -< mtx
+--       mtx =
+--         mkTransformationMat
+--         (view _m33 mtx0)
+--         tr
 
--- entry point from src/Object/Update.hs
-rotate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double, V3 Double) (M44 Double, V3 Double)
-rotate cs mtx0 ypr0 =
-  proc (avel, pv0) -> do
-    --ypr' <- (ypr0' +) ^<< integral -< avel
-    ypr' <- case cs of
-      WorldSpace  -> (V3 0 0 0 +) ^<< integral -< avel
-      ObjectSpace -> (ypr0 +)     ^<< integral -< avel
+-- -- entry point from src/Object/Update.hs
+-- translate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double) (M44 Double)
+-- translate cs mtx0 ypr0 =
+--   proc vel -> do
+--     let
+--       rot =
+--         view _m33 mtx0
+--         !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
+--         !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
+--         !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
+      
+--       vel' =
+--         case cs of
+--           WorldSpace  -> vel
+--           ObjectSpace -> vel *! rot
 
-    let mtx =
-          mkTransformationMat
-            rot
-            tr
-            where
-              rot =
-                view _m33 mtx0
-                !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
-                !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
-                !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
-              -- rot =
-              --   (LM.identity :: M33 Double)
-              --   !*! fromQuaternion (axisAngle (view _x (LM.identity :: M33 Double)) (view _x ypr')) -- yaw
-              --   !*! fromQuaternion (axisAngle (view _y (LM.identity :: M33 Double)) (view _y ypr')) -- pitch
-              --   !*! fromQuaternion (axisAngle (view _z (LM.identity :: M33 Double)) (view _z ypr')) -- roll
+--     tr' <- (mtx0 ^. translation +) ^<< integral -< vel'
+--     let mtx =
+--           mkTransformationMat
+--             (view _m33 mtx0)
+--             tr'
+
+--     returnA -< mtx
+
+-- -- entry point from src/Object/Update.hs
+-- rotate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double, V3 Double) (M44 Double, V3 Double)
+-- rotate cs mtx0 ypr0 =
+--   proc (avel, pv0) -> do
+--     --ypr' <- (ypr0' +) ^<< integral -< avel
+--     ypr' <- case cs of
+--       WorldSpace  -> (V3 0 0 0 +) ^<< integral -< avel
+--       ObjectSpace -> (ypr0 +)     ^<< integral -< avel
+
+--     let mtx =
+--           mkTransformationMat
+--             rot
+--             tr
+--             where
+--               rot =
+--                 view _m33 mtx0
+--                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
+--                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
+--                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
+--               -- rot =
+--               --   (LM.identity :: M33 Double)
+--               --   !*! fromQuaternion (axisAngle (view _x (LM.identity :: M33 Double)) (view _x ypr')) -- yaw
+--               --   !*! fromQuaternion (axisAngle (view _y (LM.identity :: M33 Double)) (view _y ypr')) -- pitch
+--               --   !*! fromQuaternion (axisAngle (view _z (LM.identity :: M33 Double)) (view _z ypr')) -- roll
               
-              --tr  = view (_w._xyz) (transpose mtx0)
-              tr = V3 0 0 0 --(-10000000)
-              --tr  = view (_w._xyz) (DT.trace ("rotate tr mtx0 : " ++ show mtx0) mtx0)
-    returnA -< (mtx !*! mtx0, ypr')
+--               --tr  = view (_w._xyz) (transpose mtx0)
+--               tr = V3 0 0 0 --(-10000000)
+--               --tr  = view (_w._xyz) (DT.trace ("rotate tr mtx0 : " ++ show mtx0) mtx0)
+--     returnA -< (mtx !*! mtx0, ypr')
     --returnA -< ((DT.trace ("rotate mtx : " ++ show mtx) mtx), (DT.trace ("rotate ypr' : " ++ show ypr') ypr'))
     --returnA -< (mtx0, ypr0)
 

@@ -87,8 +87,8 @@ updateApp app0 =
       unionObjs    = IM.union objs'IntMap objsIntMap
       result =
         app'
-        { App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-          --App._objects = (objTree {_foreground = objs })
+        { --App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+          App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
         , _playCam     = cam
         , _selectable  = selectable'
