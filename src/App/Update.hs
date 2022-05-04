@@ -65,11 +65,42 @@ selectByDist dist cam0 objs0 = selectable'
     camPos'     = camPos * (-1)
     selectable' = Prelude.filter (\obj -> distCamPosObj camPos' obj < dist) objs0
 
+updateApp' :: App -> SF (AppInput, App) App
+updateApp' app0 =
+ proc (input, app') -> do
+    (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
+    objs        <- updateObjects (app0 ^. objects . foreground) -< () --working
+    --objs        <- updateObjectsNl (app0 ^. objects . foreground) -< () --runs once
+    --objs        <- updateObjectsNl' -< (app0 ^. objects . foreground) -- runs once
+    --objs        <- updateObjectsNl1 (app0 ^. objects . foreground) -< (app0 ^. objects . foreground) -- runs once
+    
+    --let selectable' = selectByDist (10.0 :: Double) cam objs
+    let selectable' = selectByDist (50000000.0 :: Double) cam objs
+    selected'    <- updateSelected   app0 -< (input, selectable')
+
+    let
+      selectedText = objectNames <$> view selectable result :: [String]
+      app''        = app' & ui  . info . text .~ selectedText
+
+      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
+      result =
+        app'
+        { --App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+          App._objects = (objTree {_foreground = objs })
+        , App._cameras = cams
+        , _playCam     = cam
+        , _selectable  = selectable'
+        , _selected    = selected'
+        }
+
+    returnA  -< result
+
 updateApp :: App -> SF (AppInput, App) App
 updateApp app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
     objs        <- updateObjects (filteredLinObjs app0)                 -< ()
+    --objs''      <-
     
     --let selectable' = selectByDist (10.0 :: Double) cam objs
     let selectable' = selectByDist (50000000.0 :: Double) cam objs

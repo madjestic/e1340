@@ -1,3 +1,4 @@
+
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -38,7 +39,7 @@ import Graphics.RedViz.Widget as Widget
 import Object
 import Solvable
 
---import Debug.Trace as DT
+import Debug.Trace as DT
 
 data GUI
   =  GUI
@@ -221,7 +222,8 @@ fromPreObject prj0 cls pObj0 = do
           avelocity'
           mass'
           density'
-          solvers''
+          --solvers''
+          (DT.trace ("fromPreObject solvers'' : " ++ show solvers'') solvers'')
         "sprite" -> return $
           Sprite
           (Object'

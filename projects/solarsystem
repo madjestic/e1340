@@ -70,7 +70,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "dd32b51d-6a44-4c6c-8281-bcebc13b4ae0"
+            "uuid": "c87cbd40-4e42-4df9-bc9b-07b366751fc3"
         },
         {
             "pname": "mercury",
@@ -82,7 +82,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "eecd1ed8-bf8b-4500-8154-1ce6d2cd62d2"
+            "uuid": "2da973c2-d4e0-470d-a3b6-fd214a8f5dbd"
         },
         {
             "pname": "venus",
@@ -94,7 +94,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "ed99342b-2b90-4fdd-8763-6683d0e95541"
+            "uuid": "f917d53a-31fe-42ac-a401-a570fe01efad"
         },
         {
             "pname": "earth",
@@ -102,21 +102,12 @@
                 13
             ],
             "solvers": [
-                "translate",
-                "rotate"
+                "translate"
             ],
             "solverAttrs": [
                 [
                     0,
                     10000000000,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0,
-                    10000,
                     0
                 ]
             ],
@@ -130,11 +121,11 @@
                     0,
                     0,
                     0,
-                    0.3
+                    0.5
                 ]
             ],
             "ptype": "planet",
-            "uuid": "33825392-cc31-472a-953b-ac4f4bd6382d"
+            "uuid": "78f6e920-38ea-4620-8f70-288135fd9385"
         },
         {
             "pname": "moon",
@@ -146,7 +137,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "d8b3e5ce-b9ee-45b2-a622-14693fcac892"
+            "uuid": "e0d67ba9-c9cb-4683-9345-74e753830803"
         },
         {
             "pname": "mars",
@@ -158,7 +149,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "0e4c93ef-b935-4b14-8ccf-bd502348247c"
+            "uuid": "5c9912cb-2277-4c09-91b6-608df2aef16b"
         },
         {
             "pname": "jupiter",
@@ -170,7 +161,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "d5ec62e3-5ef3-4548-a621-fa27717b5556"
+            "uuid": "7dcc1ed2-c2a0-4e4d-94a1-ff1555833d1d"
         },
         {
             "pname": "gizmo",
@@ -182,7 +173,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "36b64cec-f16e-4466-a24e-e4e873280809"
+            "uuid": "35763c2d-452a-4c32-b0b9-3164f7d8f3ae"
         }
     ],
     "background": [
@@ -205,7 +196,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "c9b39183-c6e2-47e7-a845-840f76dd09fa"
+            "uuid": "31b104f9-d43c-4a2d-89fe-73ee95c65f64"
         }
     ],
     "cameras": [

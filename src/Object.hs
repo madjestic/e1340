@@ -13,6 +13,9 @@ module Object
   , solvers
   , updateObjects
   , updateObjects'
+  , updateObjectsNl
+  , updateObjectsNl'
+  , updateObjectsNl1
   , objectNames
   , nameP
   , time

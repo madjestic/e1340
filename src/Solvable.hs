@@ -52,6 +52,13 @@ data Solver =
      , _space :: CoordSys
      , _txyz  :: V3 Double
      }
+  |  Move
+     {
+       _anim  :: Animation
+     , _space :: CoordSys
+     , _txyz  :: V3 Double
+     , _vel   :: V3 Double
+     }
   -- |  PreRotate
   --    {
   --      _pivot :: V3 Double
@@ -98,6 +105,7 @@ toSolver (solver, parms) =
     -- S - static  animation (apply a const value (matrix only update))
     "translate"     -> Translate    Dynamic WorldSpace  (toV3 parms)
     "translate'"    -> Translate    Dynamic ObjectSpace (toV3 parms)
+    "move"          -> Move         Dynamic ObjectSpace (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "rotate"        -> Rotate       Dynamic WorldSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "rotate'"       -> Rotate       Dynamic ObjectSpace (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "translateconst"-> Translate    Static  WorldSpace  (toV3 parms)
