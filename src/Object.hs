@@ -11,12 +11,7 @@ module Object
   , ypr
   , velocity
   , solvers
-  , updateObjects
-  , updateObjects'
-  , updateObjectsNl
-  , updateObjectsNlPre
-  , updateObjectsNl'
-  , updateObjectsNl1
+  , updateObjectsPre
   , objectNames
   , nameP
   , time

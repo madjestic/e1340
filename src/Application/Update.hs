@@ -67,8 +67,7 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               --app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.main)
-               app'        <- updateApp' (fromApplication app0) -< (input, app1^.Appl.main)
+               app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 

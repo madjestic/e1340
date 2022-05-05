@@ -65,63 +65,24 @@ selectByDist dist cam0 objs0 = selectable'
     camPos'     = camPos * (-1)
     selectable' = Prelude.filter (\obj -> distCamPosObj camPos' obj < dist) objs0
 
-updateApp' :: App -> SF (AppInput, App) App
-updateApp' app0 =
- proc (input, app') -> do
-    (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-    --objs        <- updateObjects (app0 ^. objects . foreground) -< () --working
-
-    --objs        <- updateObjectsNl (app0 ^. objects . foreground) -< () --works
-    --objs        <- updateObjectsNlPre (app0 ^. objects . foreground) -< () --works
-    
-    --objs        <- updateObjectsNl' -< (app0 ^. objects . foreground) -- runs once, needs loop initialize
-    objs        <- updateObjectsNl1 (app0 ^. objects . foreground) -< (app0 ^. objects . foreground) -- works
-    
-    --let selectable' = selectByDist (10.0 :: Double) cam objs
-    let selectable' = selectByDist (50000000.0 :: Double) cam objs
-    selected'    <- updateSelected   app0 -< (input, selectable')
-
-    let
-      selectedText = objectNames <$> view selectable result :: [String]
-      app''        = app' & ui  . info . text .~ selectedText
-
-      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
-      result =
-        app'
-        { --App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
-          App._objects = (objTree {_foreground = objs })
-        , App._cameras = cams
-        , _playCam     = cam
-        , _selectable  = selectable'
-        , _selected    = selected'
-        }
-
-    returnA  -< result
-
 updateApp :: App -> SF (AppInput, App) App
 updateApp app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-    objs        <- updateObjects (filteredLinObjs app0)                 -< ()
-    --objs''      <-
+    objs        <- updateObjectsPre (app0 ^. objects . foreground) -< () --works
     
     --let selectable' = selectByDist (10.0 :: Double) cam objs
     let selectable' = selectByDist (50000000.0 :: Double) cam objs
     selected'    <- updateSelected   app0 -< (input, selectable')
 
-    let objsIntMap = IM.fromList (zip (filteredLinObjsIdxs app') objs)
-    
-    objs'       <- updateObjects' (filteredNonLinObjs app0) -< (filteredNonLinObjs app')
     let
-      objs'IntMap  = IM.fromList (zip (filteredNonLinObjsIdxs app') objs')
       selectedText = objectNames <$> view selectable result :: [String]
       app''        = app' & ui  . info . text .~ selectedText
 
       objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
-      unionObjs    = IM.union objs'IntMap objsIntMap
       result =
         app'
-        { --App._objects = (objTree {_foreground = snd <$> IM.toList unionObjs})
+        { 
           App._objects = (objTree {_foreground = objs })
         , App._cameras = cams
         , _playCam     = cam
@@ -130,18 +91,6 @@ updateApp app0 =
         }
 
     returnA  -< result
-    --returnA  -< (DT.trace (formatDebug' result) result)
-      where
-        idxObjs app'    = DLI.indexed $ _foreground (App._objects app')
-        intObjMap app'  = IM.fromList $ idxObjs app' :: IntMap Object
-        
-        filterNonLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> True; _ -> False) . view Obj.solvers) $ intObjMap app'
-        filteredNonLinObjs app'     = snd <$> IM.toList (filterNonLinIntObjMap app')
-        filteredNonLinObjsIdxs app' = fst <$> IM.toList (filterNonLinIntObjMap app')
-
-        filterLinIntObjMap app'  = IM.filter (any (\case Gravity {} -> False; _ -> True) . view Obj.solvers) (intObjMap app')
-        filteredLinObjs app'     = snd <$> IM.toList (filterLinIntObjMap app') 
-        filteredLinObjsIdxs app' = fst <$> IM.toList (filterLinIntObjMap app') 
 
 updateSelected :: App -> SF (AppInput, [Object]) [Object]
 updateSelected app0 =
