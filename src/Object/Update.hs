@@ -47,11 +47,10 @@ updateObject obj0 = result
   where
     slvs' = updateSolvers $ obj0 ^. solvers
     mtx   = extractTransform slvs' :: M44 Double
-    transforms1' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms0):: [M44 Double]
+    transforms' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
     result =
       obj0
-      & base . transforms0 .~ transforms1'
-      & base . transforms1 .~ transforms1'    
+      & base . transforms .~ transforms'
 
 updateSolvers :: [Solver] -> [Solver]
 updateSolvers slvs = updateSolver <$> slvs
@@ -108,11 +107,11 @@ gravitySolver' :: (Object, [Object]) -> Object
 gravitySolver' (obj0, objs0) = obj
   where
     m0     =  _mass obj0                                   :: Double
-    xform0 = head $ obj0 ^. base . transforms1             :: M44 Double
+    xform0 = head $ obj0 ^. base . transforms             :: M44 Double
     p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
                                                             
     ms'    = fmap _mass objs0                              :: [Double]
-    xforms = fmap (head . _transforms1) $ _base <$> objs0  :: [M44 Double]
+    xforms = fmap (head . _transforms) $ _base <$> objs0  :: [M44 Double]
     ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
 
     acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double
@@ -133,7 +132,7 @@ gravitySolver' (obj0, objs0) = obj
         tr  = vel'+ p0
 
     obj = obj0
-          & base . transforms1 .~ [mtx]
+          & base . transforms .~ [mtx]
           & velocity .~ vel'
 
 g :: Double

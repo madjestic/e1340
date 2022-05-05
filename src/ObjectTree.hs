@@ -1,4 +1,3 @@
-
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -198,8 +197,6 @@ fromPreObject prj0 cls pObj0 = do
        materials'
        programs'
        transforms'
-       transforms' -- []
-       (identity::M44 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -212,8 +209,6 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
-           transforms' -- []
-           (identity::M44 Double)
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -223,7 +218,6 @@ fromPreObject prj0 cls pObj0 = do
           mass'
           density'
           solvers''
-          --(DT.trace ("fromPreObject solvers'' : " ++ show solvers'') solvers'')
         "sprite" -> return $
           Sprite
           (Object'
@@ -231,8 +225,6 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
-           transforms' -- []
-           (identity::M44 Double)
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -269,9 +261,9 @@ initFontObject' vgeo = do
           _descriptors = ds
         , _materials   = mats'
         , _programs    = progs
-        , _transforms0 = preTransforms
-        , _transforms1 = preTransforms
-        , _transformC  = (identity::M44 Double)
+        , _transforms  = preTransforms
+--        , _transforms1 = preTransforms
+--        , _transformC  = (identity::M44 Double)
         , Obj._ypr     = V3 0 0 0 :: V3 Double
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1
