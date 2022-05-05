@@ -4,6 +4,7 @@ module Object.Update
   ( updateObjects
   , updateObjects'
   , updateObjectsNl
+  , updateObjectsNlPre
   , updateObjectsNl'
   , updateObjectsNl1
   )where
@@ -121,38 +122,40 @@ rotate cs obj0 =
 
 --------------------------------------
 -- Non-linear collection update pattern --
+updateObjectsNlPre :: [Object] -> SF () [Object]
+updateObjectsNlPre objs0 =
+  loopPre objs0 $
+  proc objs -> do
+    objs1 <- updateObjectsNl objs0 -< ()
+    returnA -< (objs1, objs1)
+
 updateObjectsNl :: [Object] -> SF () [Object]
 updateObjectsNl objs0 =
   proc _ -> do
     rec objs   <- iPre objs0 -< objs'
-        --objs'  <- updateObjectsNl' -< objs
-        objs'  <- (DT.trace "DEBUG" updateObjectsNl') -< objs
+        objs'  <- updateObjectsNl' -< objs
     returnA -< objs
 
 updateObjectsNl1 :: [Object] -> SF [Object] [Object]
 updateObjectsNl1 objs0 =
   proc _ -> do
     rec objs1   <- iPre objs0 -< objs'
-        --objs'  <- updateObjectsNl' -< objs
-        --objs'  <- (DT.trace "DEBUG : updateObjectsNl1" updateObjectsNl') -< objs1
-        objs'  <- (DT.trace "DEBUG : updateObjectsNl1" arr updateObjectsNl1') -< objs1
+        --objs'  <- updateObjectsNl' -< objs1 -- works
+        objs'  <- arr updateObjectsNl1' -< objs1
     returnA -< objs1
 
 updateObjectsNl' :: SF [Object] [Object]
 updateObjectsNl' =
   proc objs -> do
-    --obj <- arr updateObjectNl -< (head objs)
-    --objs' <- arr updateObjectsNl1' -< objs
-    objs' <- DT.trace "DEBUG : updateObjectsNl'" arr updateObjectsNl1' -< objs
-    --let
-      --objs' = updateObjectNl' <$> objs
-      --objs' = (DT.trace ("DEBUG : updateObjectsNl'") updateObjectNl') <$> objs
+    objs' <- arr updateObjectsNl1' -< objs -- works
+    -- let
+    --   objs' = updateObjectNl' <$> objs -- works
     returnA -< objs'
 
 updateObjectsNl1' :: [Object] -> [Object]
 updateObjectsNl1' objs0 = objs1
   where
-    objs1 = (DT.trace ("DEBUG : SUKA updateObjectNl'") updateObjectNl') <$> objs0
+    objs1 = updateObjectNl' <$> objs0
 
 updateObjectNl :: Object -> SF Object Object
 updateObjectNl obj0 =
@@ -161,12 +164,18 @@ updateObjectNl obj0 =
     returnA -< obj
 
 updateObjectNl' :: Object -> Object
-updateObjectNl' obj0 = obj0 {_solvers = solvers'}
+updateObjectNl' obj0 = result
   where
-    solvers' = updateSolvers' (DT.trace ("DEBUG : NAH updateObjectNl'" ++ show obj0) obj0 ^. solvers)
+    slvs' = updateSolvers' $ obj0 ^. solvers
+    mtx   = extractTransform slvs' :: M44 Double
+    transforms1' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms0):: [M44 Double]
+    result =
+      obj0 -- & solvers .~ slvs'
+      & base . transforms0 .~ transforms1' -- (obj0 ^. base . transforms1)
+      & base . transforms1 .~ transforms1'    
 
 updateSolvers' :: [Solver] -> [Solver]
-updateSolvers' slvs = (DT.trace ("EBAT" ++ show (length slvs))) updateSolverNl' <$> slvs
+updateSolvers' slvs = updateSolverNl' <$> slvs
 
 updateSolversNl :: [Solver] -> SF [Solver] [Solver]
 updateSolversNl slvs0 =
@@ -190,8 +199,7 @@ updateSolversNl' =
 
 updateSolverNl' :: Solver -> Solver
 updateSolverNl' slv0 =
-  --case slv0 of
-  case (DT.trace ("updateSolverNl' slv0 : " ++ show slv0)slv0) of
+  case slv0 of
       Translate anim cs vel      -> translateNl anim cs vel
       Move      anim cs pos vel  -> moveNl      anim cs pos vel
       Rotate    anim cs pv0 avel -> rotateNl    anim cs pv0 avel

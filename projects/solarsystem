@@ -70,7 +70,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "c87cbd40-4e42-4df9-bc9b-07b366751fc3"
+            "uuid": "75659bb1-66a1-44a6-bc34-d491be84f4f0"
         },
         {
             "pname": "mercury",
@@ -82,7 +82,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "2da973c2-d4e0-470d-a3b6-fd214a8f5dbd"
+            "uuid": "863271ea-f0f2-49ef-80c2-8b3a67300125"
         },
         {
             "pname": "venus",
@@ -94,7 +94,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "f917d53a-31fe-42ac-a401-a570fe01efad"
+            "uuid": "ab258fbe-6a84-4265-b1d8-420684e51c91"
         },
         {
             "pname": "earth",
@@ -107,7 +107,7 @@
             "solverAttrs": [
                 [
                     0,
-                    10000000000,
+                    10000,
                     0
                 ]
             ],
@@ -125,7 +125,7 @@
                 ]
             ],
             "ptype": "planet",
-            "uuid": "78f6e920-38ea-4620-8f70-288135fd9385"
+            "uuid": "e675521b-0f1a-44a8-9890-dc7937997be3"
         },
         {
             "pname": "moon",
@@ -137,7 +137,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "e0d67ba9-c9cb-4683-9345-74e753830803"
+            "uuid": "f2a6fe6c-3e0a-41f2-8b6d-7e3f39064df2"
         },
         {
             "pname": "mars",
@@ -149,7 +149,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "5c9912cb-2277-4c09-91b6-608df2aef16b"
+            "uuid": "63876cf1-6fc3-416f-801c-7e75615aac55"
         },
         {
             "pname": "jupiter",
@@ -161,7 +161,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "7dcc1ed2-c2a0-4e4d-94a1-ff1555833d1d"
+            "uuid": "0f6684d5-4c75-48e8-b942-1a5594ed05f8"
         },
         {
             "pname": "gizmo",
@@ -173,7 +173,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "35763c2d-452a-4c32-b0b9-3164f7d8f3ae"
+            "uuid": "5c552718-e4cf-4030-a6ce-7fd3de7dcedb"
         }
     ],
     "background": [
@@ -196,7 +196,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "31b104f9-d43c-4a2d-89fe-73ee95c65f64"
+            "uuid": "a937d8a5-d610-4d68-a8a4-ce568b27c400"
         }
     ],
     "cameras": [

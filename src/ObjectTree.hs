@@ -222,8 +222,8 @@ fromPreObject prj0 cls pObj0 = do
           avelocity'
           mass'
           density'
-          --solvers''
-          (DT.trace ("fromPreObject solvers'' : " ++ show solvers'') solvers'')
+          solvers''
+          --(DT.trace ("fromPreObject solvers'' : " ++ show solvers'') solvers'')
         "sprite" -> return $
           Sprite
           (Object'

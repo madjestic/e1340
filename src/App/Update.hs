@@ -69,10 +69,13 @@ updateApp' :: App -> SF (AppInput, App) App
 updateApp' app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-    objs        <- updateObjects (app0 ^. objects . foreground) -< () --working
-    --objs        <- updateObjectsNl (app0 ^. objects . foreground) -< () --runs once
-    --objs        <- updateObjectsNl' -< (app0 ^. objects . foreground) -- runs once
-    --objs        <- updateObjectsNl1 (app0 ^. objects . foreground) -< (app0 ^. objects . foreground) -- runs once
+    --objs        <- updateObjects (app0 ^. objects . foreground) -< () --working
+
+    --objs        <- updateObjectsNl (app0 ^. objects . foreground) -< () --works
+    --objs        <- updateObjectsNlPre (app0 ^. objects . foreground) -< () --works
+    
+    --objs        <- updateObjectsNl' -< (app0 ^. objects . foreground) -- runs once, needs loop initialize
+    objs        <- updateObjectsNl1 (app0 ^. objects . foreground) -< (app0 ^. objects . foreground) -- works
     
     --let selectable' = selectByDist (10.0 :: Double) cam objs
     let selectable' = selectByDist (50000000.0 :: Double) cam objs

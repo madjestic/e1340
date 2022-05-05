@@ -14,6 +14,7 @@ module Object
   , updateObjects
   , updateObjects'
   , updateObjectsNl
+  , updateObjectsNlPre
   , updateObjectsNl'
   , updateObjectsNl1
   , objectNames
