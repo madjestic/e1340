@@ -197,6 +197,7 @@ fromPreObject prj0 cls pObj0 = do
        materials'
        programs'
        transforms'
+       (head transforms')
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -209,6 +210,7 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
+           (head transforms')
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -225,6 +227,7 @@ fromPreObject prj0 cls pObj0 = do
            materials'
            programs'
            transforms'
+           (head transforms')
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -262,8 +265,7 @@ initFontObject' vgeo = do
         , _materials   = mats'
         , _programs    = progs
         , _transforms  = preTransforms
---        , _transforms1 = preTransforms
---        , _transformC  = (identity::M44 Double)
+        , _transform0  = (identity::M44 Double)
         , Obj._ypr     = V3 0 0 0 :: V3 Double
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1

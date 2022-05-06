@@ -2,7 +2,7 @@
 
 module Object.Update
   ( updateObjectsPre
-  )where
+  ) where
 
 import Control.Lens    hiding (transform)
 import Control.Arrow
@@ -46,7 +46,8 @@ updateObject :: Object -> Object
 updateObject obj0 = result
   where
     slvs' = updateSolvers $ obj0 ^. solvers
-    mtx   = extractTransform slvs' :: M44 Double
+    mtx0  = obj0 ^. base . transform0 :: M44 Double
+    mtx   = extractTransform mtx0 slvs' :: M44 Double
     transforms' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
     result =
       obj0
@@ -58,31 +59,56 @@ updateSolvers slvs = updateSolver <$> slvs
 updateSolver :: Solver -> Solver
 updateSolver slv0 =
   case slv0 of
-      Translate anim cs vel      -> translate anim cs vel
-      Move      anim cs pos vel  -> move      anim cs pos vel
-      Rotate    anim cs pv0 avel -> rotate    anim cs pv0 avel
+      Translate anim cs pos vel      -> translate anim cs pos vel
+      Rotate    anim cs pv0 ypr avel -> rotate    anim cs pv0 ypr avel
       _ -> slv0
 
-move :: Animation -> CoordSys -> V3 Double -> V3 Double -> Solver
-move anim cs pos vel = Move anim cs (pos+vel) vel
+translate :: Animation -> CoordSys -> V3 Double -> V3 Double -> Solver
+translate anim cs pos vel = Translate anim cs (pos + vel) vel
 
-translate :: Animation -> CoordSys -> V3 Double -> Solver
-translate anim cs vel = Translate anim cs (vel+vel)
+rotate :: Animation -> CoordSys -> V3 Double -> V3 Double -> V3 Double -> Solver
+rotate anim cs pv0 ypr avel = Rotate anim cs pv0 (ypr + avel) avel
 
-rotate :: Animation -> CoordSys -> V3 Double -> V3 Double -> Solver
-rotate = undefined
-
-extractTransform :: [Solver] -> M44 Double
-extractTransform slvs = mtx
+extractTransform :: M44 Double -> [Solver] -> M44 Double
+extractTransform mtx0 slvs = mtx
   where
-    mtxs = fmap extractTransform' slvs
-    mtx = foldl1 (!*!) mtxs
+    mtxs = fmap (extractTransform' mtx0) slvs
+    mtx  = foldl1 (!*!) mtxs
 
-extractTransform' :: Solver -> M44 Double
-extractTransform' slv =
+extractTransform' :: M44 Double -> Solver -> M44 Double
+extractTransform' mtx0 slv =
   case slv of
-    Translate _ _ txyz -> (LM.identity :: M44 Double) & translation .~ txyz
-    Move _ _ txyz _    -> (LM.identity :: M44 Double) & translation .~ txyz
+    Translate _ _ txyz _ -> (LM.identity :: M44 Double) & translation .~ txyz
+    Rotate  _ WorldSpace _ ypr0 _ -> mtx
+      where
+        mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              tr   = V3 0 0 0
+              rot0 = (LM.identity :: M33 Double)
+              rot  =                                                                                         
+                rot0                                                               
+                !*! fromQuaternion (axisAngle (view _x (rot0)) (view _x ypr0)) -- yaw  
+                !*! fromQuaternion (axisAngle (view _y (rot0)) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (rot0)) (view _z ypr0)) -- roll
+                
+    Rotate  _ ObjectSpace _ ypr0 _ -> mtx
+      where
+        mtx =
+          mkTransformationMat
+            rot
+            tr
+            where
+              tr  = V3 0 0 0
+              rot0 = mtx0 ^. _m33 
+              rot =
+                (LM.identity :: M33 Double)
+                !*! fromQuaternion (axisAngle (view _x (rot0)) (view _x ypr0)) -- yaw
+                !*! fromQuaternion (axisAngle (view _y (rot0)) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z (rot0)) (view _z ypr0)) -- roll
+    
     _ -> (LM.identity :: M44 Double)
 
 ------------------------------
