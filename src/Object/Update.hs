@@ -89,10 +89,10 @@ extractTransform' mtx0 slv =
               tr   = V3 0 0 0
               rot0 = (LM.identity :: M33 Double)
               rot  =                                                                                         
-                rot0                                                               
-                !*! fromQuaternion (axisAngle (view _x (rot0)) (view _x ypr0)) -- yaw  
-                !*! fromQuaternion (axisAngle (view _y (rot0)) (view _y ypr0)) -- pitch
-                !*! fromQuaternion (axisAngle (view _z (rot0)) (view _z ypr0)) -- roll
+                (LM.identity :: M33 Double)                                                             
+                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
+                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
                 
     Rotate  _ ObjectSpace _ ypr0 _ -> mtx
       where
@@ -105,9 +105,9 @@ extractTransform' mtx0 slv =
               rot0 = mtx0 ^. _m33 
               rot =
                 (LM.identity :: M33 Double)
-                !*! fromQuaternion (axisAngle (view _x (rot0)) (view _x ypr0)) -- yaw
-                !*! fromQuaternion (axisAngle (view _y (rot0)) (view _y ypr0)) -- pitch
-                !*! fromQuaternion (axisAngle (view _z (rot0)) (view _z ypr0)) -- roll
+                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw
+                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
     
     _ -> (LM.identity :: M44 Double)
 

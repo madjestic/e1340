@@ -37,11 +37,7 @@ data Animation =
 
 data Solver =
      Identity
-  -- |  PreTranslate
-  --    {
-  --      _txyz   :: V3 Double
-  --    }
-  |  PreTranslate'
+  |  PreTranslate
      {
        _space :: CoordSys
      , _txyz  :: V3 Double
@@ -53,7 +49,7 @@ data Solver =
      , _txyz  :: V3 Double
      , _vel   :: V3 Double
      }
-  |  PreRotate'
+  |  PreRotate
      {
        _space :: CoordSys
      , _pivot :: V3 Double
@@ -87,10 +83,10 @@ toSolver (solver, parms) =
   case solver of
     -- default - world  (global) space
     -- '       - object (local)  space
-    "pretranslate"  -> PreTranslate' WorldSpace  (toV3 parms)
-    "pretranslate'" -> PreTranslate' ObjectSpace (toV3 parms)
-    "prerotate"     -> PreRotate'   WorldSpace   (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
-    "prerotate'"    -> PreRotate'   ObjectSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
+    "pretranslate"  -> PreTranslate WorldSpace  (toV3 parms)
+    "pretranslate'" -> PreTranslate ObjectSpace (toV3 parms)
+    "prerotate"     -> PreRotate   WorldSpace   (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
+    "prerotate'"    -> PreRotate   ObjectSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     -- D - dynamic animation (apply every frame,  ypr + matrix update)
     -- S - static  animation (apply a const value (matrix only update))
     "translate"     -> Translate    Dynamic WorldSpace  (toV3 parms) (toV3 parms)
@@ -109,8 +105,8 @@ preTransformer solver (mtx0, ypr0) = (mtx, ypr')
   where
     --(mtx, ypr) = case solver of
     (mtx, ypr') = case solver of
-      PreTranslate' cs offset -> preTranslate cs mtx0 ypr0 offset
-      PreRotate'    cs _ ypr1 -> preRotate cs mtx0 ypr0 ypr1
+      PreTranslate cs offset -> preTranslate cs mtx0 ypr0 offset
+      PreRotate    cs _ ypr1 -> preRotate cs mtx0 ypr0 ypr1
       Identity                -> Solvable.identity' mtx0
       _                       -> (mtx0, ypr0)
 
