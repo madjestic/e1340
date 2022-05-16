@@ -8,8 +8,8 @@ gui :: GUI'
 gui =
   GUI'
   [
-    FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0)
-  , TextField' True ["hello, world!"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
+    FPS' True (Format' "TR" (0.2) (-0.4) 0.085 1.0)
+  , TextField' True ["solar system"] (Format' "CC" (-0.0) 0.0 0.17 2.0)
   ]
   defaultFonts
 
@@ -27,12 +27,12 @@ earth   idxs =
   PreObject "earth"   "planet" nil idxs
   ["prerotate"]
   [[0,0,0,0,0,0.5]]
-  ["translate"
-  ,"rotate'"]
-  [[0,10000,0]
-  ,[0,0,0,0,0.01,0]]
-  -- ["rotate'"]
-  -- [[0,0,0,0,0.01,0]]
+  -- ["translate'"
+  -- ,"rotate'"]
+  -- [[10000,0,0]
+  -- ,[0,0,0,0,0.01,0]]
+  ["rotate'"]
+  [[0,0,0,0,-0.01,0]]
   -- ["translate"]
   -- [[0,10000,0]]
 
@@ -144,8 +144,8 @@ project :: Project
 project =
   Project
   "Solar System"
+  1280
   800
-  600
   "AbsoluteLocation"
   [
     Model "models/stars.bgeo"

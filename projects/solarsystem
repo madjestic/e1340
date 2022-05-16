@@ -1,7 +1,7 @@
 {
     "name": "Solar System",
-    "resx": 800,
-    "resy": 600,
+    "resx": 1280,
+    "resy": 800,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -70,7 +70,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "54b83322-b9f8-4159-9345-e9b27c5f0a60"
+            "uuid": "0800030a-57ec-4f1b-bf8c-ae34793e883e"
         },
         {
             "pname": "mercury",
@@ -82,7 +82,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "41cff554-db4f-4ab0-8ef9-e8ec657c00fc"
+            "uuid": "b88cf526-2d08-4dac-aa44-c7fb9fc598b1"
         },
         {
             "pname": "venus",
@@ -94,7 +94,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "e46d8355-b95a-4e3e-84f3-ed12e906dfbd"
+            "uuid": "59f0dd10-8c52-4ee5-a42e-38f30ee41904"
         },
         {
             "pname": "earth",
@@ -102,21 +102,15 @@
                 13
             ],
             "solvers": [
-                "translate",
                 "rotate'"
             ],
             "solverAttrs": [
                 [
                     0,
-                    10000,
-                    0
-                ],
-                [
                     0,
                     0,
                     0,
-                    0,
-                    1.0e-2,
+                    -1.0e-2,
                     0
                 ]
             ],
@@ -134,7 +128,7 @@
                 ]
             ],
             "ptype": "planet",
-            "uuid": "7ff367e0-c3fd-4419-8060-63dab3a86110"
+            "uuid": "6d7b3128-1882-4ae3-bf79-227cb4cd7109"
         },
         {
             "pname": "moon",
@@ -146,7 +140,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "313b3f82-2090-484b-bdda-3bdda4cddba8"
+            "uuid": "0572cf7e-9729-438e-b36e-eee9d9e52e48"
         },
         {
             "pname": "mars",
@@ -158,7 +152,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "7857003a-2abc-4232-bf07-51f939cf9531"
+            "uuid": "964bbacc-b26a-460a-95d6-e338dc8ea09d"
         },
         {
             "pname": "jupiter",
@@ -170,7 +164,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "48b5e107-9014-4b17-b006-38a54a05dd08"
+            "uuid": "2e33f017-a669-4f62-9cd9-8d918ee3cdfe"
         },
         {
             "pname": "gizmo",
@@ -182,7 +176,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "957ed489-16e9-41c2-8311-156067e63a67"
+            "uuid": "0da29d95-1191-47d7-8cbd-5cdf1c5b1e73"
         }
     ],
     "background": [
@@ -205,7 +199,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "0d3dee93-ddd9-4c3f-bb0b-411111aa1b23"
+            "uuid": "8d090ef3-d72e-4bf7-82b0-0d5b952d53c1"
         }
     ],
     "cameras": [
@@ -520,11 +514,11 @@
             {
                 "active": true,
                 "format": {
-                    "alignment": "TC",
-                    "hoffset": 0,
+                    "alignment": "TR",
+                    "hoffset": -0.4,
                     "soffset": 8.5e-2,
                     "ssize": 1,
-                    "voffset": -0.4
+                    "voffset": 0.2
                 },
                 "tag": "FPS'"
             },
@@ -533,13 +527,13 @@
                 "format": {
                     "alignment": "CC",
                     "hoffset": 0,
-                    "soffset": 8.5e-2,
-                    "ssize": 1,
-                    "voffset": -0.4
+                    "soffset": 0.17,
+                    "ssize": 2,
+                    "voffset": 0
                 },
                 "tag": "TextField'",
                 "text": [
-                    "hello, world!"
+                    "solar system"
                 ]
             }
         ]

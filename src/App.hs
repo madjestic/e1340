@@ -1,13 +1,12 @@
 module App
   ( App     (..)
   , Options (..)
-  , UI      (..)
   , options
   , App.App.name
   , App.App.resx
   , App.App.resy
+  , gui
   , App.App.objects
-  , App.App.ui
   , playCam
   , App.App.cameras
   , selectable
@@ -16,7 +15,6 @@ module App
   , App.App.fromProject
   , toDrawable
   , updateApp
-  , info
   ) where
 
 import App.App

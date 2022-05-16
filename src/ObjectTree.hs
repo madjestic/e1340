@@ -6,14 +6,11 @@
 
 module ObjectTree
   ( ObjectTree (..)
-  , ObjectTree.gui
   , ObjectTree.foreground
   , ObjectTree.background
   , fromProject
-  , GUI (..)
   , Widget (..)
   , ObjectTree.fonts
-  , ObjectTree.widgets
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -40,21 +37,13 @@ import Solvable
 
 import Debug.Trace as DT
 
-data GUI
-  =  GUI
-     {
-       _fonts   :: [Object]
-     , _icons   :: [Object]
-     , _widgets :: [Widget]
-     } deriving Show
-$(makeLenses ''GUI)
-
 data ObjectTree =
   ObjectTree
   {
-    _gui        :: GUI
-  , _foreground :: [Object]
+    _foreground :: [Object]    
   , _background :: [Object]
+  , _fonts      :: [Object] -- move fonts to ObjectTree?
+  , _icons      :: [Object] -- move to ObjectTree?
   } deriving Show
 $(makeLenses ''ObjectTree)
 
@@ -100,18 +89,19 @@ fromProject prj0 = do
   let
     pobjs = concat $ toListOf Project.objects    prj0 :: [PreObject]
     pbgrs = concat $ toListOf Project.background prj0 :: [PreObject]
-    -- pfnts = concat $ toListOf Project.fonts      prj0 :: [PreObject]
   
   objs <- mapM (fromPreObject prj0 Foreground) pobjs :: IO [Object]
   bgrs <- mapM (fromPreObject prj0 Background) pbgrs :: IO [Object]
-  fnts <- initFontObject prj0 :: IO [Object] -- TODO
+  fnts <- initFontObject prj0 :: IO [Object]
   let
     wgts   = toWidgets prj0
+    --wgts   = toWidgets (DT.trace ("fromProject prj0 : " ++ show prj0)prj0)
     result =
       ObjectTree
-      (GUI fnts [] wgts)
-      objs
-      bgrs
+        objs
+        bgrs
+        fnts
+        []
   putStrLn "Finished loading objects."
   return result
 

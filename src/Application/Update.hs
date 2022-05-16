@@ -32,9 +32,9 @@ appRun app0 =
   --proc (input, app') -> do
   proc (input, _) -> do
     as <- case _interface app0 of
-            Intro        -> appIntroPre app0 -<  input
-            Main Default -> appMainPre  app0 -<  input
-            Info Earth   -> appInfoPre  app0 -<  input
+            IntroApp        -> appIntroPre app0 -<  input
+            MainApp Default -> appMainPre  app0 -<  input
+            InfoApp Earth   -> appInfoPre  app0 -<  input
             _ -> appMainPre app0  -< input
     returnA -< as
 
@@ -51,8 +51,9 @@ appIntro app0  =
      where sf =
              --proc (input, app') -> do
              proc (input, _) -> do
+               --gui <- updateGUI (app0 ^. interface) -< ()
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               returnA    -< (app0, skipE $> app0 { _interface =  Main Default })
+               returnA    -< (app0, skipE $> app0 { _interface =  MainApp Default })
            cont = appRun
 
 appMainPre :: Application -> SF AppInput Application
@@ -76,13 +77,13 @@ appMain app0 =
                    app1 { _main = app' }
                           
                returnA     -< if isEvent reset 
-                              then (result, reset $> app0 { _interface = Intro } )
+                              then (result, reset $> app0   { _interface = IntroApp } )
                               else (result, zE    $> result { _interface = fromSelected app' } )
                  where
                    fromSelected app' =
                      case _selected app' of
-                       [] -> Main Default
-                       _  -> Info Earth
+                       [] -> MainApp Default
+                       _  -> InfoApp Earth
 
            cont arg =
              proc (input', app') -> do
@@ -108,7 +109,7 @@ appInfo app0 =
                  result =
                    app1 { Appl._info = app' }
 
-               returnA     -< (result, exitE $> result { _interface = Main Default } )
+               returnA     -< (result, exitE $> result { _interface = MainApp Default } )
 
            cont arg =
              proc (input', _) -> do

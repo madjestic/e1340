@@ -39,6 +39,7 @@ import Application
 import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
+import GUI
 
 import Debug.Trace    as DT
 
@@ -79,9 +80,8 @@ animate window sf =
             lastInteraction <- newMVar =<< SDL.time
 
             output lastInteraction window app
-            return shouldExit
 
--- App -> GUI -> Drawable
+            return shouldExit
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
@@ -93,14 +93,15 @@ output lastInteraction window application = do
   -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
-    fntObjs = concat $ toListOf (objects . gui . fonts) app :: [Object]
+    fntObjs = concat $ toListOf (objects . fonts) app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-    wgts    = app ^. objects . gui . widgets
+    --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
+    wgts    = fromGUI $ app ^. gui :: [Widget]
 
     app  = fromApplication application
     txs  = concat . concat
@@ -123,9 +124,10 @@ output lastInteraction window application = do
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
-  case app ^. objects . gui . fonts of
-    [] -> return ()
-    _  -> mapM_ renderWidgets wgts
+  mapM_ renderWidgets     wgts
+  -- case app ^. objects . gui . fonts of
+  --   [] -> return ()
+  --   _  -> mapM_ renderWidgets wgts
 
   glSwapWindow window
 
@@ -162,7 +164,7 @@ initResources app0 =
     return app0 { _hmap = hmap }
       where
         introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . OT.fonts) (_main app0)  :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . OT.fonts) (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
@@ -176,7 +178,7 @@ main = do
 
   introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
   mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
-  pInfoProj <- P.read ("./projects/testred" :: FilePath)
+  pInfoProj <- P.read ("./projects/infoearth" :: FilePath)
   --pInfoProj <- P.read ("./projects/newtest" :: FilePath)
   
   let
@@ -204,18 +206,17 @@ main = do
   counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
-  let mainAppUI
-        = MainGUI
-          { _fps      = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
-          , App._info = TextField True [""] (Format CC (-0.4) 0.0 0.085 1.0)}
-
+  -- let mainAppUI
+  --       = MainGUI
+  --         { _fps      = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
+  --         , App._info = TextField True ["sukanah"] (Format CC (0.0) 0.0 0.085 1.0)}
   let
     initApp' =
       Application
-      Intro
-      introApp
-      (mainApp & ui .~ mainAppUI)
-      info'
+      IntroApp
+      (introApp & gui .~ introGUI)
+      (mainApp  & gui .~ mainGUI)
+      (info'    & gui .~ infoGUI)
       []
       counter'
 

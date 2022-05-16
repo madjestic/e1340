@@ -10,6 +10,7 @@ import Graphics.RedViz.Project as Project
 
 import Projects.Test
 import Projects.SolarSystem
+import Projects.InfoEarth
 
 -- import Debug.Trace as DT
 
@@ -27,6 +28,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) -> case p
                                    "testchecker" -> Project.write Projects.Test.projectTestChecker filePath
                                    "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
                                    "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
+                                   "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
                                    _ -> Project.write Projects.Test.project                        filePath
                                    
 splitter :: String -> IO (String, String)

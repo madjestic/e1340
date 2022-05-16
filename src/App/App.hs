@@ -5,12 +5,12 @@
 module App.App
   ( App     (..)
   , Options (..)
-  , UI      (..)
+--  , UI      (..)
   , options
   , App.App.name
   , App.App.resx
   , App.App.resy
-  , App.App.ui
+  , App.App.gui
   , App.App.objects
   , playCam
   , App.App.cameras
@@ -19,7 +19,6 @@ module App.App
   , debug
   , App.App.fromProject
   , toDrawable
-  , info
   ) where
 
 import Control.Lens hiding (Empty)
@@ -35,34 +34,21 @@ import Graphics.RedViz.Descriptor
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
+import Graphics.RedViz.Project       as P
+import Graphics.RedViz.Project.Utils
                                       
 import Object hiding (Empty)                         
 import ObjectTree
-import Graphics.RedViz.Project       as P
-import Graphics.RedViz.Project.Utils
+import GUI
 
 -- import Debug.Trace as DT
-
-data UI
-  =  Empty
-  |  IntroGUI
-     {
-       _fps  :: Widget
-     , _info :: Widget
-     } 
-  |  MainGUI
-     {
-       _fps  :: Widget
-     , _info :: Widget
-     } deriving Show
-$(makeLenses ''UI)
 
 data App
   = App
   {
     _debug       :: (Double, Double)
   , _options     :: Options
-  , _ui          :: UI
+  , _gui         :: GUI --[Widget]
   , _objects     :: ObjectTree
   , _playCam     :: Camera
   , _cameras     :: [Camera]

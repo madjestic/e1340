@@ -23,8 +23,9 @@ import Graphics.Rendering.OpenGL as GL    (GLuint)
 --import Graphics.RedViz.Widget
 
 import App (App(..))
+--import GUI
 
--- import Debug.Trace as DT
+import Debug.Trace as DT
 
 data Menu =
     Start
@@ -45,20 +46,20 @@ data Planet =
   | Earth
 
 data Interface =
-     Intro
-   | Info Planet
-   | Main Context
+     IntroApp
+   | InfoApp Planet
+   | MainApp Context
    | Finished
 
 instance Show Interface where
-  show (Main t) = show t
+  show (MainApp t) = show t
   show t = show t
 
 data Application
   = Application
   {
-    _interface  :: Interface
---  , _mainGUI    :: GUI
+    _interface :: Interface
+--  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
   , _info    :: App
@@ -73,13 +74,11 @@ instance Show (MVar a) where
 fromApplication :: Application -> App
 fromApplication app =
   case view interface app of
-    Intro        ->
+    IntroApp        ->
       view intro app
-    Main Default ->
+    MainApp Default ->
       view main  app
-    -- Main (ContextMenu PlanetInfo) ->
-    --   view info app
-    Info _ ->
+    InfoApp _ ->
       view info app
     _ ->
       view main app

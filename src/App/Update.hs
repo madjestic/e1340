@@ -24,6 +24,7 @@ import ObjectTree
 import Object as Obj-- (Empty)
 import Camera
 import Solvable
+import GUI
 
 -- import Debug.Trace as DT (trace)
 
@@ -51,12 +52,12 @@ formatDebug' app0 =
     camPos =
       app0 ^. playCam . controller . Ctrl.transform . translation  :: V3 Double
 
-fromUI :: UI -> [Widget]
-fromUI ui' =
-  case ui' of
-    MainGUI fps' info' ->
-      [fps', info']
-    _ -> []
+-- fromUI :: UI -> [Widget]
+-- fromUI ui' =
+--   case ui' of
+--     MainGUI fps' info' ->
+--       [fps', info']
+--     _ -> []
 
 selectByDist :: Double -> Camera -> [Object] -> [Object]
 selectByDist dist cam0 objs0 = selectable'
@@ -70,6 +71,7 @@ updateApp app0 =
  proc (input, app') -> do
     (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
     objs        <- updateObjectsPre (app0 ^. objects . foreground) -< ()
+    --gui         <- updateGUI (app0 ^. gui) -< ()
     
     --let selectable' = selectByDist (10.0 :: Double) cam objs
     let selectable' = selectByDist (50000000.0 :: Double) cam objs
@@ -77,9 +79,9 @@ updateApp app0 =
 
     let
       selectedText = objectNames <$> view selectable result :: [String]
-      app''        = app' & ui  . info . text .~ selectedText
+      --app''        = app' & ui  . info . text .~ selectedText -- TODO: GUI update
 
-      objTree      = App._objects app' & gui . widgets .~ fromUI (app''^.ui)
+      objTree      = App._objects app' -- & gui . widgets .~ fromUI (app''^.ui) -- UI vs GUI?
       result =
         app'
         { 
