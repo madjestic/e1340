@@ -7,11 +7,8 @@ import Graphics.RedViz.Project.Project hiding (gui)
 gui :: GUI'
 gui =
   GUI'
-  [
-    FPS' True (Format' "TR" (0.2) (-0.4) 0.085 1.0)
-  , TextField' True ["solar system"] (Format' "CC" (-0.0) 0.0 0.17 2.0)
-  ]
   defaultFonts
+  defaultIcons
 
 sun     :: [Int] -> PreObject
 sun     idxs =
@@ -144,9 +141,10 @@ project :: Project
 project =
   Project
   "Solar System"
-  1280
-  800
-  "AbsoluteLocation"
+  640
+  400
+  -- "AbsoluteLocation"
+  "RelativeLocation"
   [
     Model "models/stars.bgeo"
   , Model "models/star_sector_01.bgeo"

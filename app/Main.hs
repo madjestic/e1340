@@ -14,15 +14,18 @@ import Data.Text          ( pack)
 import Foreign.C          ( CInt )
 import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
-    ( pollEvent,
-      setMouseLocationMode,
-      time,
-      glSwapWindow,
-      Event(eventPayload),
-      EventPayload,
-      LocationMode(AbsoluteLocation, RelativeLocation),
-      Window )
-import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), clear, clearColor, ($=), ClearBuffer (..))
+    ( pollEvent
+    , setMouseLocationMode
+    , time
+    , glSwapWindow
+    , Event(eventPayload)
+    , EventPayload
+    , LocationMode(AbsoluteLocation, RelativeLocation)
+    , Window )
+import SDL.Input.Mouse
+import SDL.Vect
+
+import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), clear, clearColor, ($=), ClearBuffer (..), DataType (Double))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
     
@@ -34,6 +37,9 @@ import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget
+import Graphics.RedViz.Camera
+import Graphics.RedViz.Controllable
+import Graphics.RedViz.Input.Mouse
 
 import Application
 import App hiding (debug)
@@ -90,18 +96,25 @@ output lastInteraction window application = do
 
 -- | render FPS current
   currentTime <- SDL.time
+  mmloc  <- SDL.Input.Mouse.getModalMouseLocation
+  -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
+
   -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
-    fntObjs = concat $ toListOf (objects . fonts) app :: [Object]
+    icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
+    fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
+    icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
+    --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
-    wgts    = fromGUI $ app ^. gui :: [Widget]
+    wgts    = fromGUI $ app ^. gui  :: [Widget]
+    crsr    = _cursor $ app ^. gui  ::  Widget
 
     app  = fromApplication application
     txs  = concat . concat
@@ -118,13 +131,28 @@ output lastInteraction window application = do
   clearColor $= bgrColor opts
   clear [ColorBuffer, DepthBuffer]
 
-  let renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles }) :: Drawable -> IO ()
-      renderAsPoints    = render txs hmap (opts { primitiveMode = Points })    :: Drawable -> IO ()
-      renderWidgets     = renderWidget lastInteraction fntsDrs renderAsTriangles
+  let
+    playCam'    = app ^. playCam :: Camera
+    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
+    mouseCoords = case app ^. gui of
+      IntroGUI fps_ info_ exitB_ (Cursor active_ lable_ coords_) -> coords_
+      _ -> (0.0,0.0) :: (Double, Double)
+      
+    resx'       = fromIntegral $ app ^. options . App.resx :: Double
+    resy'       = fromIntegral $ app ^. options . App.resy :: Double
+    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (resy'/5,resy'/5)-- (resx', resy')
+    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/5,resy'/5)
+ 
+    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points })      :: Drawable -> IO ()
+    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsTriangles :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
+  renderCursorM crsr
+  
   -- case app ^. objects . gui . fonts of
   --   [] -> return ()
   --   _  -> mapM_ renderWidgets wgts
@@ -134,13 +162,30 @@ output lastInteraction window application = do
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget lastInteraction drs cmds wgt =
   case wgt of
-    TextField a t f->
+    TextField a t f ->
       when a $ renderString cmds drs f $ concat t
+    Button a l _ _ f->
+      when a $ renderString cmds drs f l
     FPS a f ->
       when a $ do
         ct <- SDL.time -- current time
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
+    Cursor _ _ _ -> return ()
+
+renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderCursor (x,y) drs cmds wgt =
+  case wgt of
+    Cursor a l (x',y') ->
+      when a $ do
+      let
+        f = (Format TL (-y) (x) 0.0 2.0)
+        --f = (Format TL (-y') (x') 0.0 2.0)
+        --f = (Format CC (0.0) (0.0) 0.0 2.0)
+    --   renderString cmds drs f l -- render tooltip?
+    -- _ -> return ()
+      renderString cmds drs f "0"
+    _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
 

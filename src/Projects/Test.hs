@@ -7,9 +7,10 @@ import Graphics.RedViz.Project.Project hiding (gui)
 gui :: GUI'
 gui =
   GUI'
-  [ TextField' True ["Hello, World!"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
-  , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
+  -- [ TextField' True ["Hello, World!"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
+  -- , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
   defaultFonts
+  []
 
 project :: Project
 project =
@@ -49,9 +50,10 @@ project =
 guiTestRed :: GUI'
 guiTestRed =
   GUI'
-  [ TextField' True ["Test Red"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
-  , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
+  -- [ TextField' True ["Test Red"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
+  -- , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
   defaultFonts
+  []
 
 emptyGUI :: GUI'
 emptyGUI =

@@ -11,12 +11,13 @@ module Application.Update
 import FRP.Yampa
 import SDL          hiding ((*^), Event, Mouse, Debug)
 import Data.Functor        (($>))
-import Control.Lens ((^.))
+import Control.Lens-- ((^.))
 
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import Application.Application as Appl
 import App
+import GUI
 
 -- import Debug.Trace    as DT
 
@@ -51,9 +52,13 @@ appIntro app0  =
      where sf =
              --proc (input, app') -> do
              proc (input, _) -> do
-               --gui <- updateGUI (app0 ^. interface) -< ()
+               gui'       <- updateGUI (app0 ^. intro . gui) -< input
                skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               returnA    -< (app0, skipE $> app0 { _interface =  MainApp Default })
+
+               let
+                 result = app0 & intro . gui .~ gui' :: Application
+               --returnA    -< (app0, skipE $> app0 { _interface =  MainApp Default })
+               returnA    -< (result, skipE $> result { _interface =  MainApp Default })
            cont = appRun
 
 appMainPre :: Application -> SF AppInput Application

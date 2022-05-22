@@ -11,6 +11,7 @@ module ObjectTree
   , fromProject
   , Widget (..)
   , ObjectTree.fonts
+  , ObjectTree.icons
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -42,47 +43,47 @@ data ObjectTree =
   {
     _foreground :: [Object]    
   , _background :: [Object]
-  , _fonts      :: [Object] -- move fonts to ObjectTree?
-  , _icons      :: [Object] -- move to ObjectTree?
+  , _fonts      :: [Object] 
+  , _icons      :: [Object] 
   } deriving Show
 $(makeLenses ''ObjectTree)
 
-data ObjectClass = Foreground | Background | Font
+data ObjectClass = Foreground | Background | Font | Icon
 
-toWidgets :: Project -> [Widget]
-toWidgets prj0 = ws
-  where
-    ws' = prj0 ^. Project.gui . Project.widgets
-    ws  = toWidget <$> ws'
+-- toWidgets :: Project -> [Widget]
+-- toWidgets prj0 = ws
+--   where
+--     ws' = prj0 ^. Project.gui . Project.widgets
+--     ws  = toWidget <$> ws'
 
-toFormat :: Format' -> Format
-toFormat f' =
-  Format
-  {
-    Widget._alignment =
-      case f'^.Project.alignment of
-        "TL" -> TL
-        "TC" -> TC
-        "TR" -> TR
-        "CL" -> CL
-        "CC" -> CC
-        "CR" -> CR
-        "BL" -> BL
-        "BC" -> BC
-        "BR" -> BR
-        _    -> CC
+-- toFormat :: Format' -> Format
+-- toFormat f' =
+--   Format
+--   {
+--     Widget._alignment =
+--       case f'^.Project.alignment of
+--         "TL" -> TL
+--         "TC" -> TC
+--         "TR" -> TR
+--         "CL" -> CL
+--         "CC" -> CC
+--         "CR" -> CR
+--         "BL" -> BL
+--         "BC" -> BC
+--         "BR" -> BR
+--         _    -> CC
         
-  , Widget._voffset = f'^.Project.voffset
-  , Widget._hoffset = f'^.Project.hoffset
-  , Widget._soffset = f'^.Project.soffset
-  , Widget._ssize   = f'^.Project.ssize
-  }
+--   , Widget._voffset = f'^.Project.voffset
+--   , Widget._hoffset = f'^.Project.hoffset
+--   , Widget._soffset = f'^.Project.soffset
+--   , Widget._ssize   = f'^.Project.ssize
+--   }
 
-toWidget :: Project.Widget' -> Widget
-toWidget ws' =
-  case ws' of
-    TextField' b t f -> TextField b t (toFormat f)
-    FPS' b f         -> FPS b (toFormat f)
+-- toWidget :: Project.Widget' -> Widget
+-- toWidget ws' =
+--   case ws' of
+--     TextField' b t f -> TextField b t (toFormat f)
+--     FPS' b f         -> FPS b (toFormat f)
 
 fromProject :: Project -> IO ObjectTree
 fromProject prj0 = do
@@ -92,16 +93,17 @@ fromProject prj0 = do
   
   objs <- mapM (fromPreObject prj0 Foreground) pobjs :: IO [Object]
   bgrs <- mapM (fromPreObject prj0 Background) pbgrs :: IO [Object]
-  fnts <- initFontObject prj0 :: IO [Object]
+  fnts <- initFontObjects prj0 :: IO [Object]
+  icns <- initIconObjects prj0 :: IO [Object]
   let
-    wgts   = toWidgets prj0
+    --wgts   = toWidgets prj0
     --wgts   = toWidgets (DT.trace ("fromProject prj0 : " ++ show prj0)prj0)
     result =
       ObjectTree
         objs
         bgrs
         fnts
-        []
+        icns
   putStrLn "Finished loading objects."
   return result
 
@@ -115,6 +117,7 @@ modelPaths cls project = modelList
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> project ^.. Project.gui . Project.fonts . traverse . path
+        Icon       -> project ^.. Project.gui . Project.icons . traverse . path
 
 show' :: M44 Double -> String
 show' (V4 x y z w) =
@@ -224,18 +227,28 @@ fromPreObject prj0 cls pObj0 = do
         ""       -> return emptyObj :: IO Object
         _        -> return emptyObj :: IO Object
 
-initFontObject :: Project -> IO [Object]
-initFontObject prj0 = do
+initFontObjects :: Project -> IO [Object]
+initFontObjects prj0 = do
   fntVGeos  <- mapM readBGeo $ modelPaths Font prj0 :: IO [VGeo]
                                
   if not (null fntVGeos)
     then
-      mapM initFontObject' fntVGeos
+      mapM initObject' fntVGeos
     else
       pure []  :: IO [Object]
 
-initFontObject' :: VGeo -> IO Object
-initFontObject' vgeo = do
+initIconObjects :: Project -> IO [Object]
+initIconObjects prj0 = do
+  icnVGeos  <- mapM readBGeo $ modelPaths Icon prj0 :: IO [VGeo]
+                               
+  if not (null icnVGeos)
+    then
+      mapM initObject' icnVGeos
+    else
+      pure []  :: IO [Object]
+               
+initObject' :: VGeo -> IO Object
+initObject' vgeo = do
   let (VGeo is_ st_ vs_ _ _ _ xf_) = vgeo
       vaoArgs       = (,,) <$.> is_ <*.> st_ <*.> vs_
       preTransforms = U.fromList <$> xf_
@@ -260,7 +273,7 @@ initFontObject' vgeo = do
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1
         }
-    } 
+    }
 
 toVGeo :: Project -> PreObject -> IO [VGeo]
 toVGeo prj0 pObj0 = do
