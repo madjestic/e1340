@@ -50,41 +50,6 @@ $(makeLenses ''ObjectTree)
 
 data ObjectClass = Foreground | Background | Font | Icon
 
--- toWidgets :: Project -> [Widget]
--- toWidgets prj0 = ws
---   where
---     ws' = prj0 ^. Project.gui . Project.widgets
---     ws  = toWidget <$> ws'
-
--- toFormat :: Format' -> Format
--- toFormat f' =
---   Format
---   {
---     Widget._alignment =
---       case f'^.Project.alignment of
---         "TL" -> TL
---         "TC" -> TC
---         "TR" -> TR
---         "CL" -> CL
---         "CC" -> CC
---         "CR" -> CR
---         "BL" -> BL
---         "BC" -> BC
---         "BR" -> BR
---         _    -> CC
-        
---   , Widget._voffset = f'^.Project.voffset
---   , Widget._hoffset = f'^.Project.hoffset
---   , Widget._soffset = f'^.Project.soffset
---   , Widget._ssize   = f'^.Project.ssize
---   }
-
--- toWidget :: Project.Widget' -> Widget
--- toWidget ws' =
---   case ws' of
---     TextField' b t f -> TextField b t (toFormat f)
---     FPS' b f         -> FPS b (toFormat f)
-
 fromProject :: Project -> IO ObjectTree
 fromProject prj0 = do
   let
@@ -96,8 +61,6 @@ fromProject prj0 = do
   fnts <- initFontObjects prj0 :: IO [Object]
   icns <- initIconObjects prj0 :: IO [Object]
   let
-    --wgts   = toWidgets prj0
-    --wgts   = toWidgets (DT.trace ("fromProject prj0 : " ++ show prj0)prj0)
     result =
       ObjectTree
         objs

@@ -48,7 +48,7 @@ data App
   {
     _debug       :: (Double, Double)
   , _options     :: Options
-  , _gui         :: GUI --[Widget]
+  , _gui         :: GUI
   , _objects     :: ObjectTree
   , _playCam     :: Camera
   , _cameras     :: [Camera]
