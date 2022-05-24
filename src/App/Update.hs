@@ -52,13 +52,6 @@ formatDebug' app0 =
     camPos =
       app0 ^. playCam . controller . Ctrl.transform . translation  :: V3 Double
 
--- fromUI :: UI -> [Widget]
--- fromUI ui' =
---   case ui' of
---     MainGUI fps' info' ->
---       [fps', info']
---     _ -> []
-
 selectByDist :: Double -> Camera -> [Object] -> [Object]
 selectByDist dist cam0 objs0 = selectable'
   where
