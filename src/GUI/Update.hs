@@ -17,7 +17,7 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import GUI.GUI
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 updateGUIPre :: GUI -> SF AppInput GUI
 updateGUIPre gui0 =
@@ -29,7 +29,7 @@ updateGUIPre gui0 =
 updateGUI :: GUI -> SF AppInput GUI
 updateGUI gui0 =
   proc input -> do
-    rec gui  <- iPre gui0      -< gui'
+    rec gui  <- iPre gui0       -< gui'
         gui' <- updateGUI' gui0 -< (input, gui)
     returnA -< gui
 
@@ -43,7 +43,8 @@ updateGUI' gui0@(IntroGUI _ _ exitB0 _) =
         let
           result =
             gui
-            { _exitB  =  exitB'
+            --{ _exitB  =  exitB'
+            { _exitB  =  (DT.trace ("DEBUG : exitB' : " ++ show (exitB')) exitB')
             , _cursor = cursor' }
         returnA -< result
       _ -> returnA -< gui0
@@ -55,20 +56,57 @@ updateButton btn0 =
   where
     sf = 
       proc (input, crsr, btn) -> do
+        -- btn' <- updatePressed btn0 -< input
         (btn', moE) <- arr $ uncurry mouseOverE -< (crsr, btn)
         returnA -< (btn0, moE $> btn')
-    cont = updateButton'
+    cont = updateButtonOver
 
-updateButton' :: Widget -> SF (AppInput, Widget, Widget) Widget
-updateButton' btn0 =
+updateButtonOver :: Widget -> SF (AppInput, Widget, Widget) Widget
+updateButtonOver btn0 =
   switch sf cont
   where
     sf = 
       proc (input, crsr, btn) -> do
-        (btn', moE) <- arr $ uncurry mouseOverE' -< (crsr, btn)
-        lbpE        <- lbp -< input
-        returnA -< (btn0 {_pressed = isEvent lbpE}, moE $> btn')
+        --btn' <- updatePressed btn0 -< input
+        (btn', lbpE) <- updatePressed' btn0 -< input
+        (btn'', moE) <- arr $ uncurry mouseOverE' -< (crsr, btn')
+        --returnA -< (btn0, moE  $> btn'')
+        returnA -< (btn', lbpE $> btn'')
     cont = updateButton
+
+-- updateButtonOver :: Widget -> SF (AppInput, Widget, Widget) Widget
+-- updateButtonOver btn0 =
+--   switch sf cont
+--   where
+--     sf = 
+--       proc (input, crsr, btn) -> do
+--         (btn', moE) <- arr $ uncurry mouseOverE' -< (crsr, btn)
+--         lbpE        <- lbp -< input
+--         returnA -< (btn0 {_pressed = isEvent lbpE}, moE $> btn')
+--     cont = updateButton
+
+updatePressed :: Widget -> SF AppInput Widget
+updatePressed btn0@(Button _ _ _ pressed_ _) =
+  switch sf cont
+  where
+    sf =
+      proc input -> do
+        lbpE <- lbp -< input
+        returnA -< (btn0, lbpE $> btn0 {_pressed = not pressed_})
+    cont = updatePressed
+
+updatePressed' :: Widget -> SF AppInput (Widget, Event ())
+updatePressed' btn0@(Button _ _ _ pressed_ _) =
+  switch sf cont
+  where
+    sf =
+      proc input -> do
+        lbpE <- lbp -< input
+        returnA -< ((btn0, NoEvent), lbpE $> btn0 {_pressed = not pressed_})
+    cont = updatePressed'
+
+updateUnpressed :: Widget -> SF (AppInput, Widget) Widget
+updateUnpressed = undefined
 
 mouseOverE :: Widget -> Widget -> (Widget, Event ())
 mouseOverE crsr btn = (btn', event')

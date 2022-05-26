@@ -138,9 +138,9 @@ output lastInteraction window application = do
       IntroGUI fps_ info_ exitB_ (Cursor active_ lable_ coords_) -> coords_
       _ -> (0.0,0.0) :: (Double, Double)
       
-    resx'       = fromIntegral $ app ^. options . App.resx :: Double
-    resy'       = fromIntegral $ app ^. options . App.resy :: Double
-    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (resy'/5,resy'/5)-- (resx', resy')
+    resx'        = fromIntegral $ app ^. options . App.resx :: Double
+    resy'        = fromIntegral $ app ^. options . App.resy :: Double
+    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (resy'/5,resy'/5) -- (resx', resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/5,resy'/5)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
