@@ -21,15 +21,18 @@ import Projects.InfoEarth
 -- | e.g.: `$ cabal run genProject Foo 800 600 "models/model.bgeo" "textures/texture.jpg" 0 0 0`
 
 main :: IO ()
-main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) -> case projectName of
-                                   "testred"     -> Project.write Projects.Test.projectTestRed     filePath
-                                   "testgreen"   -> Project.write Projects.Test.projectTestGreen   filePath 
-                                   "testblue"    -> Project.write Projects.Test.projectTestBlue    filePath 
-                                   "testchecker" -> Project.write Projects.Test.projectTestChecker filePath
-                                   "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
-                                   "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
-                                   "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
-                                   _ -> Project.write Projects.Test.project                        filePath
+main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
+  case projectName of
+  "testred"     -> Project.write Projects.Test.projectTestRed     filePath
+  "testgreen"   -> Project.write Projects.Test.projectTestGreen   filePath 
+  "testblue"    -> Project.write Projects.Test.projectTestBlue    filePath 
+  "testchecker" -> Project.write Projects.Test.projectTestChecker filePath
+  "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
+  "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
+  "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
+  "test"        -> Project.write Projects.Test.project            filePath
+  "options"     -> Project.write Projects.Test.options            filePath  
+  _ -> Project.write Projects.Test.project                        filePath
                                    
 splitter :: String -> IO (String, String)
 splitter fs = return (last $ splitOn "/" fs, fs )

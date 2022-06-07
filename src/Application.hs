@@ -7,7 +7,7 @@ module Application
   , appLoop
   , appRun
   , handleExit
-  , appIntro
+  , appIntroLoop
   , appMain
   , counter
   ) where

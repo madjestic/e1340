@@ -9,6 +9,7 @@ module Application.Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
+  , inpQuit
   , intro
   , main
   , info
@@ -46,10 +47,11 @@ data Planet =
   | Earth
 
 data Interface =
-     IntroApp
-   | InfoApp Planet
-   | MainApp Context
-   | Finished
+    IntroApp
+  | OptionsApp
+  | InfoApp Planet
+  | MainApp Context
+  | Finished
 
 instance Show Interface where
   show (MainApp t) = show t
@@ -59,9 +61,11 @@ data Application
   = Application
   {
     _interface :: Interface
+  , _inpQuit :: Bool
 --  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
+  , _options :: App
   , _info    :: App
   , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   , _counter :: MVar Int

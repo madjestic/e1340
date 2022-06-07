@@ -1,8 +1,8 @@
 {
     "name": "Solar System",
-    "resx": 1280,
-    "resy": 800,
-    "camMode": "AbsoluteLocation",
+    "resx": 640,
+    "resy": 400,
+    "camMode": "RelativeLocation",
     "models": [
         {
             "path": "models/stars.bgeo"
@@ -70,7 +70,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "0800030a-57ec-4f1b-bf8c-ae34793e883e"
+            "uuid": "e1a6d390-eee2-4ae4-aa83-34f670a46d3d"
         },
         {
             "pname": "mercury",
@@ -82,7 +82,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "b88cf526-2d08-4dac-aa44-c7fb9fc598b1"
+            "uuid": "466cbc42-7ebc-4004-9088-254704178bdb"
         },
         {
             "pname": "venus",
@@ -94,7 +94,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "59f0dd10-8c52-4ee5-a42e-38f30ee41904"
+            "uuid": "f67e8734-1d2f-4476-bc9a-a6e36bc3bde9"
         },
         {
             "pname": "earth",
@@ -128,7 +128,7 @@
                 ]
             ],
             "ptype": "planet",
-            "uuid": "6d7b3128-1882-4ae3-bf79-227cb4cd7109"
+            "uuid": "d9fd829c-c182-48a3-a3b9-1ec6098a59b2"
         },
         {
             "pname": "moon",
@@ -140,7 +140,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "0572cf7e-9729-438e-b36e-eee9d9e52e48"
+            "uuid": "3552c16e-0847-4e7c-83c0-7a7455d18314"
         },
         {
             "pname": "mars",
@@ -152,7 +152,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "964bbacc-b26a-460a-95d6-e338dc8ea09d"
+            "uuid": "05d277c3-eb3f-4b94-af90-0d73fcc4552d"
         },
         {
             "pname": "jupiter",
@@ -164,7 +164,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "2e33f017-a669-4f62-9cd9-8d918ee3cdfe"
+            "uuid": "5e191e9c-b7bd-4c3b-b19d-5d32152246b9"
         },
         {
             "pname": "gizmo",
@@ -176,7 +176,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "0da29d95-1191-47d7-8cbd-5cdf1c5b1e73"
+            "uuid": "ed6a69da-02d3-497e-965d-d5f91b2850c5"
         }
     ],
     "background": [
@@ -199,7 +199,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "8d090ef3-d72e-4bf7-82b0-0d5b952d53c1"
+            "uuid": "6b43d095-49ee-41b1-b1d2-c8f3f3970531"
         }
     ],
     "cameras": [
@@ -508,33 +508,89 @@
             },
             {
                 "path": "models/fnt_quote.bgeo"
-            }
-        ],
-        "widgets": [
-            {
-                "active": true,
-                "format": {
-                    "alignment": "TR",
-                    "hoffset": -0.4,
-                    "soffset": 8.5e-2,
-                    "ssize": 1,
-                    "voffset": 0.2
-                },
-                "tag": "FPS'"
             },
             {
-                "active": true,
-                "format": {
-                    "alignment": "CC",
-                    "hoffset": 0,
-                    "soffset": 0.17,
-                    "ssize": 2,
-                    "voffset": 0
-                },
-                "tag": "TextField'",
-                "text": [
-                    "solar system"
-                ]
+                "path": "models/fnt_A.bgeo"
+            },
+            {
+                "path": "models/fnt_B.bgeo"
+            },
+            {
+                "path": "models/fnt_C.bgeo"
+            },
+            {
+                "path": "models/fnt_D.bgeo"
+            },
+            {
+                "path": "models/fnt_E.bgeo"
+            },
+            {
+                "path": "models/fnt_F.bgeo"
+            },
+            {
+                "path": "models/fnt_G.bgeo"
+            },
+            {
+                "path": "models/fnt_H.bgeo"
+            },
+            {
+                "path": "models/fnt_I.bgeo"
+            },
+            {
+                "path": "models/fnt_J.bgeo"
+            },
+            {
+                "path": "models/fnt_K.bgeo"
+            },
+            {
+                "path": "models/fnt_L.bgeo"
+            },
+            {
+                "path": "models/fnt_M.bgeo"
+            },
+            {
+                "path": "models/fnt_N.bgeo"
+            },
+            {
+                "path": "models/fnt_O.bgeo"
+            },
+            {
+                "path": "models/fnt_P.bgeo"
+            },
+            {
+                "path": "models/fnt_Q.bgeo"
+            },
+            {
+                "path": "models/fnt_R.bgeo"
+            },
+            {
+                "path": "models/fnt_S.bgeo"
+            },
+            {
+                "path": "models/fnt_T.bgeo"
+            },
+            {
+                "path": "models/fnt_U.bgeo"
+            },
+            {
+                "path": "models/fnt_V.bgeo"
+            },
+            {
+                "path": "models/fnt_W.bgeo"
+            },
+            {
+                "path": "models/fnt_X.bgeo"
+            },
+            {
+                "path": "models/fnt_Y.bgeo"
+            },
+            {
+                "path": "models/fnt_Z.bgeo"
+            }
+        ],
+        "icons": [
+            {
+                "path": "models/fnt_crosshair.bgeo"
             }
         ]
     }

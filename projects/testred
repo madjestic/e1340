@@ -19,7 +19,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "41a52e54-b94b-4c0d-84f6-53f42948441d"
+            "uuid": "929b4b13-3a0c-4846-a906-78073c4b0fa1"
         }
     ],
     "background": [],
@@ -53,6 +53,6 @@
     ],
     "gui": {
         "fonts": [],
-        "widgets": []
+        "icons": []
     }
 }

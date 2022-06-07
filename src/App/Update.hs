@@ -26,7 +26,7 @@ import Camera
 import Solvable
 import GUI
 
--- import Debug.Trace as DT (trace)
+import Debug.Trace as DT (trace)
 
 formatDebug' :: App -> String
 formatDebug' app0 =
@@ -59,34 +59,79 @@ selectByDist dist cam0 objs0 = selectable'
     camPos'     = camPos * (-1)
     selectable' = Prelude.filter (\obj -> distCamPosObj camPos' obj < dist) objs0
 
-updateApp :: App -> SF (AppInput, App) App
-updateApp app0 =
+updateIntroApp :: App -> SF (AppInput, App) App
+updateIntroApp app0 =
  proc (input, app') -> do
-    (cams, cam) <- updateCameras (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-    objs        <- updateObjectsPre (app0 ^. objects . foreground) -< ()
-    gui         <- updateGUI (app0 ^. gui) -< input
+
+   (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
+   objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
+   gui'        <- updateGUI (app0 ^. gui)                                 -< input
     
-    --let selectable' = selectByDist (10.0 :: Double) cam objs
-    let selectable' = selectByDist (50000000.0 :: Double) cam objs
-    selected'    <- updateSelected   app0 -< (input, selectable')
+   --let selectable' = selectByDist (10.0 :: Double) cam objs
+   let selectable' = selectByDist (50000000.0 :: Double) cam objs
+   selected'    <- updateSelected   app0 -< (input, selectable')
 
-    let
-      selectedText = objectNames <$> view selectable result :: [String]
-      --app''        = app' & ui  . info . text .~ selectedText -- TODO: GUI update
+   let
+     selectedText = objectNames <$> view selectable result :: [String]
+     objTree      = App._objects app'
+     inpQuit'     = case gui' of
+                      IntroGUI _ _ quitB ->
+                        case quitB of
+                          Button _ _ _ _ p _ -> p
+                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
+                          _ -> False
+                      _ -> False
+     
+     result =
+       app'
+       { 
+         App._objects = (objTree {_foreground = objs })
+       , App._cameras = cams
+       , _gui         = gui'
+       , _playCam     = cam
+       , _selectable  = selectable'
+       , _selected    = selected'
+       , _inpQuit     = inpQuit'
+       }
 
-      objTree      = App._objects app' -- & gui . widgets .~ fromUI (app''^.ui) -- UI vs GUI?
-      result =
-        app'
-        { 
-          App._objects = (objTree {_foreground = objs })
-        , App._cameras = cams
-        , _gui         = gui
-        , _playCam     = cam
-        , _selectable  = selectable'
-        , _selected    = selected'
-        }
+   returnA  -< result
 
-    returnA  -< result
+updateMainApp :: App -> SF (AppInput, App) App
+updateMainApp app0 =
+ proc (input, app') -> do
+
+   (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
+   objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
+   gui'        <- updateGUI (app0 ^. gui)                                 -< input
+    
+   --let selectable' = selectByDist (10.0 :: Double) cam objs
+   let selectable' = selectByDist (50000000.0 :: Double) cam objs
+   selected'    <- updateSelected   app0 -< (input, selectable')
+
+   let
+     selectedText = objectNames <$> view selectable result :: [String]
+     objTree      = App._objects app'
+     inpQuit'     = case gui' of
+                      IntroGUI _ _ quitB ->
+                        case quitB of
+                          Button _ _ _ _ p _ -> p
+                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
+                          _ -> False
+                      _ -> False
+     
+     result =
+       app'
+       { 
+         App._objects = (objTree {_foreground = objs })
+       , App._cameras = cams
+       , _gui         = gui'
+       , _playCam     = cam
+       , _selectable  = selectable'
+       , _selected    = selected'
+       , _inpQuit     = inpQuit'
+       }
+
+   returnA  -< result
 
 updateSelected :: App -> SF (AppInput, [Object]) [Object]
 updateSelected app0 =
@@ -126,3 +171,9 @@ distCamPosObj camPos0 obj0 = dist
   where
     dist    = distance camPos0 objPos 
     objPos  = view translation $ head $ view (base . transforms) obj0 :: V3 Double
+
+quitEvent :: SF App (Event ())
+quitEvent = arr _inpQuit >>> edge
+
+testEvent :: SF Options (Event ())
+testEvent = arr _test >>> edge

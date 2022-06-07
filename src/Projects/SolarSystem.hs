@@ -141,6 +141,8 @@ project :: Project
 project =
   Project
   "Solar System"
+  -- 1280
+  -- 800
   640
   400
   -- "AbsoluteLocation"

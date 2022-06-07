@@ -4,7 +4,7 @@ module Application.Update
   ( appRun
   , appLoop
   , handleExit
-  , appIntro
+  , appIntroLoop
   , appMain
   ) where
 
@@ -19,7 +19,8 @@ import Application.Application as Appl
 import App
 import GUI
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
+import App.App as App (inpQuit) 
 
 appLoop :: Application -> SF AppInput Application
 appLoop app0 =
@@ -34,6 +35,7 @@ appRun app0 =
   proc (input, _) -> do
     as <- case _interface app0 of
             IntroApp        -> appIntroPre app0 -<  input
+            -- OptionsApp      -> appOptsPre  app0 -<  input
             MainApp Default -> appMainPre  app0 -<  input
             InfoApp Earth   -> appInfoPre  app0 -<  input
             _ -> appMainPre app0  -< input
@@ -43,23 +45,52 @@ appIntroPre :: Application -> SF AppInput Application
 appIntroPre app0 =
   loopPre app0 $
   proc (input, gameState) -> do
-    app1 <- appIntro app0 -< (input, gameState)
+    app1 <- appIntroLoop app0 -< (input, gameState)
     returnA -< (app1, app1)
 
-appIntro :: Application -> SF (AppInput, Application) Application
-appIntro app0  = 
+appIntroLoop :: Application -> SF (AppInput, Application) Application
+appIntroLoop app0  = 
   switch sf cont
      where sf =
-             --proc (input, app') -> do
-             proc (input, _) -> do
-               gui'       <- updateGUI (app0 ^. intro . gui) -< input
-               skipE      <- keyInput SDL.ScancodeSpace "Pressed" -< input
+             proc (input, app1) -> do
+               app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
+               skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
+               qE    <- arr Appl._inpQuit >>> edge -< app1
 
                let
-                 result = app0 & intro . gui .~ gui' :: Application
-               --returnA    -< (app0, skipE $> app0 { _interface =  MainApp Default })
-               returnA    -< (result, skipE $> result { _interface =  MainApp Default })
+                 result = app1 { _intro        = app'
+                               , Appl._inpQuit = app' ^. App.inpQuit
+                               }
+               returnA    -< (result, lMerge qE skipE $> result { _interface =  MainApp Default })
            cont = appRun
+
+initLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
+initLoop app0 =
+  loopPre app0 $
+  proc (input, gameState) -> do
+    app1 <- case _interface app0 of
+              IntroApp -> appIntroLoop app0  -< (input, gameState)
+            -- OptionsApp      -> appOptsPre  app0 -<  input
+              MainApp Default -> appMainPre  app0 -<  input
+            -- InfoApp Earth   -> appInfoPre  app0 -<  input
+              _ -> appIntroLoop app0  -< (input, gameState)
+    returnA -< (app1, app1)
+
+-- appIntroLoop :: Application -> SF (AppInput, Application) Application
+-- appIntroLoop app0  = 
+--   switch sf cont
+--      where sf =
+--              proc (input, app1) -> do
+--                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
+--                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
+--                qE    <- arr Appl._inpQuit >>> edge -< app1
+
+--                let
+--                  result = app1 { _intro        = app'
+--                                , Appl._inpQuit = app' ^. App.inpQuit
+--                                }
+--                returnA    -< (result, lMerge qE skipE $> result { _interface =  MainApp Default })
+--            cont = appRun
 
 appMainPre :: Application -> SF AppInput Application
 appMainPre app0 =
@@ -73,7 +104,7 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.main)
+               app'        <- updateMainApp (fromApplication app0) -< (input, app1^.Appl.main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 
@@ -107,7 +138,7 @@ appInfo app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateApp (fromApplication app0) -< (input, app1^.Appl.info)
+               app'        <- updateMainApp (fromApplication app0) -< (input, app1^.Appl.info)
                exitE       <- keyInput SDL.ScancodeZ "Pressed" -< input
 
                let

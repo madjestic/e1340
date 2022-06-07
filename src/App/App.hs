@@ -8,8 +8,9 @@ module App.App
 --  , UI      (..)
   , options
   , App.App.name
-  , App.App.resx
-  , App.App.resy
+  , App.App.res
+  -- , App.App.resx
+  -- , App.App.resy
   , App.App.gui
   , App.App.objects
   , playCam
@@ -17,6 +18,7 @@ module App.App
   , selectable
   , selected
   , debug
+  , inpQuit
   , App.App.fromProject
   , toDrawable
   ) where
@@ -47,6 +49,7 @@ data App
   = App
   {
     _debug       :: (Double, Double)
+  , _inpQuit     :: Bool
   , _options     :: Options
   , _gui         :: GUI
   , _objects     :: ObjectTree
@@ -59,8 +62,8 @@ data App
 data Options
   = Options
   { _name  :: String
-  , _resx  :: CInt
-  , _resy  :: CInt
+  , _res   :: (Int, Int)
+  , _test  :: Bool
   } deriving Show
 
 $(makeLenses ''Options)
@@ -81,10 +84,12 @@ fromProject prj0 =
       app =
         App
         (0,0)
+        False
         ( Options
-          name'
-          resX'
-          resY'
+          ( view P.name prj0)
+          ( view P.resx prj0
+          , view P.resy prj0)
+          False
         )
         Empty
         objTree
@@ -97,16 +102,16 @@ fromProject prj0 =
     print "finished initializing app resources..."
     return app
       where
-        name' = view P.name prj0
-        resX' = (unsafeCoerce $ view P.resx prj0) :: CInt
-        resY' = (unsafeCoerce $ view P.resy prj0) :: CInt
+        -- name' = view P.name prj0
+        -- resX' = (unsafeCoerce $ view P.resx prj0) :: CInt
+        -- resY' = (unsafeCoerce $ view P.resy prj0) :: CInt
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')
   where
     mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
-    resX = fromEnum $ view (options . App.App.resx) app :: Int
-    resY = fromEnum $ view (options . App.App.resy) app :: Int
+    resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
+    resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam app :: Camera
     drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]

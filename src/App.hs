@@ -3,8 +3,9 @@ module App
   , Options (..)
   , options
   , App.App.name
-  , App.App.resx
-  , App.App.resy
+  , App.App.res
+  -- , App.App.resx
+  -- , App.App.resy
   , gui
   , App.App.objects
   , playCam
@@ -14,7 +15,8 @@ module App
   , debug
   , App.App.fromProject
   , toDrawable
-  , updateApp
+  , updateMainApp
+  , updateIntroApp
   ) where
 
 import App.App

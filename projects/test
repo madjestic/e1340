@@ -1,11 +1,11 @@
 {
-    "name": "Test Red",
-    "resx": 800,
-    "resy": 600,
+    "name": "Test Project",
+    "resx": 640,
+    "resy": 400,
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/box_red.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
@@ -33,8 +33,10 @@
                     0
                 ]
             ],
+            "presolvers": [],
+            "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "00000000-0000-0000-0000-000000000000"
+            "uuid": "bbd30101-aa85-4ec6-af5c-ca7b0ce60c33"
         }
     ],
     "background": [],
@@ -214,33 +216,89 @@
             },
             {
                 "path": "models/fnt_quote.bgeo"
-            }
-        ],
-        "widgets": [
-            {
-                "active": true,
-                "format": {
-                    "alignment": "CC",
-                    "hoffset": 0,
-                    "soffset": 8.5e-2,
-                    "ssize": 1,
-                    "voffset": -0.4
-                },
-                "tag": "TextField'",
-                "text": [
-                    "Test Red"
-                ]
             },
             {
-                "active": true,
-                "format": {
-                    "alignment": "TC",
-                    "hoffset": 0,
-                    "soffset": 8.5e-2,
-                    "ssize": 1,
-                    "voffset": -0.4
-                },
-                "tag": "FPS'"
+                "path": "models/fnt_A.bgeo"
+            },
+            {
+                "path": "models/fnt_B.bgeo"
+            },
+            {
+                "path": "models/fnt_C.bgeo"
+            },
+            {
+                "path": "models/fnt_D.bgeo"
+            },
+            {
+                "path": "models/fnt_E.bgeo"
+            },
+            {
+                "path": "models/fnt_F.bgeo"
+            },
+            {
+                "path": "models/fnt_G.bgeo"
+            },
+            {
+                "path": "models/fnt_H.bgeo"
+            },
+            {
+                "path": "models/fnt_I.bgeo"
+            },
+            {
+                "path": "models/fnt_J.bgeo"
+            },
+            {
+                "path": "models/fnt_K.bgeo"
+            },
+            {
+                "path": "models/fnt_L.bgeo"
+            },
+            {
+                "path": "models/fnt_M.bgeo"
+            },
+            {
+                "path": "models/fnt_N.bgeo"
+            },
+            {
+                "path": "models/fnt_O.bgeo"
+            },
+            {
+                "path": "models/fnt_P.bgeo"
+            },
+            {
+                "path": "models/fnt_Q.bgeo"
+            },
+            {
+                "path": "models/fnt_R.bgeo"
+            },
+            {
+                "path": "models/fnt_S.bgeo"
+            },
+            {
+                "path": "models/fnt_T.bgeo"
+            },
+            {
+                "path": "models/fnt_U.bgeo"
+            },
+            {
+                "path": "models/fnt_V.bgeo"
+            },
+            {
+                "path": "models/fnt_W.bgeo"
+            },
+            {
+                "path": "models/fnt_X.bgeo"
+            },
+            {
+                "path": "models/fnt_Y.bgeo"
+            },
+            {
+                "path": "models/fnt_Z.bgeo"
+            }
+        ],
+        "icons": [
+            {
+                "path": "models/fnt_crosshair.bgeo"
             }
         ]
     }

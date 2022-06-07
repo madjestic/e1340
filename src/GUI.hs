@@ -4,8 +4,10 @@ module GUI
   , updateGUI
   , introGUI
   , mainGUI
+  , optsGUI    
   , fromGUI
   , infoGUI
+  , fromFormat
   ) where
 
 import GUI.GUI

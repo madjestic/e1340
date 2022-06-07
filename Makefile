@@ -67,6 +67,33 @@ fonts:
 	./resources/convertGeo.sh fnt_semicolon
 	./resources/convertGeo.sh fnt_quote
 	./resources/convertGeo.sh fnt_space
+	./resources/convertGeo.sh fnt_A
+	./resources/convertGeo.sh fnt_B
+	./resources/convertGeo.sh fnt_C
+	./resources/convertGeo.sh fnt_D
+	./resources/convertGeo.sh fnt_E
+	./resources/convertGeo.sh fnt_F
+	./resources/convertGeo.sh fnt_G
+	./resources/convertGeo.sh fnt_H
+	./resources/convertGeo.sh fnt_I
+	./resources/convertGeo.sh fnt_J
+	./resources/convertGeo.sh fnt_K
+	./resources/convertGeo.sh fnt_L
+	./resources/convertGeo.sh fnt_M
+	./resources/convertGeo.sh fnt_N
+	./resources/convertGeo.sh fnt_O
+	./resources/convertGeo.sh fnt_P
+	./resources/convertGeo.sh fnt_Q
+	./resources/convertGeo.sh fnt_R
+	./resources/convertGeo.sh fnt_S
+	./resources/convertGeo.sh fnt_T
+	./resources/convertGeo.sh fnt_U
+	./resources/convertGeo.sh fnt_V
+	./resources/convertGeo.sh fnt_W
+	./resources/convertGeo.sh fnt_X
+	./resources/convertGeo.sh fnt_Y
+	./resources/convertGeo.sh fnt_Z
+	./resources/convertGeo.sh fnt_crosshair
 
 intro:
 	./resources/convertGeo.sh intro_square
@@ -156,3 +183,17 @@ infoearth:
 	cabal run exe:genUUID -- -p ./projects/infoearth
 	cabal build exe:e1340
 	cabal run +RTS -sstderr -RTS e1340 ./projects/infoearth ./projects/infoearth
+
+test:
+	cabal build exe:genProject
+	cabal run exe:genProject -- ./projects/test
+	cabal run exe:genUUID -- -p ./projects/test
+	cabal build exe:e1340
+	cabal run +RTS -sstderr -RTS e1340 ./projects/test ./projects/test
+
+options:
+	cabal build exe:genProject
+	cabal run exe:genProject -- ./projects/options 	
+	cabal run exe:genUUID -- -p ./projects/options 	
+	cabal build exe:e1340
+	cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options

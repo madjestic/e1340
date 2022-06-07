@@ -8,7 +8,7 @@ module Main where
 --import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
-import Control.Monad      (when)
+import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
 import Foreign.C          ( CInt )
@@ -25,7 +25,14 @@ import SDL
 import SDL.Input.Mouse
 import SDL.Vect
 
-import Graphics.Rendering.OpenGL ( PrimitiveMode(..), Color4 (Color4), clear, clearColor, ($=), ClearBuffer (..), DataType (Double))
+import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
+                                 , Color4 (Color4)
+                                 , clear
+                                 , clearColor
+                                 , ($=)
+                                 , ClearBuffer (..)
+                                 , DataType (Double)
+                                 , Capability (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
     
@@ -51,7 +58,7 @@ import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
-debug = True
+debug = False
 #else
 debug = False
 #endif
@@ -119,14 +126,15 @@ output lastInteraction window application = do
     app  = fromApplication application
     txs  = concat . concat
            $   (\obj -> obj ^.. base . materials . traverse . textures)
-           <$> (fgrObjs ++ fntObjs) :: [Texture]
+           <$> (fgrObjs ++ fntObjs ++ icnObjs) :: [Texture]
     hmap = _hmap application
 
     opts =
       BackendOptions
       { primitiveMode = Triangles
       , bgrColor      = Color4 0.0 0.0 0.0 1.0
-      , ptSize        = 1.0 }
+      , ptSize        = 1.0
+      , depthMsk      = Enabled}
     
   clearColor $= bgrColor opts
   clear [ColorBuffer, DepthBuffer]
@@ -135,21 +143,25 @@ output lastInteraction window application = do
     playCam'    = app ^. playCam :: Camera
     --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case app ^. gui of
-      IntroGUI fps_ info_ exitB_ (Cursor active_ lable_ coords_) -> coords_
+      --IntroGUI fps_ info_ _ _ exitB_ (Cursor active_ lable_ coords_) -> coords_
+      IntroGUI _ (Cursor active_ lable_ coords_) quitB_ -> coords_
       _ -> (0.0,0.0) :: (Double, Double)
       
-    resx'        = fromIntegral $ app ^. options . App.resx :: Double
-    resy'        = fromIntegral $ app ^. options . App.resy :: Double
-    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (resy'/5,resy'/5) -- (resx', resy')
-    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/5,resy'/5)
+    -- resx'        = fromIntegral $ app ^. options . App.resx :: Double
+    -- resy'        = fromIntegral $ app ^. options . App.resy :: Double
+    (resx', resy')  = app ^. options . App.res
+    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
+    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points })      :: Drawable -> IO ()
-    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsTriangles :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
+                                              , depthMsk      = Disabled })    :: Drawable -> IO ()
+    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsIcons     :: Widget   -> IO ()
 
-  mapM_ renderAsTriangles objsDrs
-  mapM_ renderAsPoints    bgrsDrs
+  -- mapM_ renderAsTriangles objsDrs
+  -- mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
   renderCursorM crsr
   
@@ -164,7 +176,7 @@ renderWidget lastInteraction drs cmds wgt =
   case wgt of
     TextField a t f ->
       when a $ renderString cmds drs f $ concat t
-    Button a l _ _ f->
+    Button a l _ _ _ f->
       when a $ renderString cmds drs f l
     FPS a f ->
       when a $ do
@@ -179,12 +191,8 @@ renderCursor (x,y) drs cmds wgt =
     Cursor a l (x',y') ->
       when a $ do
       let
-        f = (Format TL (-y) (x) 0.0 2.0)
-        --f = (Format TL (-y') (x') 0.0 2.0)
-        --f = (Format CC (0.0) (0.0) 0.0 2.0)
-    --   renderString cmds drs f l -- render tooltip?
-    -- _ -> return ()
-      renderString cmds drs f "0"
+        f = (Format TL (x) (-y) (0.0) 0.0 1.0)
+      renderIcon cmds drs f "cursor"
     _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
@@ -196,7 +204,10 @@ initResources app0 =
       fntObjs' = case fntObjs of
         [] -> []
         _  -> [head fntObjs]
-      objs   = introObjs ++ fntObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      icnObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
       txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
       uuids  = fmap (view T.uuid) txs
       hmap   = toList . fromList $ zip uuids [0..]
@@ -209,22 +220,22 @@ initResources app0 =
     return app0 { _hmap = hmap }
       where
         introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . OT.fonts) (_main app0)  :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
+        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
 main :: IO ()
 main = do
 
-
-  --let argsDebug = return ["./projects/intro_XXII", "./projects/solar_system"]
-  let argsDebug = return ["./projects/solarsystem", "./projects/solarsystem"]
-  args <- if debug then argsDebug else getArgs
-
-  introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
-  mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
-  pInfoProj <- P.read ("./projects/infoearth" :: FilePath)
-  --pInfoProj <- P.read ("./projects/newtest" :: FilePath)
+  args      <- getArgs
+  introProj <- if debug then P.read (unsafeCoerce (args!!0)   :: FilePath)
+               else          P.read ("./projects/solarsystem" :: FilePath)
+  mainProj  <- if debug then P.read (unsafeCoerce (args!!1)   :: FilePath)
+               else          P.read ("./projects/solarsystem" :: FilePath)
+  optsProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!2)   :: FilePath)
+  pInfoProj <-               P.read ("./projects/infoearth"   :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -247,21 +258,22 @@ main = do
   putStrLn "\n Initializing App"
   introApp <- App.fromProject introProj
   mainApp  <- App.fromProject mainProj
-  info'    <- App.fromProject pInfoProj
+  optsApp  <- App.fromProject optsProj
+  infoApp  <- App.fromProject pInfoProj
   counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
-  -- let mainAppUI
-  --       = MainGUI
-  --         { _fps      = FPS True (Format TC (-0.4) 0.0 0.085 1.0)
-  --         , App._info = TextField True ["sukanah"] (Format CC (0.0) 0.0 0.085 1.0)}
+
   let
+    res      = ()
     initApp' =
       Application
       IntroApp
-      (introApp & gui .~ introGUI)
-      (mainApp  & gui .~ mainGUI)
-      (info'    & gui .~ infoGUI)
+      False
+      (introApp & gui .~ introGUI (introApp ^. options . App.res))
+      (mainApp  & gui .~ mainGUI  (mainApp  ^. options . App.res))
+      (optsApp  & gui .~ optsGUI  (optsApp  ^. options . App.res))
+      (infoApp  & gui .~ infoGUI  (infoApp  ^. options . App.res))
       []
       counter'
 

@@ -63,6 +63,8 @@ library
               Graphics.RedViz.Input
               Graphics.RedViz.Input.Keyboard
               Graphics.RedViz.Input.Mouse
+              Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+
               Graphics.RedViz.Input.FRP.Yampa
               Graphics.RedViz.Input.FRP.Yampa.AppInput
               Graphics.RedViz.Project.Model
@@ -224,46 +226,47 @@ executable e1340
               , GUI
               , GUI.GUI
               , GUI.Update
+              , Debug
               
   default-language:
                 Haskell2010
 
--- executable genMaterial
---   main-is:      genMaterial.hs
---   hs-source-dirs:
---                 app
---               , src
+executable genMaterial
+  main-is:      genMaterial.hs
+  hs-source-dirs:
+                app
+              , src
 
---   ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
---   --cpp-options:   -DDEBUG
---   build-depends:
---                 base                
---               , aeson               
---               , aeson-pretty        
---               , bytestring          
---               , containers                      
---               , directory           
---               , ilist                                                       
---               , lens                
---               , linear                         
---               , locators            
---               , OpenGL              
---               , random              
---               , simple-affine-space           
---               , split               
---               , text                
---               , uuid                
---               , vector                         
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --cpp-options:   -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers                      
+              , directory           
+              , ilist                                                       
+              , lens                
+              , linear                         
+              , locators            
+              , OpenGL              
+              , random              
+              , simple-affine-space           
+              , split               
+              , text                
+              , uuid                
+              , vector                         
 
---   other-modules:
---                 Paths_e1338
---               , Material
---               , FromVector
---               , Utils
---               , Texture
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.Utils
+              , Graphics.RedViz.Texture              
 
---   default-language:
---                 Haskell2010
+  default-language:
+                Haskell2010
 
 executable genProject
   main-is:      genProject.hs
