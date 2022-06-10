@@ -36,16 +36,18 @@ updateGUI gui0 =
     returnA -< gui
 
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
-updateGUI' gui0@(IntroGUI res cursor0 quitB0) =
+updateGUI' gui0@(IntroGUI res cursor0 optsB0 quitB0) =
   proc (input, gui) -> do
     case gui of
-      IntroGUI res cursor_ quitB_ -> do
+      IntroGUI res cursor_ optsB_ quitB_ -> do
         cursor' <- updateCursor        -< (input, cursor_)
+        optsB'  <- updateButton res optsB0 -< (input, cursor', optsB_)
         quitB'  <- updateButton res quitB0 -< (input, cursor', quitB_)
         let
           result =
             gui
-            { _quitB  =  quitB'
+            { _optsB  = optsB'
+            , _quitB  =  quitB'
             , _cursor = cursor'
             }
             

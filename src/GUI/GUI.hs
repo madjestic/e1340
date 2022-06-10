@@ -24,7 +24,7 @@ data GUI
      --   _fps      :: Widget
      -- , _info     :: Widget
      -- , _startB   :: Widget
-     -- , _optionsB :: Widget
+     , _optsB    :: Widget
      , _quitB    :: Widget -- button
      -- , _cursor   :: Widget
      }
@@ -47,6 +47,7 @@ data GUI
        _res    :: (Int, Int)
      , _fps    :: Widget
      , _info   :: Widget
+     , _backB  :: Widget -- button
      , _cursor :: Widget
      }
   |  PlanetInfo
@@ -83,7 +84,8 @@ introGUI res =
   --, _quitB  = Button True "exit" (BBox (0.5) (-0.5) (-0.5) (0.5)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
-  , _quitB    = Button True "quit" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _optsB    = Button True "OPTIONS" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) ( 0.3) 0.0 0.085 1.0)
+  , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (-0.3) 0.0 0.085 1.0)
   }
 
 optsGUI :: (Int, Int) -> GUI
@@ -99,9 +101,10 @@ mainGUI :: (Int, Int) -> GUI
 mainGUI res =
   MainGUI
   {
-    _res  = res
+    _res    = res
   , _fps  = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0)
-  , _info = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
+  , _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
+  , _backB  = Button True "< Main" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
   , _cursor = Cursor True "" (0.0, 0.0)
   }
 
@@ -122,20 +125,21 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     --IntroGUI fps info startB optionsB quitB cursor ->
-    IntroGUI res cursor quitB ->
+    IntroGUI res cursor optsB quitB ->
       [
         cursor
       --   fps
       -- , info
       -- , startB
-      -- , optionsB
+      , optsB
       , quitB
       -- , cursor
       ]
-    MainGUI res fps info cursor ->
+    MainGUI res fps info backB cursor ->
       [
         fps
       , info
+      , backB
       , cursor
       ]
     PlanetInfo res fps infos cursor ->

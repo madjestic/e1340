@@ -1,16 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module App.App
   ( App     (..)
   , Options (..)
---  , UI      (..)
   , options
   , App.App.name
   , App.App.res
-  -- , App.App.resx
-  -- , App.App.resy
   , App.App.gui
   , App.App.objects
   , playCam
@@ -19,8 +18,13 @@ module App.App
   , selected
   , debug
   , inpQuit
+  , ui
   , App.App.fromProject
   , toDrawable
+  , App.App.Interface (..)
+  -- , inpQuit
+  -- , inpOpts
+  , inpBack
   ) where
 
 import Control.Lens hiding (Empty)
@@ -29,27 +33,40 @@ import Linear.Matrix
 import Unsafe.Coerce
 import Graphics.Rendering.OpenGL     (Program)
                                       
-import Graphics.RedViz.Camera         
+import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
-import Graphics.RedViz.Project       as P
+import Graphics.RedViz.Project as P
 import Graphics.RedViz.Project.Utils
                                       
 import Object hiding (Empty)                         
 import ObjectTree
 import GUI
+import Application.Interface as AI
 
 -- import Debug.Trace as DT
+
+data Interface =
+    Intro
+    {
+      _inpQuit :: Bool
+    , _inpOpts :: Bool
+    }
+  | Opts
+    { _inpBack :: Bool
+    } deriving Show
+$(makeLenses ''App.App.Interface)  
 
 data App
   = App
   {
     _debug       :: (Double, Double)
-  , _inpQuit     :: Bool
+  --, _inpQuit     :: Bool
+  , _ui          :: App.App.Interface
   , _options     :: Options
   , _gui         :: GUI
   , _objects     :: ObjectTree
@@ -71,40 +88,78 @@ $(makeLenses ''App)
 
 -- -- < Init App State > ------------------------------------------------------
 
-fromProject :: Project -> IO App
-fromProject prj0 =
-  do
-    putStrLn   "initializing app resources..."
-    putStrLn $ "project name : " ++ view P.name prj0 ++ "\n"
-    objTree <- ObjectTree.fromProject prj0
+introApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
+introApp prj0 objTree pCam cams =
+  App
+  { _debug   = (0,0)
+  , _ui      = Intro {_inpQuit = False
+                     ,_inpOpts = False}
+  , _options = Options
+               { _name = view P.name prj0
+               , _res  = res
+               , _test = False }
+  , _gui     = introGUI res 
+  , _objects = objTree
+  , _playCam = pCam
+  , _cameras = cams
+  , _selectable = []
+  , _selected   = [] }
+  where
+    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
 
-    let
-      cams = fromProjectCamera <$> view P.cameras prj0
-      pCam = head cams
-      app =
-        App
-        (0,0)
-        False
-        ( Options
-          ( view P.name prj0)
-          ( view P.resx prj0
-          , view P.resy prj0)
-          False
-        )
-        Empty
-        objTree
-        pCam
-        cams
-        []
-        []
+optsApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
+optsApp prj0 objTree pCam cams =
+  App
+  { _debug   = (0,0)
+  , _ui      = Opts {_inpBack = False}
+  , _options = Options
+               { _name = view P.name prj0
+               , _res  = res
+               , _test = False }
+  , _gui     = optsGUI res 
+  , _objects = objTree
+  , _playCam = pCam
+  , _cameras = cams
+  , _selectable = []
+  , _selected   = [] }
+  where
+    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+
+mainApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
+mainApp prj0 objTree pCam cams =
+  App
+  { _debug   = (0,0)
+  , _ui      = Intro {_inpQuit = False}
+  , _options = Options
+               { _name = view P.name prj0
+               , _res  = res
+               , _test = False }
+  , _gui     = mainGUI res 
+  , _objects = objTree
+  , _playCam = pCam
+  , _cameras = cams
+  , _selectable = []
+  , _selected   = [] }
+  where
+    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
 
 
-    print "finished initializing app resources..."
-    return app
-      where
-        -- name' = view P.name prj0
-        -- resX' = (unsafeCoerce $ view P.resx prj0) :: CInt
-        -- resY' = (unsafeCoerce $ view P.resy prj0) :: CInt
+fromProject :: Project -> AI.Interface -> IO App
+fromProject prj0 ui = do
+  putStrLn   "initializing IntroApp resources..."
+  putStrLn $ "project name : " ++ view P.name prj0 ++ "\n"
+  objTree <- ObjectTree.fromProject prj0
+       
+  let
+    cams = fromProjectCamera <$> view P.cameras prj0
+    pCam = head cams
+    app  = case ui of
+      IntroApp        -> introApp prj0 objTree pCam cams
+      MainApp Default -> mainApp  prj0 objTree pCam cams
+      OptionsApp      -> optsApp  prj0 objTree pCam cams
+       
+  print "finished initializing IntroApp resources..."
+  return app
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')

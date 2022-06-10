@@ -9,6 +9,7 @@ module Application.Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
+--  , fromproject  
   , inpQuit
   , intro
   , main
@@ -24,34 +25,10 @@ import Graphics.Rendering.OpenGL as GL    (GLuint)
 --import Graphics.RedViz.Widget
 
 import App (App(..))
+import Application.Interface
 --import GUI
 
 import Debug.Trace as DT
-
-data Menu =
-    Start
-  | PlanetInfo
-  deriving Show
-
-data Context =
-    Default
-  | Debug
-  | ContextMenu Menu
-
-instance Show Context where
-  show (ContextMenu t) = show t
-  show t = show t
-
-data Planet =
-    None
-  | Earth
-
-data Interface =
-    IntroApp
-  | OptionsApp
-  | InfoApp Planet
-  | MainApp Context
-  | Finished
 
 instance Show Interface where
   show (MainApp t) = show t
@@ -62,6 +39,7 @@ data Application
   {
     _interface :: Interface
   , _inpQuit :: Bool
+  , _inpBack :: Bool
 --  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
@@ -84,6 +62,7 @@ fromApplication app =
       view main  app
     InfoApp _ ->
       view info app
+    OptionsApp ->
+      view options app
     _ ->
       view main app
-      --view main app

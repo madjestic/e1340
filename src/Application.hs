@@ -4,11 +4,11 @@ module Application
   , Interface   (..)
   , Planet      (..)
   , fromApplication
-  , appLoop
-  , appRun
+  , mainLoop
   , handleExit
-  , appIntroLoop
+  , appIntro
   , appMain
+  , appOpts
   , counter
   ) where
 

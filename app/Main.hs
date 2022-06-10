@@ -49,6 +49,7 @@ import Graphics.RedViz.Controllable
 import Graphics.RedViz.Input.Mouse
 
 import Application
+import Application.Interface
 import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
@@ -144,7 +145,8 @@ output lastInteraction window application = do
     --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case app ^. gui of
       --IntroGUI fps_ info_ _ _ exitB_ (Cursor active_ lable_ coords_) -> coords_
-      IntroGUI _ (Cursor active_ lable_ coords_) quitB_ -> coords_
+      IntroGUI   _ (Cursor _ _ coords_) _ _ -> coords_
+      OptionsGUI _ (Cursor _ _ coords_) _   -> coords_
       _ -> (0.0,0.0) :: (Double, Double)
       
     -- resx'        = fromIntegral $ app ^. options . App.resx :: Double
@@ -256,10 +258,10 @@ main = do
   _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing App"
-  introApp <- App.fromProject introProj
-  mainApp  <- App.fromProject mainProj
-  optsApp  <- App.fromProject optsProj
-  infoApp  <- App.fromProject pInfoProj
+  introApp <- App.fromProject introProj $ IntroApp
+  mainApp  <- App.fromProject mainProj  $ MainApp Default
+  optsApp  <- App.fromProject optsProj  $ OptionsApp
+  infoApp  <- App.fromProject pInfoProj $ InfoApp Earth
   counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
@@ -270,8 +272,9 @@ main = do
       Application
       IntroApp
       False
-      (introApp & gui .~ introGUI (introApp ^. options . App.res))
-      (mainApp  & gui .~ mainGUI  (mainApp  ^. options . App.res))
+      False
+      introApp--(introApp & gui .~ introGUI (introApp ^. options . App.res))
+      mainApp --(mainApp  & gui .~ mainGUI  (mainApp  ^. options . App.res))
       (optsApp  & gui .~ optsGUI  (optsApp  ^. options . App.res))
       (infoApp  & gui .~ infoGUI  (infoApp  ^. options . App.res))
       []
@@ -282,5 +285,5 @@ main = do
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> appLoop app &&& handleExit)
+    (parseWinInput >>> mainLoop app &&& handleExit)
   return ()

@@ -1,11 +1,12 @@
 {-# LANGUAGE Arrows #-}
 
 module Application.Update
-  ( appRun
-  , appLoop
+  (
+    mainLoop
   , handleExit
-  , appIntroLoop
+  , appIntro
   , appMain
+  , appOpts  
   ) where
 
 import FRP.Yampa
@@ -20,36 +21,28 @@ import App
 import GUI
 
 import Debug.Trace    as DT
-import App.App as App (inpQuit) 
+import App.App as App (inpQuit, Interface(..)) 
 
-appLoop :: Application -> SF AppInput Application
-appLoop app0 =
+mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
+mainLoop app0 =
   loopPre app0 $
   proc (input, gameState) -> do
-    app1 <- appRun app0 -< (input, gameState)
+    app1 <- case _interface app0 of
+              IntroApp        -> appIntro app0  -< (input, gameState)
+              OptionsApp      -> appOpts  app0  -< (input, gameState)
+              MainApp Default -> appMain  app0  -< (input, gameState)
+              InfoApp Earth   -> appInfo  app0  -< (input, gameState)
+              _ -> appMain app0  -< (input, gameState)
     returnA -< (app1, app1)
 
-appRun :: Application -> SF (AppInput, Application) Application
-appRun app0 =
-  --proc (input, app') -> do
-  proc (input, _) -> do
-    as <- case _interface app0 of
-            IntroApp        -> appIntroPre app0 -<  input
-            -- OptionsApp      -> appOptsPre  app0 -<  input
-            MainApp Default -> appMainPre  app0 -<  input
-            InfoApp Earth   -> appInfoPre  app0 -<  input
-            _ -> appMainPre app0  -< input
-    returnA -< as
+switchApp :: Event () -> Event () -> Appl.Interface
+switchApp e0 e1 = ui
+  where
+    ui = if isEvent e0 then MainApp Default
+         else OptionsApp
 
-appIntroPre :: Application -> SF AppInput Application
-appIntroPre app0 =
-  loopPre app0 $
-  proc (input, gameState) -> do
-    app1 <- appIntroLoop app0 -< (input, gameState)
-    returnA -< (app1, app1)
-
-appIntroLoop :: Application -> SF (AppInput, Application) Application
-appIntroLoop app0  = 
+appIntro :: Application -> SF (AppInput, Application) Application
+appIntro app0  = 
   switch sf cont
      where sf =
              proc (input, app1) -> do
@@ -58,47 +51,40 @@ appIntroLoop app0  =
                qE    <- arr Appl._inpQuit >>> edge -< app1
 
                let
+                 Intro inpQuit_ _ = app' ^. ui
                  result = app1 { _intro        = app'
-                               , Appl._inpQuit = app' ^. App.inpQuit
+                               , Appl._inpQuit = inpQuit_
                                }
-               returnA    -< (result, lMerge qE skipE $> result { _interface =  MainApp Default })
-           cont = appRun
+                          
+               returnA    -< (result, lMerge qE skipE $> result { _interface =  switchApp qE skipE })
+               
+           cont arg =
+             proc (input', app') -> do
+               result <- mainLoop arg -< input'
+               returnA -< result
 
-initLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
-initLoop app0 =
-  loopPre app0 $
-  proc (input, gameState) -> do
-    app1 <- case _interface app0 of
-              IntroApp -> appIntroLoop app0  -< (input, gameState)
-            -- OptionsApp      -> appOptsPre  app0 -<  input
-              MainApp Default -> appMainPre  app0 -<  input
-            -- InfoApp Earth   -> appInfoPre  app0 -<  input
-              _ -> appIntroLoop app0  -< (input, gameState)
-    returnA -< (app1, app1)
+appOpts :: Application -> SF (AppInput, Application) Application
+appOpts app0  = 
+  switch sf cont
+     where sf =
+             proc (input, app1) -> do
+               app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
+               -- skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
+               backE <- arr Appl._inpQuit >>> edge -< app1
 
--- appIntroLoop :: Application -> SF (AppInput, Application) Application
--- appIntroLoop app0  = 
---   switch sf cont
---      where sf =
---              proc (input, app1) -> do
---                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
---                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
---                qE    <- arr Appl._inpQuit >>> edge -< app1
-
---                let
---                  result = app1 { _intro        = app'
---                                , Appl._inpQuit = app' ^. App.inpQuit
---                                }
---                returnA    -< (result, lMerge qE skipE $> result { _interface =  MainApp Default })
---            cont = appRun
-
-appMainPre :: Application -> SF AppInput Application
-appMainPre app0 =
-  loopPre app0 $
-  proc (input, gameState) -> do
-    app1 <- appMain app0 -< (input, gameState)
-    returnA -< (app1, app1)
-
+               let
+                 Opts inpBack_ = app' ^. ui
+                 result = app1 { _intro        = app'
+                               , Appl._inpBack = inpBack_
+                               }
+                          
+               returnA    -< (result, backE $> result { _interface =  IntroApp })
+               
+           cont arg =
+             proc (input', app') -> do
+               result <- mainLoop arg -< input'
+               returnA -< result
+               
 appMain :: Application -> SF (AppInput, Application) Application
 appMain app0 = 
   switch sf cont
@@ -123,15 +109,9 @@ appMain app0 =
 
            cont arg =
              proc (input', app') -> do
-               result <- appRun arg -< (input', app')
+               -- result <- appRun arg -< (input', app')
+               result <- mainLoop arg -< input'
                returnA -< result
-
-appInfoPre :: Application -> SF AppInput Application
-appInfoPre app0 =
-  loopPre app0 $
-  proc (input, gameState) -> do
-    app1 <- appInfo app0 -< (input, gameState)
-    returnA -< (app1, app1)
 
 appInfo :: Application -> SF (AppInput, Application) Application
 appInfo app0 = 
@@ -149,7 +129,8 @@ appInfo app0 =
 
            cont arg =
              proc (input', _) -> do
-               result <- appLoop arg -< input'
+               --result <- mainLoop arg -< input'
+               result <- mainLoop arg -< input'
                returnA -< result
            
 handleExit :: SF AppInput Bool
