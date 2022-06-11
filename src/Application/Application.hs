@@ -11,6 +11,7 @@ module Application.Application
   , fromApplication
 --  , fromproject  
   , inpQuit
+  , inpOpts
   , intro
   , main
   , info
@@ -39,6 +40,7 @@ data Application
   {
     _interface :: Interface
   , _inpQuit :: Bool
+  , _inpOpts :: Bool
   , _inpBack :: Bool
 --  , _gui     :: GUI    
   , _intro   :: App

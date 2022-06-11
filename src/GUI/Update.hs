@@ -64,6 +64,7 @@ updateButton res btn0@(Button _ _ _ _ _ _) =
     let
       overBtn = _rover btn'
       result  = btn' {_pressed = isEvent $ gate lbpE overBtn}
+      --result  = btn' {_pressed = False}
     returnA -< result
 updateButton res w = proc _ -> do returnA -< w
 

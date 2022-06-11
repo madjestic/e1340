@@ -273,6 +273,7 @@ main = do
       IntroApp
       False
       False
+      False
       introApp--(introApp & gui .~ introGUI (introApp ^. options . App.res))
       mainApp --(mainApp  & gui .~ mainGUI  (mainApp  ^. options . App.res))
       (optsApp  & gui .~ optsGUI  (optsApp  ^. options . App.res))

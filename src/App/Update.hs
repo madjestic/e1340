@@ -79,19 +79,18 @@ updateIntroApp app0 =
                       IntroGUI _ _ _ quitB ->
                         case quitB of
                           Button _ _ _ _ p _ -> p
-                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
+                          --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
                           _ -> False
                       _ -> False
 
      inpOpts'     = case gui' of
                       IntroGUI _ _ optsB _ ->
                         case optsB of
-                          Button _ _ _ p _ _ -> p
-                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
+                          Button _ _ _ _ p _ -> p
+                          --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
                           _ -> False
                       _ -> False
                       
-     
      result =
        app'
        { App._objects = (objTree {_foreground = objs })
@@ -100,8 +99,8 @@ updateIntroApp app0 =
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
-       --, _inpQuit     = inpQuit'
-       , _ui = Intro { _inpQuit = inpQuit'}
+       , _ui = Intro { _inpQuit = inpQuit'
+                     , _inpOpts = inpOpts'}
        }
 
    returnA  -< result

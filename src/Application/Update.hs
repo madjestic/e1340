@@ -36,9 +36,9 @@ mainLoop app0 =
     returnA -< (app1, app1)
 
 switchApp :: Event () -> Event () -> Appl.Interface
-switchApp e0 e1 = ui
+switchApp optsE qE = ui
   where
-    ui = if isEvent e0 then MainApp Default
+    ui = if isEvent qE then MainApp Default
          else OptionsApp
 
 appIntro :: Application -> SF (AppInput, Application) Application
@@ -49,14 +49,18 @@ appIntro app0  =
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
                qE    <- arr Appl._inpQuit >>> edge -< app1
+               optsE <- arr Appl._inpOpts >>> edge -< app1
 
                let
-                 Intro inpQuit_ _ = app' ^. ui
+                 Intro inpQuit_ inpOpts_ = app' ^. ui
                  result = app1 { _intro        = app'
                                , Appl._inpQuit = inpQuit_
+                               , Appl._inpOpts = inpOpts_
                                }
                           
-               returnA    -< (result, lMerge qE skipE $> result { _interface =  switchApp qE skipE })
+               returnA    -< (result, catEvents [qE, skipE, optsE] $>
+                                      result { _interface =  switchApp optsE qE })
+               
                
            cont arg =
              proc (input', app') -> do

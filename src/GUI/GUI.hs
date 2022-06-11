@@ -61,7 +61,8 @@ data GUI
 $(makeLenses ''GUI)
 
 fromFormat :: Format -> (Double, Double)
-fromFormat fmt@(Format alignment_ _ _ _ _ _) =
+fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
+  (\ (x0, y0) (x1,y1) -> (x0+x1, y0+y1)) (x_,y_) $
   case alignment_ of
     TL -> (-1.0, 0.5)
     TC -> ( 0.0, 0.5)
