@@ -11,6 +11,13 @@ prof:
 	mvlink run.sh run.sh.prof
 	cabal build
 
+proflite:
+	#cabal clean
+	mvlink cabal.project.local cabal.project.local.prof
+	#mvlink e1340.cabal e1340.cabal.prof
+	#mvlink run.sh run.sh.prof
+	cabal build
+
 current:
 	cabal clean
 	mvlink cabal.project.local cabal.project.local.current
@@ -58,6 +65,7 @@ fonts:
 	./resources/convertGeo.sh fnt_minus
 	./resources/convertGeo.sh fnt_equal
 	./resources/convertGeo.sh fnt_GT
+	./resources/convertGeo.sh fnt_LT
 	./resources/convertGeo.sh fnt_comma
 	./resources/convertGeo.sh fnt_dot
 	./resources/convertGeo.sh fnt_question
@@ -132,14 +140,16 @@ newtest:
 	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
 solarsystem:
-	cabal build exe:e1340
-	cabal run exe:genProject -- ./projects/testred
-	cabal run exe:genUUID -- -p ./projects/testred
-	cabal run exe:genProject -- ./projects/infoearth
-	cabal run exe:genUUID -- -p ./projects/infoearth
+	#cabal build exe:e1340
+	cabal build
 	cabal run exe:genProject -- ./projects/solarsystem
 	cabal run exe:genUUID -- -p ./projects/solarsystem
-	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem
+	cabal run exe:genProject -- ./projects/options 	
+	cabal run exe:genUUID -- -p ./projects/options 	
+	cabal run exe:genProject -- ./projects/infoearth
+	cabal run exe:genUUID -- -p ./projects/infoearth
+
+	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
 
 testred:
 	cabal build exe:e1340
@@ -192,8 +202,10 @@ test:
 	cabal run +RTS -sstderr -RTS e1340 ./projects/test ./projects/test
 
 options:
-	cabal build exe:genProject
+	cabal clean
+	cabal build
+	#cabal build exe:genProject
 	cabal run exe:genProject -- ./projects/options 	
 	cabal run exe:genUUID -- -p ./projects/options 	
-	cabal build exe:e1340
+	#cabal build exe:e1340
 	cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options

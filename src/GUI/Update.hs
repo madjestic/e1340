@@ -38,21 +38,34 @@ updateGUI gui0 =
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
 updateGUI' gui0@(IntroGUI res cursor0 optsB0 quitB0) =
   proc (input, gui) -> do
-    case gui of
-      IntroGUI res cursor_ optsB_ quitB_ -> do
-        cursor' <- updateCursor        -< (input, cursor_)
-        optsB'  <- updateButton res optsB0 -< (input, cursor', optsB_)
-        quitB'  <- updateButton res quitB0 -< (input, cursor', quitB_)
-        let
-          result =
-            gui
-            { _optsB  = optsB'
-            , _quitB  =  quitB'
-            , _cursor = cursor'
-            }
-            
-        returnA -< result
-      _ -> returnA -< gui0
+    let IntroGUI res cursor_ optsB_ quitB_ = gui
+    cursor' <- updateCursor        -< (input, cursor_)
+    optsB'  <- updateButton res optsB0 -< (input, cursor', optsB_)
+    quitB'  <- updateButton res quitB0 -< (input, cursor', quitB_)
+    let
+      result =
+        gui
+        { _optsB  = optsB'
+        , _quitB  =  quitB'
+        , _cursor = cursor'
+        }
+        
+    returnA -< result
+
+updateGUI' gui0@(OptionsGUI res cursor0 backB0) =
+  proc (input, gui) -> do
+    let OptionsGUI res cursor_ backB_ = gui
+    cursor' <- updateCursor        -< (input, cursor_)
+    backB'  <- updateButton res backB0 -< (input, cursor', backB_)
+    let
+      result =
+        gui
+        { _backB  = backB'
+        , _cursor = cursor'
+        }
+        
+    returnA -< result
+
 updateGUI' gui = proc _ -> do returnA -< gui
 
 updateButton :: (Int, Int) -> Widget -> SF (AppInput, Widget, Widget) Widget

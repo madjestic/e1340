@@ -109,18 +109,18 @@ updateOptsApp :: App -> SF (AppInput, App) App
 updateOptsApp app0 =
  proc (input, app') -> do
 
-   (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
-   objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
+   -- (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
+   -- objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
    gui'        <- updateGUI (app0 ^. gui)                                 -< input
     
    --let selectable' = selectByDist (10.0 :: Double) cam objs
-   let selectable' = selectByDist (50000000.0 :: Double) cam objs
-   selected'    <- updateSelected   app0 -< (input, selectable')
+   -- let selectable' = selectByDist (50000000.0 :: Double) cam objs
+   -- selected'    <- updateSelected   app0 -< (input, selectable')
 
    let
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
-     inpQuit'     = case gui' of
+     inpBack'     = case gui' of
                       OptionsGUI _ _ backB ->
                         case backB of
                           Button _ _ _ _ p _ -> p
@@ -130,14 +130,15 @@ updateOptsApp app0 =
      
      result =
        app'
-       { App._objects = (objTree {_foreground = objs })
-       , App._cameras = cams
-       , _gui         = gui'
-       , _playCam     = cam
-       , _selectable  = selectable'
-       , _selected    = selected'
+       { --App._objects = (objTree {_foreground = objs })
+       --, App._cameras = cams
+         _gui         = gui'
+       --, _gui         = gui'
+       --, _playCam     = cam
+       -- , _selectable  = selectable'
+       -- , _selected    = selected'
        --, _inpQuit     = inpQuit'
-       , _ui = Intro { _inpQuit = inpQuit'}
+       , _ui = Opts { _inpBack = inpBack'}
        }
 
    returnA  -< result

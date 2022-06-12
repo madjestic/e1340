@@ -1,9 +1,9 @@
 cabal-version: 3.0
 name:          e1340
 version:       0.3.0.0
-synopsis:      An e1337 with RedViz
+synopsis:      A space sim game.
 description:   Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
-homepage:      https://github.com/madjestic/e1338
+homepage:      https://github.com/madjestic/e1340
 license:       BSD-3-Clause
 license-file:  LICENSE
 author:        madjestic
@@ -30,7 +30,7 @@ library
               , aeson               
               , aeson-pretty
               --, bearriver           
-              , bytestring ^>= 0.11.3.1
+              , bytestring
               , containers          
               , GLUtil              
               , ilist               
@@ -38,7 +38,7 @@ library
               , linear              
               , locators            
               , massiv          
-              , OpenGL     ^>= 3.0.3.0
+              , OpenGL
               , random              
               , scientific          
               , simple-affine-space 

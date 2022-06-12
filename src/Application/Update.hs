@@ -74,11 +74,11 @@ appOpts app0  =
              proc (input, app1) -> do
                app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
                -- skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               backE <- arr Appl._inpQuit >>> edge -< app1
+               backE <- arr Appl._inpBack >>> edge -< app1
 
                let
                  Opts inpBack_ = app' ^. ui
-                 result = app1 { _intro        = app'
+                 result = app1 { _opts         = app'
                                , Appl._inpBack = inpBack_
                                }
                           

@@ -95,7 +95,7 @@ optsGUI res =
   {
     _res    = res
   , _cursor = Cursor True "" (0.0, 0.0)
-  , _backB  = Button True "< Back" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _backB  = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -135,6 +135,11 @@ fromGUI gui =
       , optsB
       , quitB
       -- , cursor
+      ]
+    OptionsGUI res cursor backB ->
+      [
+        cursor
+      , backB
       ]
     MainGUI res fps info backB cursor ->
       [

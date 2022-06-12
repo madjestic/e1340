@@ -144,9 +144,8 @@ output lastInteraction window application = do
     playCam'    = app ^. playCam :: Camera
     --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case app ^. gui of
-      --IntroGUI fps_ info_ _ _ exitB_ (Cursor active_ lable_ coords_) -> coords_
-      IntroGUI   _ (Cursor _ _ coords_) _ _ -> coords_
-      OptionsGUI _ (Cursor _ _ coords_) _   -> coords_
+      IntroGUI   _ (Cursor _ _ coords_) _ _-> coords_
+      OptionsGUI _ (Cursor _ _ coords_) _  -> coords_
       _ -> (0.0,0.0) :: (Double, Double)
       
     -- resx'        = fromIntegral $ app ^. options . App.resx :: Double
@@ -231,13 +230,14 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  introProj <- if debug then P.read (unsafeCoerce (args!!0)   :: FilePath)
-               else          P.read ("./projects/solarsystem" :: FilePath)
-  mainProj  <- if debug then P.read (unsafeCoerce (args!!1)   :: FilePath)
-               else          P.read ("./projects/solarsystem" :: FilePath)
-  optsProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+  introProj <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!1)   :: FilePath)
+  optsProj  <- if debug then P.read ("./projects/options"     :: FilePath)
                else          P.read (unsafeCoerce (args!!2)   :: FilePath)
-  pInfoProj <-               P.read ("./projects/infoearth"   :: FilePath)
+  pInfoProj <- if debug then P.read ("./projects/infoearth"   :: FilePath)
+               else          P.read (unsafeCoerce (args!!3)   :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -274,10 +274,10 @@ main = do
       False
       False
       False
-      introApp--(introApp & gui .~ introGUI (introApp ^. options . App.res))
-      mainApp --(mainApp  & gui .~ mainGUI  (mainApp  ^. options . App.res))
-      (optsApp  & gui .~ optsGUI  (optsApp  ^. options . App.res))
-      (infoApp  & gui .~ infoGUI  (infoApp  ^. options . App.res))
+      introApp
+      mainApp 
+      optsApp 
+      infoApp
       []
       counter'
 

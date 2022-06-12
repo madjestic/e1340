@@ -13,6 +13,7 @@ module Application.Application
   , inpQuit
   , inpOpts
   , intro
+  , opts
   , main
   , info
   , counter
@@ -45,7 +46,7 @@ data Application
 --  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
-  , _options :: App
+  , _opts :: App
   , _info    :: App
   , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   , _counter :: MVar Int
@@ -65,6 +66,6 @@ fromApplication app =
     InfoApp _ ->
       view info app
     OptionsApp ->
-      view options app
+      view opts app
     _ ->
       view main app
