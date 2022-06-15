@@ -135,36 +135,34 @@ output lastInteraction window application = do
       { primitiveMode = Triangles
       , bgrColor      = Color4 0.0 0.0 0.0 1.0
       , ptSize        = 1.0
-      , depthMsk      = Enabled}
+      , depthMsk      = Enabled
+      }
     
   clearColor $= bgrColor opts
   clear [ColorBuffer, DepthBuffer]
 
   let
     playCam'    = app ^. playCam :: Camera
-    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
-    mouseCoords = case app ^. gui of
-      IntroGUI   _ (Cursor _ _ coords_) _ _-> coords_
-      OptionsGUI _ (Cursor _ _ coords_) _  -> coords_
-      _ -> (0.0,0.0) :: (Double, Double)
+    mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
+    -- mouseCoords = case app ^. gui of
+    --   IntroGUI   _ (Cursor _ _ coords_) _ _-> coords_
+    --   OptionsGUI _ (Cursor _ _ coords_) _  -> coords_
       
-    -- resx'        = fromIntegral $ app ^. options . App.resx :: Double
-    -- resy'        = fromIntegral $ app ^. options . App.resy :: Double
     (resx', resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points })      :: Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
-                                              , depthMsk      = Disabled })    :: Drawable -> IO ()
+                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsIcons     :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
-  -- mapM_ renderAsTriangles objsDrs
-  -- mapM_ renderAsPoints    bgrsDrs
+  mapM_ renderAsTriangles objsDrs
+  mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  renderCursorM crsr
+  renderCursorM           crsr
   
   -- case app ^. objects . gui . fonts of
   --   [] -> return ()
