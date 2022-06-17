@@ -26,6 +26,8 @@ data GUI
      -- , _startB   :: Widget
      , _optsB    :: Widget
      , _quitB    :: Widget -- button
+     -- , _inpQuit  :: Bool
+     -- , _inpOpts  :: Bool
      -- , _cursor   :: Widget
      }
   |  OptionsGUI

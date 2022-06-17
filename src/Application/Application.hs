@@ -25,34 +25,23 @@ import Data.UUID
 import Control.Concurrent.MVar
 
 import Graphics.Rendering.OpenGL as GL    (GLuint)
---import Graphics.RedViz.Widget
 
 import App (App(..))
 import Application.Interface
---import GUI
 
 import Debug.Trace as DT
-
--- instance Show Interface where
---   show (MainApp t) = show t
---   show t = show t
-
 
 data Application
   = Application
   {
     _interface :: Interface
---  , _inpQuit :: Bool
-  -- , _inpOpts :: Bool
-  -- , _inpBack :: Bool
---  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
   , _opts    :: App
   , _info    :: App
   , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   , _counter :: MVar Int
-  } -- deriving Show
+  } 
 $(makeLenses ''Application)
 
 instance Show (MVar a) where

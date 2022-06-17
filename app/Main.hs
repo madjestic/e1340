@@ -257,7 +257,6 @@ main = do
   _ <- setMouseLocationMode camMode'
 
   putStrLn "\n Initializing Apps"
-  --introApp <- App.fromProject introProj $ IntrApp
   intrApp' <- intrApp introProj
   mainApp' <- mainApp mainProj
   optsApp' <- optsApp optsProj

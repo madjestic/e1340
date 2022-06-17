@@ -47,31 +47,14 @@ import Graphics.RedViz.Project.Utils
 import Object hiding (Empty)                         
 import ObjectTree
 import GUI
-import Application.Interface as AI ( Interface (..)
-                                   -- , Context(..)
-                                   -- , IntroApp(..)
-                                   -- , MainApp(..)
-                                   -- , OptsApp(..)
-                                   )
+import Application.Interface as AI (Interface (..))
 
 -- import Debug.Trace as DT
-
--- data Interface =
---     Intro
---     {
---       _inpQuit :: Bool
---     , _inpOpts :: Bool
---     }
---   | Opts
---     { _inpBack :: Bool
---     } deriving Show
--- $(makeLenses ''App.App.Interface)  
 
 data App
   = App
   {
     _debug       :: (Double, Double)
-  --, _inpQuit     :: Bool
   , _ui          :: Interface
   , _options     :: Options
   , _gui         :: GUI
@@ -93,9 +76,6 @@ $(makeLenses ''Options)
 $(makeLenses ''App)
 
 -- -- < Init App State > ------------------------------------------------------
-
---intrApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
---intrApp prj0 objTree pCam cams = result
 
 fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
 fromProject prj0 = do 
