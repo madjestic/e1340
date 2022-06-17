@@ -20,6 +20,7 @@ import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Widget (text)
 
 import App.App as App
+import Application.Interface
 import ObjectTree
 import Object as Obj-- (Empty)
 import Camera
@@ -99,8 +100,9 @@ updateIntroApp app0 =
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
-       , _ui = Intro { _inpQuit = inpQuit'
-                     , _inpOpts = inpOpts'}
+       , _ui = IntrApp
+               { _inpQuit = inpQuit'
+               , _inpOpts = inpOpts' }
        }
 
    returnA  -< result
@@ -138,7 +140,7 @@ updateOptsApp app0 =
        -- , _selectable  = selectable'
        -- , _selected    = selected'
        --, _inpQuit     = inpQuit'
-       , _ui = Opts { _inpBack = inpBack'}
+       , _ui = OptsApp { _inpBack = inpBack'}
        }
 
    returnA  -< result

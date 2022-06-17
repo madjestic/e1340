@@ -4,19 +4,20 @@
 
 module Application.Application
   ( Application (..)
-  , Context     (..)
+--  , Context     (..)
 --  , GUI         (..)
   , Interface   (..)
   , Planet      (..)
   , fromApplication
 --  , fromproject  
-  , inpQuit
-  , inpOpts
+  -- , inpQuit
+  -- , inpOpts
   , intro
   , opts
   , main
   , info
   , counter
+  , interface
   ) where
 
 import Control.Lens ( view, makeLenses )
@@ -32,21 +33,22 @@ import Application.Interface
 
 import Debug.Trace as DT
 
-instance Show Interface where
-  show (MainApp t) = show t
-  show t = show t
+-- instance Show Interface where
+--   show (MainApp t) = show t
+--   show t = show t
+
 
 data Application
   = Application
   {
     _interface :: Interface
-  , _inpQuit :: Bool
-  , _inpOpts :: Bool
-  , _inpBack :: Bool
+--  , _inpQuit :: Bool
+  -- , _inpOpts :: Bool
+  -- , _inpBack :: Bool
 --  , _gui     :: GUI    
   , _intro   :: App
   , _main    :: App
-  , _opts :: App
+  , _opts    :: App
   , _info    :: App
   , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
   , _counter :: MVar Int
@@ -59,13 +61,9 @@ instance Show (MVar a) where
 fromApplication :: Application -> App
 fromApplication app =
   case view interface app of
-    IntroApp        ->
-      view intro app
-    MainApp Default ->
-      view main  app
-    InfoApp _ ->
-      view info app
-    OptionsApp ->
-      view opts app
+    IntrApp _ _ -> view intro app
+    MainApp     -> view main  app
+    InfoApp _   -> view info app
+    OptsApp _   -> view opts app
     _ ->
       view main app

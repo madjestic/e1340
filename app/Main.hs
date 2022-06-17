@@ -143,10 +143,11 @@ output lastInteraction window application = do
 
   let
     playCam'    = app ^. playCam :: Camera
-    mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
-    -- mouseCoords = case app ^. gui of
-    --   IntroGUI   _ (Cursor _ _ coords_) _ _-> coords_
-    --   OptionsGUI _ (Cursor _ _ coords_) _  -> coords_
+    -- mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
+    mouseCoords = case app ^. gui of
+      IntroGUI   _ (Cursor _ _ coords_) _ _   -> coords_
+      OptionsGUI _ (Cursor _ _ coords_) _     -> coords_
+      MainGUI    _ _ _ _ (Cursor _ _ coords_) -> coords_
       
     (resx', resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
@@ -255,11 +256,12 @@ main = do
 
   _ <- setMouseLocationMode camMode'
 
-  putStrLn "\n Initializing App"
-  introApp <- App.fromProject introProj $ IntroApp
-  mainApp  <- App.fromProject mainProj  $ MainApp Default
-  optsApp  <- App.fromProject optsProj  $ OptionsApp
-  infoApp  <- App.fromProject pInfoProj $ InfoApp Earth
+  putStrLn "\n Initializing Apps"
+  --introApp <- App.fromProject introProj $ IntrApp
+  intrApp' <- intrApp introProj
+  mainApp' <- mainApp mainProj
+  optsApp' <- optsApp optsProj
+  infoApp' <- mainApp pInfoProj
   counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
@@ -268,14 +270,11 @@ main = do
     res      = ()
     initApp' =
       Application
-      IntroApp
-      False
-      False
-      False
-      introApp
-      mainApp 
-      optsApp 
-      infoApp
+      (intrApp' ^. ui)
+      intrApp' 
+      mainApp' 
+      optsApp' 
+      infoApp' 
       []
       counter'
 

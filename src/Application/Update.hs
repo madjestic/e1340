@@ -21,25 +21,29 @@ import App
 import GUI
 
 import Debug.Trace    as DT
-import App.App as App (inpQuit, Interface(..)) 
+import Application.Interface (inpOpts)
+--import App.App as App (inpQuit, Interface(..)) 
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
 mainLoop app0 =
   loopPre app0 $
   proc (input, gameState) -> do
     app1 <- case _interface app0 of
-              IntroApp        -> appIntro app0  -< (input, gameState)
-              OptionsApp      -> appOpts  app0  -< (input, gameState)
-              MainApp Default -> appMain  app0  -< (input, gameState)
+              IntrApp _ _     -> appIntro app0  -< (input, gameState)
+              OptsApp _       -> appOpts  app0  -< (input, gameState)
+              MainApp         -> appMain  app0  -< (input, gameState)
               InfoApp Earth   -> appInfo  app0  -< (input, gameState)
               _ -> appMain app0  -< (input, gameState)
     returnA -< (app1, app1)
 
-switchApp :: Event () -> Event () -> Appl.Interface
-switchApp optsE qE = ui
+switchApp :: Application -> Event () -> Event () -> Interface
+switchApp appl optsE quitE = ui'
   where
-    ui = if isEvent qE then MainApp Default
-         else OptionsApp
+    ui' =
+      -- TODO : rename main to mainApp ?
+      if isEvent quitE
+      then appl ^. main . ui
+      else appl ^. opts . ui
 
 appIntro :: Application -> SF (AppInput, Application) Application
 appIntro app0  = 
@@ -47,19 +51,32 @@ appIntro app0  =
      where sf =
              proc (input, app1) -> do
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
+               --appE  <- arr id >>> edge -< app1
+               
+               
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               qE    <- arr Appl._inpQuit >>> edge -< app1
-               optsE <- arr Appl._inpOpts >>> edge -< app1
+               --ui'   <- updateInterface -< (input, app'
+               quitE <- case app1 ^. interface of
+                 IntrApp _ _ -> 
+                   arr _inpQuit >>> edge -< app' ^. ui
+                   
+               optsE <- case app1 ^. interface of
+                 IntrApp _ _ -> 
+                   arr _inpOpts >>> edge -< app' ^. ui
 
                let
-                 Intro inpQuit_ inpOpts_ = app' ^. ui
-                 result = app1 { _intro        = app'
-                               , Appl._inpQuit = inpQuit_
-                               , Appl._inpOpts = inpOpts_
+                 --IntrApp inpQuit_ inpOpts_ = app' ^. ui
+                 result = app1 { _intro    = app'
+                               -- , _interface    = app' ^. 
+                               -- , Appl._inpQuit = inpQuit_
+                               -- , Appl._inpOpts = inpOpts_
                                }
                           
-               returnA    -< (result, catEvents [qE, skipE, optsE] $>
-                                      result { _interface =  switchApp optsE qE })
+               returnA    -< ( result
+                             , catEvents [skipE, optsE] $>
+                             --, appE $>
+                               result { _interface =
+                                        switchApp app1 optsE quitE })
                
                
            cont arg =
@@ -74,15 +91,19 @@ appOpts app0  =
              proc (input, app1) -> do
                app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
                -- skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               backE <- arr Appl._inpBack >>> edge -< app1
+               --backE <- arr Appl._inpBack >>> edge -< app1
+               backE <- case app1 ^. interface of
+                 OptsApp _ ->
+                   arr _inpBack >>> edge -< app' ^. ui
 
                let
-                 Opts inpBack_ = app' ^. ui
+                 --OptsApp inpBack_ = app' ^. ui
                  result = app1 { _opts         = app'
-                               , Appl._inpBack = inpBack_
+                               --, Appl._inpBack = inpBack_
                                }
                           
-               returnA    -< (result, backE $> result { _interface =  IntroApp })
+               --returnA    -< (result, backE $> result { _interface =  IntroApp })
+               returnA    -< (result, backE $> result { _interface = app1 ^. intro . ui })
                
            cont arg =
              proc (input', app') -> do
@@ -94,7 +115,7 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateMainApp (fromApplication app0) -< (input, app1^.Appl.main)
+               app'        <- updateMainApp (fromApplication app0) -< (input, app1 ^. main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 
@@ -103,12 +124,12 @@ appMain app0 =
                    app1 { _main = app' }
                           
                returnA     -< if isEvent reset 
-                              then (result, reset $> app0   { _interface = IntroApp } )
-                              else (result, zE    $> result { _interface = fromSelected app' } )
+                              then (result, reset $> app0   { _interface = app1 ^. intro . ui } )
+                              else (result, zE    $> result { _interface = fromSelected app1 app' } )
                  where
-                   fromSelected app' =
+                   fromSelected appl' app' =
                      case _selected app' of
-                       [] -> MainApp Default
+                       [] -> appl' ^. main . ui
                        _  -> InfoApp Earth
 
            cont arg =
@@ -129,7 +150,7 @@ appInfo app0 =
                  result =
                    app1 { Appl._info = app' }
 
-               returnA     -< (result, exitE $> result { _interface = MainApp Default } )
+               returnA     -< (result, exitE $> result { _interface = app1 ^. main . ui } )
 
            cont arg =
              proc (input', _) -> do

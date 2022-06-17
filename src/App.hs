@@ -18,8 +18,11 @@ module App
   , updateMainApp
   , updateIntroApp
   , updateOptsApp
+  , intrApp
+  , mainApp
+  , optsApp
   , Options (..)
-  , inpBack
+--  , inpBack
   ) where
 
 import App.App

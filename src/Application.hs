@@ -10,6 +10,10 @@ module Application
   , appMain
   , appOpts
   , counter
+  , interface
+  -- , inpQuit
+  -- , inpOpts
+  -- , inpBack
   ) where
 
 import Application.Application

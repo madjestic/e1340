@@ -12,19 +12,20 @@ module App.App
   , App.App.res
   , App.App.gui
   , App.App.objects
+  , intrApp
+  , mainApp
+  , optsApp
   , playCam
   , App.App.cameras
   , selectable
   , selected
   , debug
-  , inpQuit
+--  , inpQuit
   , ui
   , App.App.fromProject
   , toDrawable
-  , App.App.Interface (..)
-  -- , inpQuit
-  -- , inpOpts
-  , inpBack
+--  , App.App.Interface (..)
+--  , inpBack
   ) where
 
 import Control.Lens hiding (Empty)
@@ -46,27 +47,32 @@ import Graphics.RedViz.Project.Utils
 import Object hiding (Empty)                         
 import ObjectTree
 import GUI
-import Application.Interface as AI
+import Application.Interface as AI ( Interface (..)
+                                   -- , Context(..)
+                                   -- , IntroApp(..)
+                                   -- , MainApp(..)
+                                   -- , OptsApp(..)
+                                   )
 
 -- import Debug.Trace as DT
 
-data Interface =
-    Intro
-    {
-      _inpQuit :: Bool
-    , _inpOpts :: Bool
-    }
-  | Opts
-    { _inpBack :: Bool
-    } deriving Show
-$(makeLenses ''App.App.Interface)  
+-- data Interface =
+--     Intro
+--     {
+--       _inpQuit :: Bool
+--     , _inpOpts :: Bool
+--     }
+--   | Opts
+--     { _inpBack :: Bool
+--     } deriving Show
+-- $(makeLenses ''App.App.Interface)  
 
 data App
   = App
   {
     _debug       :: (Double, Double)
   --, _inpQuit     :: Bool
-  , _ui          :: App.App.Interface
+  , _ui          :: Interface
   , _options     :: Options
   , _gui         :: GUI
   , _objects     :: ObjectTree
@@ -88,78 +94,90 @@ $(makeLenses ''App)
 
 -- -- < Init App State > ------------------------------------------------------
 
-introApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
-introApp prj0 objTree pCam cams =
-  App
-  { _debug   = (0,0)
-  , _ui      = Intro {_inpQuit = False
-                     ,_inpOpts = False}
-  , _options = Options
-               { _name = view P.name prj0
-               , _res  = res
-               , _test = False }
-  , _gui     = introGUI res 
-  , _objects = objTree
-  , _playCam = pCam
-  , _cameras = cams
-  , _selectable = []
-  , _selected   = [] }
-  where
-    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+--intrApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
+--intrApp prj0 objTree pCam cams = result
 
-optsApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
-optsApp prj0 objTree pCam cams =
-  App
-  { _debug   = (0,0)
-  , _ui      = Opts {_inpBack = False}
-  , _options = Options
-               { _name = view P.name prj0
-               , _res  = res
-               , _test = False }
-  , _gui     = optsGUI res 
-  , _objects = objTree
-  , _playCam = pCam
-  , _cameras = cams
-  , _selectable = []
-  , _selected   = [] }
-  where
-    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
-
-mainApp :: Project -> ObjectTree -> Camera -> [Camera] -> App
-mainApp prj0 objTree pCam cams =
-  App
-  { _debug   = (0,0)
-  , _ui      = Intro {_inpQuit = False}
-  , _options = Options
-               { _name = view P.name prj0
-               , _res  = res
-               , _test = False }
-  , _gui     = mainGUI res 
-  , _objects = objTree
-  , _playCam = pCam
-  , _cameras = cams
-  , _selectable = []
-  , _selected   = [] }
-  where
-    res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
-
-
-fromProject :: Project -> AI.Interface -> IO App
-fromProject prj0 ui = do
-  putStrLn   "initializing IntroApp resources..."
-  putStrLn $ "project name : " ++ view P.name prj0 ++ "\n"
-  objTree <- ObjectTree.fromProject prj0
-       
+fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
+fromProject prj0 = do 
+  objs <- ObjectTree.fromProject prj0
   let
     cams = fromProjectCamera <$> view P.cameras prj0
     pCam = head cams
-    app  = case ui of
-      IntroApp        -> introApp prj0 objTree pCam cams
-      MainApp Default -> mainApp  prj0 objTree pCam cams
-      OptionsApp      -> optsApp  prj0 objTree pCam cams
-       
-  print "finished initializing IntroApp resources..."
-  return app
+
+  return (objs, cams, pCam)    
+
+intrApp :: Project -> IO App
+intrApp prj0 = do
+  (objTree, cams, pCam) <- App.App.fromProject prj0
+  let
+    result = 
+      App
+      { _debug   = (0,0)
+      , _ui      = IntrApp
+                   {_inpQuit = False
+                   ,_inpOpts = False}
+                   
+      , _options = Options
+                   { _name = view P.name prj0
+                   , _res  = res
+                   , _test = False }
+      , _gui     = introGUI res 
+      , _objects = objTree
+      , _playCam = pCam
+      , _cameras = cams
+      , _selectable = []
+      , _selected   = [] }
+      where
+        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+
+  return result
+
+optsApp :: Project -> IO App
+optsApp prj0 = do
+  (objTree, cams, pCam) <- App.App.fromProject prj0
+  
+  let
+    result = 
+      App
+      { _debug   = (0,0)
+      , _ui      = OptsApp {_inpBack = False}
+      , _options = Options
+                   { _name = view P.name prj0
+                   , _res  = res
+                   , _test = False }
+      , _gui     = optsGUI res 
+      , _objects = objTree
+      , _playCam = pCam
+      , _cameras = cams
+      , _selectable = []
+      , _selected   = [] }
+      where
+        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+
+  return result
+
+mainApp :: Project -> IO App
+mainApp prj0 = do
+  (objTree, cams, pCam) <- App.App.fromProject prj0
+  let
+    result =
+      App
+      { _debug   = (0,0)
+      , _ui      = MainApp
+      , _options = Options
+                   { _name = view P.name prj0
+                   , _res  = res
+                   , _test = False }
+      , _gui     = mainGUI res 
+      , _objects = objTree
+      , _playCam = pCam
+      , _cameras = cams
+      , _selectable = []
+      , _selected   = [] }
+      where
+        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+
+  return result
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')
