@@ -121,8 +121,8 @@ output lastInteraction window application = do
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
-    wgts    = fromGUI $ app ^. gui  :: [Widget]
-    crsr    = _cursor $ app ^. gui  ::  Widget
+    wgts    = fromGUI $ app ^. App.gui  :: [Widget]
+    crsr    = _cursor $ app ^. App.gui  ::  Widget
 
     app  = fromApplication application
     txs  = concat . concat
@@ -143,12 +143,11 @@ output lastInteraction window application = do
 
   let
     playCam'    = app ^. playCam :: Camera
-    -- mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
-    mouseCoords = case app ^. gui of
-      IntroGUI   _ (Cursor _ _ coords_) _ _   -> coords_
-      OptionsGUI _ (Cursor _ _ coords_) _     -> coords_
-      MainGUI    _ _ _ _ (Cursor _ _ coords_) -> coords_
-      
+    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
+    mouseCoords = case (app ^. App.gui . cursor) of
+      crs'@(Cursor {}) -> _coords crs'
+      _ -> (0,0)
+
     (resx', resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
@@ -219,7 +218,7 @@ initResources app0 =
 
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intro app0) :: [Object]
+        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0) :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
         icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
@@ -269,7 +268,7 @@ main = do
     res      = ()
     initApp' =
       Application
-      (intrApp' ^. ui)
+      (intrApp' ^. App.gui)
       intrApp' 
       mainApp' 
       optsApp' 

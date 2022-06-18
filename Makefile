@@ -140,8 +140,8 @@ newtest:
 	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
 solarsystem:
-	#cabal build exe:e1340
-	cabal build
+	cabal build exe:e1340
+	#cabal build
 	cabal run exe:genProject -- ./projects/solarsystem
 	cabal run exe:genUUID -- -p ./projects/solarsystem
 	cabal run exe:genProject -- ./projects/options 	

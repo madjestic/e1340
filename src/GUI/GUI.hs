@@ -16,8 +16,7 @@ import Control.Lens
 import Graphics.RedViz.Widget
 
 data GUI
-  =  Empty
-  |  IntroGUI
+  =  IntrGUI
      {
        _res      :: (Int, Int)
      , _cursor   :: Widget
@@ -25,25 +24,18 @@ data GUI
      -- , _info     :: Widget
      -- , _startB   :: Widget
      , _optsB    :: Widget
+     , _inpOpts  :: Bool
      , _quitB    :: Widget -- button
-     -- , _inpQuit  :: Bool
-     -- , _inpOpts  :: Bool
+     , _inpQuit  :: Bool
      -- , _cursor   :: Widget
      }
-  |  OptionsGUI
+  |  OptsGUI
      {
        _res      :: (Int, Int)
      , _cursor   :: Widget
      , _backB    :: Widget -- button
+     , _inpBack  :: Bool
      }
-  -- |  OptionsGUI
-  --    {
-  --      _res      :: (Int, Int)
-  --    , _fps      :: Widget
-  --    , _soundT   :: Widget
-  --    , _musicT   :: Widget
-  --    , _resMT    :: Widget
-  --    }
   |  MainGUI
      {
        _res    :: (Int, Int)
@@ -52,7 +44,7 @@ data GUI
      , _backB  :: Widget -- button
      , _cursor :: Widget
      }
-  |  PlanetInfo
+  |  InfoGUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
@@ -78,7 +70,7 @@ fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
 
 introGUI :: (Int, Int) -> GUI
 introGUI res =
-  IntroGUI
+  IntrGUI
   {
     _res    = res
   , _cursor = Cursor True "" (0.0, 0.0)
@@ -88,16 +80,19 @@ introGUI res =
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
   , _optsB    = Button True "OPTIONS" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) ( 0.3) 0.0 0.085 1.0)
+  , _inpOpts  = False
   , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (-0.3) 0.0 0.085 1.0)
+  , _inpQuit  = False
   }
 
 optsGUI :: (Int, Int) -> GUI
 optsGUI res =
-  OptionsGUI
+  OptsGUI
   {
-    _res    = res
-  , _cursor = Cursor True "" (0.0, 0.0)
-  , _backB  = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+    _res     = res
+  , _cursor  = Cursor True "" (0.0, 0.0)
+  , _backB   = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _inpBack = False
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -113,7 +108,7 @@ mainGUI res =
 
 infoGUI :: (Int, Int) -> GUI
 infoGUI res =
-  PlanetInfo
+  InfoGUI
   {
     _res   = res
   , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0)
@@ -127,8 +122,8 @@ infoGUI res =
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
-    --IntroGUI fps info startB optionsB quitB cursor ->
-    IntroGUI res cursor optsB quitB ->
+    --IntrGUI fps info startB optionsB quitB cursor ->
+    IntrGUI res cursor optsB _ quitB _ ->
       [
         cursor
       --   fps
@@ -138,7 +133,7 @@ fromGUI gui =
       , quitB
       -- , cursor
       ]
-    OptionsGUI res cursor backB ->
+    OptsGUI res cursor backB _ ->
       [
         cursor
       , backB
@@ -150,9 +145,8 @@ fromGUI gui =
       , backB
       , cursor
       ]
-    PlanetInfo res fps infos cursor ->
+    InfoGUI res fps infos cursor ->
       [
         fps
       , cursor      
       ] ++ infos
-    _ -> []

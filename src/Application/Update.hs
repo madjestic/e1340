@@ -21,29 +21,29 @@ import App
 import GUI
 
 import Debug.Trace    as DT
-import Application.Interface (inpOpts)
---import App.App as App (inpQuit, Interface(..)) 
+--import Application.Interface (inpOpts)
+--import App.App as App (inpQuit, Interface(..))
+import GUI
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
 mainLoop app0 =
   loopPre app0 $
   proc (input, gameState) -> do
-    app1 <- case _interface app0 of
-              IntrApp _ _     -> appIntro app0  -< (input, gameState)
-              OptsApp _       -> appOpts  app0  -< (input, gameState)
-              MainApp         -> appMain  app0  -< (input, gameState)
-              InfoApp Earth   -> appInfo  app0  -< (input, gameState)
-              _ -> appMain app0  -< (input, gameState)
+    app1 <- case Appl._gui app0 of
+              IntrGUI {} -> appIntro app0 -< (input, gameState)
+              OptsGUI {} -> appOpts  app0 -< (input, gameState)
+              MainGUI {} -> appMain  app0 -< (input, gameState)
+              InfoGUI {} -> appInfo  app0 -< (input, gameState)
     returnA -< (app1, app1)
 
-switchApp :: Application -> Event () -> Event () -> Interface
+switchApp :: Application -> Event () -> Event () -> GUI
 switchApp appl optsE quitE = ui'
   where
     ui' =
       -- TODO : rename main to mainApp ?
-      if isEvent quitE
-      then appl ^. main . ui
-      else appl ^. opts . ui
+      if isEvent optsE
+      then appl ^. opts . App.gui
+      else appl ^. main . App.gui
 
 appIntro :: Application -> SF (AppInput, Application) Application
 appIntro app0  = 
@@ -53,15 +53,17 @@ appIntro app0  =
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
                
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               quitE <- arr _inpQuit >>> edge -< app' ^. ui
-               optsE <- arr _inpOpts >>> edge -< app' ^. ui
+               quitE <- arr _inpQuit >>> edge -< app' ^. App.gui
+               optsE <- arr _inpOpts >>> edge -< app' ^. App.gui
 
                let
-                 result = app1 { _intro    = app' }
+                 result = app1 { Appl._gui  = app' ^. App.gui
+                               , _intr      = app' }
                           
                returnA -< ( result
-                          , catEvents [skipE, optsE] $>
-                            result { _interface =
+                          , catEvents [quitE, optsE] $>
+                            result { Appl._gui =
+                                     --switchApp app1 (DT.trace ("optsE : " ++ show (isEvent optsE)) optsE) (DT.trace ("quitE : " ++ show (isEvent quitE))quitE) })
                                      switchApp app1 optsE quitE })
                
            cont arg =
@@ -75,14 +77,14 @@ appOpts app0  =
      where sf =
              proc (input, app1) -> do
                app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
-               backE <- arr _inpBack >>> edge -< app' ^. ui
+               backE <- arr _inpBack >>> edge -< app' ^. App.gui
 
                let
                  result = app1 { _opts         = app' }
                           
                returnA    -< ( result
                              , backE $>
-                               result { _interface = app1 ^. intro . ui })
+                               result { Appl._gui = app1 ^. intr . App.gui })
                
            cont arg =
              proc (input', app') -> do
@@ -103,13 +105,13 @@ appMain app0 =
                    app1 { _main = app' }
                           
                returnA     -< if isEvent reset 
-                              then (result, reset $> app0   { _interface = app1 ^. intro . ui } )
-                              else (result, zE    $> result { _interface = fromSelected app1 app' } )
+                              then (result, reset $> app0   { Appl._gui = app1 ^. intr . App.gui } )
+                              else (result, zE    $> result { Appl._gui = fromSelected app1 app' } )
                  where
                    fromSelected appl' app' =
                      case _selected app' of
-                       [] -> appl' ^. main . ui
-                       _  -> InfoApp Earth
+                       [] -> appl' ^. main . App.gui
+                       _  -> appl' ^. info . App.gui
 
            cont arg =
              proc (input', app') -> do
@@ -128,7 +130,7 @@ appInfo app0 =
                  result =
                    app1 { Appl._info = app' }
 
-               returnA     -< (result, exitE $> result { _interface = app1 ^. main . ui } )
+               returnA     -< (result, exitE $> result { Appl._gui = app1 ^. main . App.gui } )
 
            cont arg =
              proc (input', _) -> do

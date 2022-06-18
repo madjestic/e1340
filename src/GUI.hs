@@ -8,6 +8,7 @@ module GUI
   , fromGUI
   , infoGUI
   , fromFormat
+  , cursor
   ) where
 
 import GUI.GUI

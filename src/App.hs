@@ -6,7 +6,7 @@ module App
   -- , App.App.resx
   -- , App.App.resy
   , gui
-  , ui
+--  , ui
   , App.App.objects
   , playCam
   , App.App.cameras

@@ -20,7 +20,8 @@ import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Widget (text)
 
 import App.App as App
-import Application.Interface
+--import Application.Interface
+import GUI
 import ObjectTree
 import Object as Obj-- (Empty)
 import Camera
@@ -77,7 +78,7 @@ updateIntroApp app0 =
      objTree      = App._objects app'
      
      inpQuit'     = case gui' of
-                      IntroGUI _ _ _ quitB ->
+                      IntrGUI _ _ _ _ quitB _  ->
                         case quitB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
@@ -85,7 +86,7 @@ updateIntroApp app0 =
                       _ -> False
 
      inpOpts'     = case gui' of
-                      IntroGUI _ _ optsB _ ->
+                      IntrGUI _ _ optsB _ _ _ ->
                         case optsB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
@@ -96,13 +97,14 @@ updateIntroApp app0 =
        app'
        { App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui         = gui'
+       , _gui         = gui' { _inpOpts = inpOpts'
+                             , _inpQuit = inpQuit' }
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
-       , _ui = IntrApp
-               { _inpQuit = inpQuit'
-               , _inpOpts = inpOpts' }
+       -- , _ui = IntrApp
+       --         { _inpQuit = inpQuit'
+       --         , _inpOpts = inpOpts' }
        }
 
    returnA  -< result
@@ -113,7 +115,7 @@ updateOptsApp app0 =
 
    -- (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
    -- objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
-   gui'        <- updateGUI (app0 ^. gui)                                 -< input
+   gui'         <- updateGUI (app0 ^. gui)                                 -< input
     
    --let selectable' = selectByDist (10.0 :: Double) cam objs
    -- let selectable' = selectByDist (50000000.0 :: Double) cam objs
@@ -123,7 +125,7 @@ updateOptsApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      inpBack'     = case gui' of
-                      OptionsGUI _ _ backB ->
+                      OptsGUI _ _ backB _ ->
                         case backB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
@@ -135,12 +137,12 @@ updateOptsApp app0 =
        { --App._objects = (objTree {_foreground = objs })
        --, App._cameras = cams
          _gui         = gui'
-       --, _gui         = gui'
+       --, _gui         = gui' {}
        --, _playCam     = cam
        -- , _selectable  = selectable'
        -- , _selected    = selected'
        --, _inpQuit     = inpQuit'
-       , _ui = OptsApp { _inpBack = inpBack'}
+       --, _ui = OptsApp { _inpBack = inpBack'}
        }
 
    returnA  -< result
@@ -161,7 +163,7 @@ updateMainApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      inpQuit'     = case gui' of
-                      IntroGUI _ _ _ quitB ->
+                      IntrGUI _ _ _ _ quitB _ ->
                         case quitB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
@@ -224,7 +226,10 @@ distCamPosObj camPos0 obj0 = dist
 --quitEvent :: SF App (Event ())
 --quitEvent = arr _inpQuit >>> edge
 
-quitEvent :: SF Interface (Event ())
+-- quitEvent :: SF Interface (Event ())
+-- quitEvent = arr _inpQuit >>> edge
+
+quitEvent :: SF GUI (Event ())
 quitEvent = arr _inpQuit >>> edge
 
 testEvent :: SF Options (Event ())

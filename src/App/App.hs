@@ -20,12 +20,8 @@ module App.App
   , selectable
   , selected
   , debug
---  , inpQuit
-  , ui
   , App.App.fromProject
   , toDrawable
---  , App.App.Interface (..)
---  , inpBack
   ) where
 
 import Control.Lens hiding (Empty)
@@ -47,7 +43,7 @@ import Graphics.RedViz.Project.Utils
 import Object hiding (Empty)                         
 import ObjectTree
 import GUI
-import Application.Interface as AI (Interface (..))
+--import Application.Interface as AI (Interface (..))
 
 -- import Debug.Trace as DT
 
@@ -55,7 +51,6 @@ data App
   = App
   {
     _debug       :: (Double, Double)
-  , _ui          :: Interface
   , _options     :: Options
   , _gui         :: GUI
   , _objects     :: ObjectTree
@@ -93,9 +88,9 @@ intrApp prj0 = do
     result = 
       App
       { _debug   = (0,0)
-      , _ui      = IntrApp
-                   {_inpQuit = False
-                   ,_inpOpts = False}
+      -- , _ui      = IntrApp
+      --              {_inpQuit = False
+      --              ,_inpOpts = False}
                    
       , _options = Options
                    { _name = view P.name prj0
@@ -120,7 +115,7 @@ optsApp prj0 = do
     result = 
       App
       { _debug   = (0,0)
-      , _ui      = OptsApp {_inpBack = False}
+      --, _ui      = OptsApp {_inpBack = False}
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res
@@ -143,7 +138,7 @@ mainApp prj0 = do
     result =
       App
       { _debug   = (0,0)
-      , _ui      = MainApp
+      --, _ui      = MainApp
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res

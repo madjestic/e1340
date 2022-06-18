@@ -4,20 +4,13 @@
 
 module Application.Application
   ( Application (..)
---  , Context     (..)
---  , GUI         (..)
-  , Interface   (..)
-  , Planet      (..)
   , fromApplication
---  , fromproject  
-  -- , inpQuit
-  -- , inpOpts
-  , intro
+  , intr
   , opts
   , main
   , info
   , counter
-  , interface
+  , gui
   ) where
 
 import Control.Lens ( view, makeLenses )
@@ -28,14 +21,16 @@ import Graphics.Rendering.OpenGL as GL    (GLuint)
 
 import App (App(..))
 import Application.Interface
+import GUI
 
 import Debug.Trace as DT
 
 data Application
   = Application
   {
-    _interface :: Interface
-  , _intro   :: App
+    --_interface :: Interface
+    _gui     :: GUI
+  , _intr    :: App
   , _main    :: App
   , _opts    :: App
   , _info    :: App
@@ -49,10 +44,8 @@ instance Show (MVar a) where
 
 fromApplication :: Application -> App
 fromApplication app =
-  case view interface app of
-    IntrApp _ _ -> view intro app
-    MainApp     -> view main  app
-    InfoApp _   -> view info app
-    OptsApp _   -> view opts app
-    _ ->
-      view main app
+  case view gui app of
+    IntrGUI {} -> view intr app
+    MainGUI {} -> view main app
+    InfoGUI {} -> view info app
+    OptsGUI {} -> view opts app
