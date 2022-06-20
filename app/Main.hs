@@ -182,7 +182,7 @@ renderWidget lastInteraction drs cmds wgt =
         ct <- SDL.time -- current time
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
-    Cursor _ _ _ -> return ()
+    Cursor {} -> return ()
 
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =

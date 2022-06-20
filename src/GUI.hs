@@ -9,6 +9,9 @@ module GUI
   , infoGUI
   , fromFormat
   , cursor
+  , optsB
+  , quitB
+  , backB
   ) where
 
 import GUI.GUI

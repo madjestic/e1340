@@ -78,7 +78,7 @@ updateIntroApp app0 =
      objTree      = App._objects app'
      
      inpQuit'     = case gui' of
-                      IntrGUI _ _ _ _ quitB _  ->
+                      IntrGUI _ _ _ quitB ->
                         case quitB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
@@ -86,7 +86,7 @@ updateIntroApp app0 =
                       _ -> False
 
      inpOpts'     = case gui' of
-                      IntrGUI _ _ optsB _ _ _ ->
+                      IntrGUI _ _ optsB _ ->
                         case optsB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
@@ -97,8 +97,8 @@ updateIntroApp app0 =
        app'
        { App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui         = gui' { _inpOpts = inpOpts'
-                             , _inpQuit = inpQuit' }
+       , _gui         = gui' -- { _inpOpts = inpOpts'
+                             -- , _inpQuit = inpQuit' }
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
@@ -125,7 +125,7 @@ updateOptsApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      inpBack'     = case gui' of
-                      OptsGUI _ _ backB _ ->
+                      OptsGUI _ _ backB ->
                         case backB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
@@ -163,7 +163,7 @@ updateMainApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      inpQuit'     = case gui' of
-                      IntrGUI _ _ _ _ quitB _ ->
+                      IntrGUI _ _ _ quitB ->
                         case quitB of
                           Button _ _ _ _ p _ -> p
                           --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
@@ -229,8 +229,8 @@ distCamPosObj camPos0 obj0 = dist
 -- quitEvent :: SF Interface (Event ())
 -- quitEvent = arr _inpQuit >>> edge
 
-quitEvent :: SF GUI (Event ())
-quitEvent = arr _inpQuit >>> edge
+-- quitEvent :: SF GUI (Event ())
+-- quitEvent = arr _inpQuit >>> edge
 
 testEvent :: SF Options (Event ())
 testEvent = arr _test >>> edge

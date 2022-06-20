@@ -36,9 +36,9 @@ updateGUI gui0 =
     returnA -< gui
 
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
-updateGUI' gui0@(IntrGUI res cursor0 optsB0 _ quitB0 _) =
+updateGUI' gui0@(IntrGUI res cursor0 optsB0 quitB0) =
   proc (input, gui) -> do
-    let IntrGUI res cursor_ optsB_ _ quitB_ _ = gui
+    let IntrGUI res cursor_ optsB_ quitB_ = gui
     cursor' <- updateCursor        -< (input, cursor_)
     optsB'  <- updateButton res optsB0 -< (input, cursor', optsB_)
     quitB'  <- updateButton res quitB0 -< (input, cursor', quitB_)
@@ -52,9 +52,9 @@ updateGUI' gui0@(IntrGUI res cursor0 optsB0 _ quitB0 _) =
         
     returnA -< result
 
-updateGUI' gui0@(OptsGUI res cursor0 backB0 _) =
+updateGUI' gui0@(OptsGUI res cursor0 backB0) =
   proc (input, gui) -> do
-    let OptsGUI res cursor_ backB_ _ = gui
+    let OptsGUI res cursor_ backB_ = gui
     cursor' <- updateCursor            -< (input, cursor_)
     backB'  <- updateButton res backB0 -< (input, cursor', backB_)
     let

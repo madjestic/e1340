@@ -9,6 +9,9 @@ module GUI.GUI
   , infoGUI
   , cursor
   , fromFormat
+  , optsB
+  , quitB
+  , backB
   ) where
 
 import Control.Lens
@@ -24,9 +27,9 @@ data GUI
      -- , _info     :: Widget
      -- , _startB   :: Widget
      , _optsB    :: Widget
-     , _inpOpts  :: Bool
+     --, _inpOpts  :: Bool
      , _quitB    :: Widget -- button
-     , _inpQuit  :: Bool
+     --, _inpQuit  :: Bool
      -- , _cursor   :: Widget
      }
   |  OptsGUI
@@ -34,7 +37,7 @@ data GUI
        _res      :: (Int, Int)
      , _cursor   :: Widget
      , _backB    :: Widget -- button
-     , _inpBack  :: Bool
+     --, _inpBack  :: Bool
      }
   |  MainGUI
      {
@@ -80,9 +83,9 @@ introGUI res =
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
   , _optsB    = Button True "OPTIONS" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) ( 0.3) 0.0 0.085 1.0)
-  , _inpOpts  = False
+--  , _inpOpts  = False
   , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (-0.3) 0.0 0.085 1.0)
-  , _inpQuit  = False
+--  , _inpQuit  = False
   }
 
 optsGUI :: (Int, Int) -> GUI
@@ -92,7 +95,7 @@ optsGUI res =
     _res     = res
   , _cursor  = Cursor True "" (0.0, 0.0)
   , _backB   = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
-  , _inpBack = False
+--  , _inpBack = False
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -123,7 +126,7 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     --IntrGUI fps info startB optionsB quitB cursor ->
-    IntrGUI res cursor optsB _ quitB _ ->
+    IntrGUI res cursor optsB quitB ->
       [
         cursor
       --   fps
@@ -133,7 +136,7 @@ fromGUI gui =
       , quitB
       -- , cursor
       ]
-    OptsGUI res cursor backB _ ->
+    OptsGUI res cursor backB ->
       [
         cursor
       , backB

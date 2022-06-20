@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Application.Update
   (
@@ -19,11 +20,10 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput
 import Application.Application as Appl
 import App
 import GUI
+import Graphics.RedViz.Widget
 
 import Debug.Trace    as DT
---import Application.Interface (inpOpts)
---import App.App as App (inpQuit, Interface(..))
-import GUI
+import Data.Maybe (fromJust)
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
 mainLoop app0 =
@@ -53,18 +53,20 @@ appIntro app0  =
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
                
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               quitE <- arr _inpQuit >>> edge -< app' ^. App.gui
-               optsE <- arr _inpOpts >>> edge -< app' ^. App.gui
-
+               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB :: Maybe Widget)
+               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB :: Maybe Widget)
+               
                let
-                 result = app1 { Appl._gui  = app' ^. App.gui
-                               , _intr      = app' }
+                 optsB' = fromJust $ app0 ^? intr . App.gui . optsB
+                 quitB' = fromJust $ app0 ^? intr . App.gui . quitB
+                 
+                 result = app1 { _intr = app' }
+                 result'= app1 { _intr = app' & App.gui . optsB .~ optsB'
+                                              & App.gui . quitB .~ quitB' }
                           
                returnA -< ( result
                           , catEvents [quitE, optsE] $>
-                            result { Appl._gui =
-                                     --switchApp app1 (DT.trace ("optsE : " ++ show (isEvent optsE)) optsE) (DT.trace ("quitE : " ++ show (isEvent quitE))quitE) })
-                                     switchApp app1 optsE quitE })
+                            result' { Appl._gui = switchApp app0 (optsE $> ()) (quitE $> ())})
                
            cont arg =
              proc (input', app') -> do
@@ -77,14 +79,17 @@ appOpts app0  =
      where sf =
              proc (input, app1) -> do
                app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
-               backE <- arr _inpBack >>> edge -< app' ^. App.gui
-
+               backE <- arr isPressed >>> edge -< (app' ^? App.gui . backB :: Maybe Widget)
+               
                let
-                 result = app1 { _opts         = app' }
+                 backB' = fromJust $ app0 ^? opts . App.gui . backB
+                 
+                 result = app1 { _opts = app' }
+                 result'= app1 { _opts = app' & App.gui . backB .~ backB'}
                           
                returnA    -< ( result
                              , backE $>
-                               result { Appl._gui = app1 ^. intr . App.gui })
+                               result' { Appl._gui = app1 ^. intr . App.gui })
                
            cont arg =
              proc (input', app') -> do
