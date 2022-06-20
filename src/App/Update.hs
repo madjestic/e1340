@@ -77,21 +77,21 @@ updateIntroApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      
-     inpQuit'     = case gui' of
-                      IntrGUI _ _ _ quitB ->
-                        case quitB of
-                          Button _ _ _ _ p _ -> p
-                          --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
-                          _ -> False
-                      _ -> False
+     -- inpQuit'     = case gui' of
+     --                  IntrGUI _ _ _ _ quitB ->
+     --                    case quitB of
+     --                      Button _ _ _ _ p _ -> p
+     --                      --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
+     --                      _ -> False
+     --                  _ -> False
 
-     inpOpts'     = case gui' of
-                      IntrGUI _ _ optsB _ ->
-                        case optsB of
-                          Button _ _ _ _ p _ -> p
-                          --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
-                          _ -> False
-                      _ -> False
+     -- inpOpts'     = case gui' of
+     --                  IntrGUI _ _ optsB _ ->
+     --                    case optsB of
+     --                      Button _ _ _ _ p _ -> p
+     --                      --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
+     --                      _ -> False
+     --                  _ -> False
                       
      result =
        app'
@@ -162,13 +162,13 @@ updateMainApp app0 =
    let
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
-     inpQuit'     = case gui' of
-                      IntrGUI _ _ _ quitB ->
-                        case quitB of
-                          Button _ _ _ _ p _ -> p
-                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
-                          _ -> False
-                      _ -> False
+     -- inpQuit'     = case gui' of
+     --                  IntrGUI _ _ _ quitB ->
+     --                    case quitB of
+     --                      Button _ _ _ _ p _ -> p
+     --                      --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
+     --                      _ -> False
+     --                  _ -> False
      
      result =
        app'

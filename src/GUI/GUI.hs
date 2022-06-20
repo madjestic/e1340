@@ -24,7 +24,7 @@ data GUI
        _res      :: (Int, Int)
      , _cursor   :: Widget
      --   _fps      :: Widget
-     -- , _info     :: Widget
+     , _info     :: Widget
      -- , _startB   :: Widget
      , _optsB    :: Widget
      --, _inpOpts  :: Bool
@@ -78,7 +78,7 @@ introGUI res =
     _res    = res
   , _cursor = Cursor True "" (0.0, 0.0)
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
-  -- , _info   = TextField True ["sukanah"] (Format CC 0.0 (0.0) 0.025 0.25)
+  , _info   = TextField True ["XXII : A Space Odyssey"] (Format CC 0.0 (0.0) 0.0 0.085 1.0)
   --, _quitB  = Button True "exit" (BBox (0.5) (-0.5) (-0.5) (0.5)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
@@ -126,11 +126,11 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     --IntrGUI fps info startB optionsB quitB cursor ->
-    IntrGUI res cursor optsB quitB ->
+    IntrGUI res cursor info optsB quitB ->
       [
         cursor
       --   fps
-      -- , info
+      , info
       -- , startB
       , optsB
       , quitB
