@@ -7,30 +7,31 @@ module GUI.GUI
   , optsGUI  
   , fromGUI
   , infoGUI
+  , res
   , cursor
   , fromFormat
   , optsB
   , quitB
+  , xx
   , backB
   ) where
 
 import Control.Lens
+import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
 
 data GUI
   =  IntrGUI
      {
-       _res      :: (Int, Int)
-     , _cursor   :: Widget
+       _res             :: (Int, Int)
+     , _cursor          :: Widget
      --   _fps      :: Widget
-     , _info     :: Widget
-     -- , _startB   :: Widget
-     , _optsB    :: Widget
-     --, _inpOpts  :: Bool
-     , _quitB    :: Widget -- button
-     --, _inpQuit  :: Bool
-     -- , _cursor   :: Widget
+     , _xx              :: Widget
+     , _a_space_oddysey :: Widget
+     , _startB          :: Widget
+     , _optsB           :: Widget
+     , _quitB           :: Widget -- button
      }
   |  OptsGUI
      {
@@ -78,13 +79,22 @@ introGUI res =
     _res    = res
   , _cursor = Cursor True "" (0.0, 0.0)
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
-  , _info   = TextField True ["XXII : A Space Odyssey"] (Format CC 0.0 (0.0) 0.0 0.085 1.0)
+  , _xx =
+    TextField True ["XXII"]
+    (Format TC (-0.16) (-0.2) 0.0 0.12 2.0)
+  , _a_space_oddysey =
+    TextField True ["a space odyssey"]
+    (Format TC (-0.2) (-0.25) 0.0 0.03 0.5)
   --, _quitB  = Button True "exit" (BBox (0.5) (-0.5) (-0.5) (0.5)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
-  , _optsB    = Button True "OPTIONS" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) ( 0.3) 0.0 0.085 1.0)
+  , _startB   = Button True "NEW GAME" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+    (Format CC (0.0) ( 0.0) 0.0 0.033 0.5)
+  , _optsB    = Button True "OPTIONS"  (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+    (Format CC (0.0) (-0.075) 0.0 0.033 0.5)
 --  , _inpOpts  = False
-  , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (-0.3) 0.0 0.085 1.0)
+  , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+    (Format CC (0.0) (-0.15) 0.0 0.033 0.5)
 --  , _inpQuit  = False
   }
 
@@ -126,14 +136,15 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     --IntrGUI fps info startB optionsB quitB cursor ->
-    IntrGUI res cursor info optsB quitB ->
+    gui@(IntrGUI {}) ->
       [
-        cursor
+        _cursor gui
       --   fps
-      , info
-      -- , startB
-      , optsB
-      , quitB
+      , _xx     gui
+      , _a_space_oddysey gui -- ^. _a_space_oddysey
+      , _startB gui
+      , _optsB gui
+      , _quitB gui
       -- , cursor
       ]
     OptsGUI res cursor backB ->

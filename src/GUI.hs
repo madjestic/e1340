@@ -9,8 +9,10 @@ module GUI
   , infoGUI
   , fromFormat
   , cursor
+  , res
   , optsB
   , quitB
+  , xx
   , backB
   ) where
 

@@ -77,22 +77,6 @@ updateIntroApp app0 =
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      
-     -- inpQuit'     = case gui' of
-     --                  IntrGUI _ _ _ _ quitB ->
-     --                    case quitB of
-     --                      Button _ _ _ _ p _ -> p
-     --                      --Button _ _ _ _ p _ -> DT.trace("Button Quit pressed : " ++ show p)p
-     --                      _ -> False
-     --                  _ -> False
-
-     -- inpOpts'     = case gui' of
-     --                  IntrGUI _ _ optsB _ ->
-     --                    case optsB of
-     --                      Button _ _ _ _ p _ -> p
-     --                      --Button _ _ _ _ p _ -> DT.trace("Button Opts pressed : " ++ show p)p
-     --                      _ -> False
-     --                  _ -> False
-                      
      result =
        app'
        { App._objects = (objTree {_foreground = objs })
@@ -124,25 +108,15 @@ updateOptsApp app0 =
    let
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
-     inpBack'     = case gui' of
-                      OptsGUI _ _ backB ->
-                        case backB of
-                          Button _ _ _ _ p _ -> p
-                          --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
-                          _ -> False
-                      _ -> False
      
      result =
        app'
        { --App._objects = (objTree {_foreground = objs })
        --, App._cameras = cams
          _gui         = gui'
-       --, _gui         = gui' {}
        --, _playCam     = cam
        -- , _selectable  = selectable'
        -- , _selected    = selected'
-       --, _inpQuit     = inpQuit'
-       --, _ui = OptsApp { _inpBack = inpBack'}
        }
 
    returnA  -< result
@@ -162,13 +136,6 @@ updateMainApp app0 =
    let
      selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
-     -- inpQuit'     = case gui' of
-     --                  IntrGUI _ _ _ quitB ->
-     --                    case quitB of
-     --                      Button _ _ _ _ p _ -> p
-     --                      --Button _ _ _ p _ -> DT.trace("Button pressed : " ++ show p)p
-     --                      _ -> False
-     --                  _ -> False
      
      result =
        app'
@@ -179,7 +146,6 @@ updateMainApp app0 =
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
-       --, _inpQuit     = inpQuit'
        }
 
    returnA  -< result
@@ -222,15 +188,6 @@ distCamPosObj camPos0 obj0 = dist
   where
     dist    = distance camPos0 objPos 
     objPos  = view translation $ head $ view (base . transforms) obj0 :: V3 Double
-
---quitEvent :: SF App (Event ())
---quitEvent = arr _inpQuit >>> edge
-
--- quitEvent :: SF Interface (Event ())
--- quitEvent = arr _inpQuit >>> edge
-
--- quitEvent :: SF GUI (Event ())
--- quitEvent = arr _inpQuit >>> edge
 
 testEvent :: SF Options (Event ())
 testEvent = arr _test >>> edge

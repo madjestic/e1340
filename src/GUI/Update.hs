@@ -9,6 +9,7 @@ import Control.Lens
 import Data.Functor                          (($>))
 import FRP.Yampa
 import Foreign.C                             (CInt)
+import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Input (AppInput)
@@ -36,12 +37,11 @@ updateGUI gui0 =
     returnA -< gui
 
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
-updateGUI' gui0@(IntrGUI res cursor0 info optsB0 quitB0) =
+updateGUI' gui0@(IntrGUI {}) =
   proc (input, gui) -> do
-    let IntrGUI res cursor_ info_ optsB_ quitB_ = gui
-    cursor' <- updateCursor        -< (input, cursor_)
-    optsB'  <- updateButton res optsB0 -< (input, cursor', optsB_)
-    quitB'  <- updateButton res quitB0 -< (input, cursor', quitB_)
+    cursor' <- updateCursor        -< (input, _cursor gui)
+    optsB'  <- updateButton (_res gui0) (_optsB gui0) -< (input, cursor', _optsB gui)
+    quitB'  <- updateButton (_res gui0) (_quitB gui0) -< (input, cursor', _quitB gui)
     let
       result =
         gui
