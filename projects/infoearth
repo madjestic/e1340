@@ -1,11 +1,59 @@
 {
-    "name": "Grapher",
-    "resx": 256,
-    "resy": 256,
+    "name": "Info: Earth",
+    "resx": 800,
+    "resy": 600,
     "camMode": "RelativeLocation",
     "models": [
         {
-            "path": "models/graph.bgeo"
+            "path": "models/stars.bgeo"
+        },
+        {
+            "path": "models/star_sector_01.bgeo"
+        },
+        {
+            "path": "models/star_sector_02.bgeo"
+        },
+        {
+            "path": "models/star_sector_03.bgeo"
+        },
+        {
+            "path": "models/star_sector_04.bgeo"
+        },
+        {
+            "path": "models/star_sector_05.bgeo"
+        },
+        {
+            "path": "models/star_sector_06.bgeo"
+        },
+        {
+            "path": "models/star_sector_07.bgeo"
+        },
+        {
+            "path": "models/star_sector_08.bgeo"
+        },
+        {
+            "path": "models/star_sector_09.bgeo"
+        },
+        {
+            "path": "models/sun.bgeo"
+        },
+        {
+            "path": "models/mercury.bgeo"
+        },
+        {
+            "path": "models/venus.bgeo"
+        },
+        {
+            "path": "models/earth.bgeo"
+        },
+        {
+            "path": "models/moon.bgeo"
+        },
+        {
+            "path": "models/mars.bgeo"
+        },
+        {
+            "path": "models/jupiter.bgeo"
         },
         {
             "path": "models/gizmo.bgeo"
@@ -13,31 +61,147 @@
     ],
     "objects": [
         {
-            "pname": "graph",
+            "pname": "sun",
             "modelIDXs": [
-                0
-            ],
-            "solvers": [],
-            "solverAttrs": [],
-            "presolvers": [],
-            "presolverAttrs": [],
-            "ptype": "sprite",
-            "uuid": "91bdecac-4722-48d1-84a7-d43abbb3102f"
-        },
-        {
-            "pname": "gizmo",
-            "modelIDXs": [
-                1
+                10
             ],
             "solvers": [],
             "solverAttrs": [],
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "f8992c2d-2b8f-4a0b-b7df-118041c7522a"
+            "uuid": "1b39fdef-c388-4247-b1a4-cda628f3e70a"
+        },
+        {
+            "pname": "mercury",
+            "modelIDXs": [
+                11
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "3e08bf50-5b13-4e30-a087-bfca258a4fe5"
+        },
+        {
+            "pname": "venus",
+            "modelIDXs": [
+                12
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "86a95947-3463-449e-b887-cdd82c99acc6"
+        },
+        {
+            "pname": "earth",
+            "modelIDXs": [
+                13
+            ],
+            "solvers": [
+                "rotate'"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    -5.0e-3,
+                    0
+                ]
+            ],
+            "presolvers": [
+                "prerotate"
+            ],
+            "presolverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0.5
+                ]
+            ],
+            "ptype": "planet",
+            "uuid": "8d826742-a941-4a7a-8e0a-70b92d7cd3f8"
+        },
+        {
+            "pname": "moon",
+            "modelIDXs": [
+                14
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "a9c2285e-941f-42bd-ac04-0a938849277b"
+        },
+        {
+            "pname": "mars",
+            "modelIDXs": [
+                15
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "9715ad0d-8c9e-42c2-8a8c-d8e5028a888d"
+        },
+        {
+            "pname": "jupiter",
+            "modelIDXs": [
+                16
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "1d264db6-8204-4b86-9e52-47a60ac8def4"
+        },
+        {
+            "pname": "gizmo",
+            "modelIDXs": [
+                17
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "6be330d4-1317-4644-b344-2cc102a1cefa"
         }
     ],
-    "background": [],
+    "background": [
+        {
+            "pname": "stars",
+            "modelIDXs": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "ptype": "planet",
+            "uuid": "c15e8ed1-08cf-4e7b-942a-5af06fc93605"
+        }
+    ],
     "cameras": [
         {
             "pApt": 50,
@@ -46,24 +210,24 @@
                 1,
                 0,
                 0,
+                -5000000,
+                0,
+                1,
+                0,
+                0,
                 0,
                 0,
                 1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -11,
+                -150040000000,
                 0,
                 0,
                 0,
                 1
             ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "PlayerCamera"
+            "pMouseS": 0,
+            "pKeyboardRS": 0,
+            "pKeyboardTS": 0,
+            "pcname": "earth Camera"
         }
     ],
     "gui": {

@@ -209,3 +209,11 @@ options:
 	cabal run exe:genUUID -- -p ./projects/options 	
 	#cabal build exe:e1340
 	cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options
+
+grapher:
+	# cabal clean
+	# cabal build
+	cabal run exe:genProject -- ./projects/graph 	
+	cabal run exe:genUUID -- -p ./projects/graph 	
+	cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
+	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem

@@ -104,7 +104,7 @@ output lastInteraction window application = do
 
 -- | render FPS current
   currentTime <- SDL.time
-  mmloc  <- SDL.Input.Mouse.getModalMouseLocation
+  --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
   -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
 
   -- dt <- (currentTime -) <$> readMVar lastInteraction
@@ -218,7 +218,7 @@ initResources app0 =
 
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0) :: [Object]
+        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
         icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]

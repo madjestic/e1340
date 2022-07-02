@@ -1,40 +1,42 @@
 {
-    "name": "Grapher",
-    "resx": 256,
-    "resy": 256,
-    "camMode": "RelativeLocation",
+    "name": "Options Menu",
+    "resx": 640,
+    "resy": 400,
+    "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/graph.bgeo"
-        },
-        {
-            "path": "models/gizmo.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
         {
-            "pname": "graph",
+            "pname": "box",
             "modelIDXs": [
                 0
             ],
-            "solvers": [],
-            "solverAttrs": [],
-            "presolvers": [],
-            "presolverAttrs": [],
-            "ptype": "sprite",
-            "uuid": "91bdecac-4722-48d1-84a7-d43abbb3102f"
-        },
-        {
-            "pname": "gizmo",
-            "modelIDXs": [
-                1
+            "solvers": [
+                "rotate",
+                "translate"
             ],
-            "solvers": [],
-            "solverAttrs": [],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1000
+                ],
+                [
+                    1000,
+                    0,
+                    0
+                ]
+            ],
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "f8992c2d-2b8f-4a0b-b7df-118041c7522a"
+            "uuid": "f7699b07-1de1-4b86-a434-5a90f025d4b5"
         }
     ],
     "background": [],
@@ -62,7 +64,7 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
+            "pKeyboardTS": 1.0e-6,
             "pcname": "PlayerCamera"
         }
     ],

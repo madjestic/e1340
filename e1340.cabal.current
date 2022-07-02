@@ -83,67 +83,84 @@ library
   default-language:
               Haskell2010
 
--- executable Grapher
---   main-is:             Grapher.hs
---   hs-source-dirs:
---                        app
---                      , src
---   ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
---   -- cpp-options:   -DDEBUG  
---   build-depends:
---                  base                
---                , aeson               
---                , aeson-pretty                         
---                , bearriver           
---                , bytestring          
---                , containers                             
---                , ilist                                  
---                , lens                
---                , linear              
---                , locators                               
---                , massiv              
---                , random              
---                , vector
---                , GLUT
---                , GLUtil
---                , OpenGL
---                , sdl2
---                , simple-affine-space                  
---                , splitmix
---                , split                                  
---                , sort                                   
---                , store                                 
---                , text                
---                , uuid                
---   other-modules:
---                 Paths_e1338
---               , App
---               , AppInput
---               , Application
---               , Camera
---               , Controllable
---               , Descriptor
---               , FromVector
---               , Graph
---               , Keyboard
---               , LoadShaders
---               , Material
---               , Model
---               , Mouse
---               , Object
---               , PGeo
---               , Project
---               , Rendering
---               , Solvable
---               , Texture
---               , Utils
---               , VAO
---               , HMap
---               , Update
---               , Graph
---               , Drawable         
+executable Grapher
+  main-is:             Grapher.hs
+  hs-source-dirs:
+                       app
+                     , src
+  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:   -O2 -threaded
+  -- cpp-options:   -DDEBUG  
+  build-depends:
+                  base                
+                , aeson               
+                , aeson-pretty                         
+                , bearriver           
+                , bytestring          
+                , containers                             
+                , ilist                                  
+                , lens                
+                , linear              
+                , locators                               
+                , massiv              
+                , random              
+                , vector
+                , GLUT
+                , GLUtil
+                , OpenGL
+                , sdl2
+                , simple-affine-space                  
+                , splitmix
+                , split                                  
+                , sort                                   
+                , store                                 
+                , text                
+                , uuid                
+  other-modules:
+                  Paths_e1340
+                , Graphics.RedViz.Controllable
+                , Graphics.RedViz.Descriptor
+                , Graphics.RedViz.Drawable
+                , Graphics.RedViz.Input.FRP.Yampa.AppInput
+                , Graphics.RedViz.Input.Keyboard
+                , Graphics.RedViz.Input.Mouse
+                , Graphics.RedViz.LoadShaders
+                , Graphics.RedViz.Material
+                , Graphics.RedViz.Project
+                , Graphics.RedViz.Project.Model
+                , Graphics.RedViz.Project.Project
+                , Graphics.RedViz.Rendering
+                , Graphics.RedViz.Texture
+                , Graphics.RedViz.Utils
+                , Graphics.RedViz.VAO
+                , Graphics.RedViz.Widget
+                , Graphics.RedViz.Input
+                , Graphics.RedViz.Input.FRP.Yampa
+                , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+                , Graphics.RedViz.Camera
+                , Graphics.RedViz.FromVector
+                , Graphics.RedViz.Object
+                , Graphics.RedViz.PGeo
+                , Graphics.RedViz.Project.Utils
+                , Debug
+                , Grapher.Application.Application
+                , Grapher.Graph
+                , Grapher.GUI
+                , Grapher.GUI.GUI
+                , Grapher.GUI.Update
+                , Grapher.App
+                , Grapher.App.App
+                , Grapher.App.Update
+                , Grapher.Object
+                , Grapher.Object.Object
+                , Grapher.Object.Update
+                , Grapher.ObjectTree
+                , Grapher.Application.Interface
+                , Grapher.Application
+                , Grapher.Application.Update                
+                , Solvable
 
---   default-language:    Haskell2010
+  default-language:    Haskell2010
                 
                                                                            
 executable e1340
@@ -306,6 +323,7 @@ executable genProject
               , Projects.Test
               , Projects.SolarSystem
               , Projects.InfoEarth
+              , Projects.Graph
 
   default-language:
                 Haskell2010

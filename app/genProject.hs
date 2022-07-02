@@ -11,6 +11,7 @@ import Graphics.RedViz.Project as Project
 import Projects.Test
 import Projects.SolarSystem
 import Projects.InfoEarth
+import Projects.Graph
 
 -- import Debug.Trace as DT
 
@@ -31,6 +32,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
   "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
   "test"        -> Project.write Projects.Test.project            filePath
+  "graph"       -> Project.write Projects.Graph.project           filePath
   "options"     -> Project.write Projects.Test.options            filePath  
   _ -> Project.write Projects.Test.project                        filePath
                                    

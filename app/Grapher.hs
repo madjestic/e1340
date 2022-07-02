@@ -1,191 +1,75 @@
 {-# LANGUAGE CPP    #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedLists #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wno-deferred-out-of-scope-variables #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RankNTypes #-}
 
-module Main where
+module Main where 
 
-import Foreign.C          ( CInt )
-import Data.Text          ( pack)
-import Control.Concurrent
-import Data.Set (fromList, toList)
+--import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
+import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
+import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
+import Control.Monad      ( when )
+import Data.List.Split    as DLS (chunksOf)
+import Data.Set           ( fromList, toList )
+import Data.Text          ( pack )
+
 import Data.Massiv.Array.Manifest as AM (toByteString)
-import Data.Massiv.Array as A hiding (tail, windowSize, mapM_, mapM, zip, fromList, toList, replicate)
+import Data.Massiv.Array as A hiding (tail, windowSize, Window, mapM_, mapM, zip, fromList, toList, replicate)
 
-import Data.Word                (Word8)
-import System.Environment       (getArgs)
-import Linear.Matrix
-import System.Random.SplitMix as SplitMix
-import Data.List.Split        as DLS (chunksOf)
-import Graphics.Rendering.OpenGL as GL
-import Unsafe.Coerce
-import Control.Lens.Fold        (toListOf)
+import Data.Word          ( Word8 )
+import Foreign.C          ( CInt )
+import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
+import SDL
+    ( pollEvent
+    , setMouseLocationMode
+    , time
+    , glSwapWindow
+    , Event(eventPayload)
+    , EventPayload
+    , LocationMode(AbsoluteLocation, RelativeLocation)
+    , Window )
+import SDL.Input.Mouse
+import SDL.Vect
 
-import FRP.Yampa as FRP hiding  (identity)
-import SDL              hiding  ( Point
-                                , M44
-                                , M33
-                                , Event
-                                , Mouse
-                                , RenderDrivers
-                                , (^+^)
-                                , (*^)
-                                , _xyz
-                                , Texture )
+import Graphics.Rendering.OpenGL 
+import Graphics.GLUtil.Textures  ( loadTexture
+                                 , texInfo
+                                 , texture2DWrap
+                                 , TexColor(TexRGBA))
+import System.Environment        ( getArgs )
+import Unsafe.Coerce             ( unsafeCoerce )
+    
+import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
+import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
+import Graphics.RedViz.Rendering as R
+import Graphics.RedViz.Material as M
+import qualified Graphics.RedViz.Texture  as T
+import Graphics.RedViz.Drawable
+import Graphics.RedViz.Widget
+import Graphics.RedViz.Camera
+import Graphics.RedViz.Controllable
+import Graphics.RedViz.Input.Mouse
+import Graphics.RedViz.Texture  as Texture  (uuid, name, Texture)
 
-import Control.Lens             ( view )
-import Graphics.GLUtil.Textures               (loadTexture, texInfo, texture2DWrap, TexColor(TexRGBA))
+import Grapher.Application as Application
+import Grapher.Application.Interface
+import Grapher.App                as App hiding (debug) 
+import Grapher.Object             as O
+import Grapher.ObjectTree         as OT
+import Grapher.GUI
+import Grapher.Graph
 
-import Rendering as R
-import Application
-import App
-import AppInput                 (parseWinInput)
-import Object as O
-import Project        as P hiding (PreObject)
-import Graph
-import Texture                 (uuid, name, Texture)
-import Material as M (name)
-import Material (Material, textures)
-import Drawable
-import Camera
-import Controllable
-import Descriptor
-import Mouse
-import Update                  (handleExit, appRun)
-import Utils                   ((<$.>), (<*.>))
-
--- import Debug.Trace as DT
+import Debug.Trace    as DT
 
 debug :: Bool
-#ifdef DEBUG
-debug = True
+#ifdef DEBUGMAIN
+debug = False
 #else
 debug = False
 #endif
 
--- < Graph data > -------------------------------------------------------------------------------
-graphRules :: Word8 -> Word8 -> Word8
-graphRules 0 3 = 1
-graphRules 1 2 = 1
-graphRules 1 3 = 1
-graphRules _ _ = 0
-
-graphStencil :: Stencil Ix2 Word8 Word8
-graphStencil = makeStencil (Sz (3 :. 3)) (1 :. 1) $ \ f ->
-  graphRules (f (0 :. 0))
-  (f (-1 :. -1) + f (-1 :. 0) + f (-1 :. 1) +
-   f ( 0 :. -1) +               f ( 0 :. 1) +
-   f ( 1 :. -1) + f ( 1 :. 0) + f ( 1 :. 1))
-
-graph :: Array S Ix2 Word8 -> Array S Ix2 Word8
-graph = compute . A.mapStencil Wrap graphStencil
-
-initLife :: Sz2 -> Array S Ix2 Word8 -> Array S Ix2 Word8
-initLife sz' arr' =
-  compute $
-  insertWindow
-    (makeArrayR D Par sz' (const 0))
-    (Window ix0 (size arr') (index' arr' . subtract ix0) Nothing)
-  where
-    ix0 = liftIndex (`div` 2) (unSz (sz' - size arr'))
-
--- blinker :: Array S Ix2 Word8
--- blinker = [ [0, 1, 0]
---           , [0, 1, 0]
---           , [0, 1, 0] ]
-
-
--- glider :: Array S Ix2 Word8
--- glider = [ [0, 1, 0]
---          , [0, 0, 1]
---          , [1, 1, 1] ]
-
-inf :: Array S Ix2 Word8
-inf =
-  [ [1, 1, 1, 0, 1]
-  , [1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1] ]
-
-genArray :: Int -> Int -> IO (Array S Ix2 Word8)
-genArray m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf n [ x | x <- fmap (`div`4) [0..(4*m*n-1)]] :: [[Word8]] -- lol = list of lists
-    --let lol = unsafeCoerce $ [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
-    fromListsM Seq lol :: IO (Array S Ix2 Word8)
-
-genArray' :: Int -> Int -> IO (Array S Ix2 Int)
-genArray' m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Int]] -- lol = list of lists
-    fromListsM Seq lol :: IO (Array S Ix2 Int)
-
-genArray'' :: Int -> Int -> IO (Array S Ix2 Word8)
-genArray'' m n = do
-    let lol = unsafeCoerce $ DLS.chunksOf m [ x | x <- [0..(m*n-1)]] :: [[Int]] -- lol = list of lists
-    x <- fromListsM Seq lol :: IO (Array S Ix2 Int)
-    let
-      --x'  = A.map (toEnum . flip mod 2 . abs) x :: Array D Ix2 Word8
-      x'  = A.map (toEnum . const 1) x :: Array D Ix2 Word8
-      x'' = convert x' :: Array S Ix2 Word8
-    return x''
-
-inf2 :: Array S Ix2 Word8
-inf2 =
-  [ [1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  , [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-  , [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1]
-  , [0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1]
-  , [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
-  ]
-
-rand :: Int -> Int -> Array S Ix2 Word8
-rand m n = r''
-  where
-    r   = snd $ randomArrayS gen (Sz2 m n) SplitMix.nextInt :: Array S Ix2 Int --(ParN 2) (Sz2 5 5)
-    r'  = A.map (toEnum . flip mod 2 . abs) r :: Array D Ix2 Word8
-    r'' = convert r'     :: Array S Ix2 Word8
-    gen = SplitMix.mkSMGen 0
-
--- < FRP Loop > ---------------------------------------------------------------------------------
-
-type WinInput  = FRP.Event SDL.EventPayload
+-- -- < Animate > ------------------------------------------------------------
+type WinInput = FRP.Event SDL.EventPayload
 type WinOutput = (Application, Bool)
 
 animate :: SDL.Window
@@ -198,96 +82,152 @@ animate window sf =
                renderOutput
                sf
     closeWindow window
-
+    
       where
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time
-            currentTime <- SDL.time
+            currentTime <- SDL.time                          
             dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
             mEvent <- SDL.pollEvent
-
-            return (dt, FRP.Event . SDL.eventPayload <$> mEvent)
-
-        renderOutput _ (app', shouldExit) =
+            
+            return (dt, Event . SDL.eventPayload <$> mEvent)
+            
+        renderOutput _ (app, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
 
-            output lastInteraction window app'
+            output lastInteraction window app
+
             return shouldExit
 
-toDrawable :: App -> [Object] -> Double -> [Drawable]
-toDrawable app' objs time' = drs -- (drs, drs')
-  where
-    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app' -- :: (Double, Double)
-    resX = fromEnum $ view (options . App.resx) app' :: Int
-    resY = fromEnum $ view (options . App.resy) app' :: Int
-    res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
-    cam  = view playCam app' :: Camera
-    drs  = concatMap (toDrawable' mpos time' res cam) objs :: [Drawable]
-
-toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time' res cam obj = drs
-  where
-    drs      =
-      (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
-        -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
-      <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
-
-    n      = length $ view descriptors obj:: Int
-    mpos_  = replicate n mpos :: [(Double, Double)]
-    time_  = replicate n time' :: [Double]
-    res_   = replicate n res  :: [(CInt, CInt)]
-    cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
-    cam_a_ = replicate n $ _apt cam :: [Double]
-    cam_f_ = replicate n $ _foc cam :: [Double]
-
-    names  = toListOf (O.materials . traverse . M.name) obj :: [String]
-    mats   = view O.materials   obj :: [Material]
-    progs  = view O.programs    obj :: [Program]
-    xforms = concat $ replicate n $ view O.transforms obj :: [M44 Double]
-    ds     = view O.descriptors obj :: [Descriptor]
-
-output :: MVar Double -> SDL.Window -> Application -> IO ()
+output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
+  -- ticks   <- SDL.ticks
+  -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
 
-  ticks'   <- SDL.ticks
-  let currentTime = fromInteger (unsafeCoerce ticks' :: Integer) :: Double
+-- | render FPS current
+  currentTime <- SDL.time
+  --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
+  -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
 
-  -- currentTime <- SDL.time
   -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
-    app'    = fromApplication application
-    
-    fntObjs = concat $ toListOf (App.objects . gui . O.fonts) app' :: [Object]
-    fgrObjs = concat $ toListOf (App.objects . O.foreground)  app' :: [Object]
-    -- bgrObjs = concat $ toListOf (App.objects . O.background)  app :: [Object]
+    icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
+    fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
+    fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
+    bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-    fntsDrs = toDrawable app' fntObjs currentTime :: [Drawable]
-    objsDrs = toDrawable app' fgrObjs currentTime :: [Drawable]
-    -- bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
+    --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
+    fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
+    objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
+    bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
+    wgts    = fromGUI $ app ^. App.gui  :: [Widget]
+    crsr    = _cursor $ app ^. App.gui  ::  Widget
 
-    txs  = concat $ toListOf ( traverse . materials . traverse . textures) (fgrObjs ++ fntObjs) :: [Texture]
+    app  = fromApplication application
+    txs  = concat . concat
+           $   (\obj -> obj ^.. base . materials . traverse . textures)
+           <$> (fgrObjs ++ fntObjs ++ icnObjs) :: [Texture]
     hmap = _hmap application
 
     opts =
       BackendOptions
       { primitiveMode = Triangles
       , bgrColor      = Color4 0.0 0.0 0.0 1.0
-      , ptSize        = 1.0 }
+      , ptSize        = 1.0
+      , depthMsk      = Enabled
+      }
     
-  clearColor $= bgrColor opts --Color4 0.0 0.0 0.0 1.0
-  GL.clear [ColorBuffer, DepthBuffer]
-  mapM_ (render txs hmap (opts { primitiveMode = Triangles })) objsDrs
+  clearColor $= bgrColor opts
+  clear [ColorBuffer, DepthBuffer]
+
+  let
+    playCam'    = app ^. playCam :: Camera
+    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
+    mouseCoords = case (app ^. App.gui . cursor) of
+      crs'@(Cursor {}) -> _coords crs'
+      _ -> (0,0)
+
+    (resx', resy')  = app ^. options . App.res
+    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
+    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
+ 
+    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
+    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
+                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
+    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+
+  mapM_ renderAsTriangles objsDrs
+  mapM_ renderAsPoints    bgrsDrs
+  mapM_ renderWidgets     wgts
+  renderCursorM           crsr
   
-  currentTime' <- SDL.time
-  dt <- (currentTime' -) <$> readMVar lastInteraction
-  renderString (render txs hmap (opts { primitiveMode = Triangles })) fntsDrs $ "fps:" ++ show (round (1/dt) :: Integer)
-  
-  
+  -- case app ^. objects . gui . fonts of
+  --   [] -> return ()
+  --   _  -> mapM_ renderWidgets wgts
+
   glSwapWindow window
-            
+
+renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderWidget lastInteraction drs cmds wgt =
+  case wgt of
+    TextField a t f ->
+      when a $ renderString cmds drs f $ concat t
+    Button a l _ _ _ f->
+      when a $ renderString cmds drs f l
+    FPS a f ->
+      when a $ do
+        ct <- SDL.time -- current time
+        dt <- (ct -) <$> readMVar lastInteraction
+        renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
+    Cursor {} -> return ()
+
+renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderCursor (x,y) drs cmds wgt =
+  case wgt of
+    Cursor a l (x',y') ->
+      when a $ do
+      let
+        f = (Format TL (x) (-y) (0.0) 0.0 1.0)
+      renderIcon cmds drs f "cursor"
+    _ -> return ()
+
+-- < Main Function > -----------------------------------------------------------
+
+initResources :: Application -> IO Application
+initResources app0 =
+  do
+    let
+      fntObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      icnObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
+      uuids  = fmap (view T.uuid) txs
+      hmap   = toList . fromList $ zip uuids [0..]
+
+    putStrLn "Initializing Resources..."
+    putStrLn "Loading Textures..."
+    mapM_ (bindTexture hmap) txs
+    putStrLn "Finished loading textures."
+
+    return app0 { _hmap = hmap }
+      where
+        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
+        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
+        bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
+
 genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
   let --mArr = view marray g
@@ -306,22 +246,25 @@ genTexObject g = do
   --return (fromMaybe nil uuid, t)
   return t
 
--- Graph is an Object?
-initGraphResources :: Application -> [Graph] -> IO Application
-initGraphResources app0 gs = do
-    putStrLn "Initializing Resources..."
-    -- uuid <- nextUUID
+initResources' :: Application -> [Graph] -> IO Application
+initResources' app0 gs =
+  do
     let
-      objs = introObjs ++ fntObjs ++ fgrObjs ++ bgrObjs
-      txs  = concat $ concatMap (toListOf (materials . traverse . textures)) objs -- :: [Texture]
-      uuids= fmap (view Texture.uuid) txs
-      
-      hmap'= zip uuids [0..]
-      hmap = toList . fromList $ hmap'
+      fntObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      icnObjs' = case fntObjs of
+        [] -> []
+        _  -> [head fntObjs]
+      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
+      uuids  = fmap (view Texture.uuid) txs
+      hmap   = toList . fromList $ zip uuids [0..]
 
-    putStrLn "Binding Textures..."
+    putStrLn "Initializing Resources..."
+    putStrLn "Loading Textures..."
     mapM_ (bindTexture hmap) txs
-    
+
     mapM_ (\grph -> putStrLn $ "Generating and binding texture size : " ++ show (view sz grph)) gs
     gtxs <- mapM genTexObject gs
     let
@@ -332,37 +275,39 @@ initGraphResources app0 gs = do
     putStrLn "Finished loading textures."
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . O.foreground)  (_intro app0) :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . gui . O.fonts) (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . O.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . O.background)  (_main app0)  :: [Object]
+        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
+        fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
+        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
+        bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
+genArray :: Int -> Int -> IO (Array S Ix2 Word8)
+genArray m n = do
+    let lol = unsafeCoerce $ DLS.chunksOf n [ x | x <- fmap (`div`4) [0..(4*m*n-1)]] :: [[Word8]] -- lol = list of lists
+    --let lol = unsafeCoerce $ [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
+    fromListsM Seq lol :: IO (Array S Ix2 Word8)
 
 main :: IO ()
 main = do
-  let argsDebug = return ["./projects/intro", "./projects/graph"]
-  args <- if debug then argsDebug else getArgs
 
-  introProj <- P.read (unsafeCoerce (args!!0) :: FilePath)
-  mainProj  <- P.read (unsafeCoerce (args!!1) :: FilePath)
-
+  args      <- getArgs
+  introProj <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!1)   :: FilePath)
+  -- optsProj  <- if debug then P.read ("./projects/options"     :: FilePath)
+  --              else          P.read (unsafeCoerce (args!!2)   :: FilePath)
+  -- pInfoProj <- if debug then P.read ("./projects/infoearth"   :: FilePath)
+  --              else          P.read (unsafeCoerce (args!!3)   :: FilePath)
+  
   let
-    title = pack $ view P.name mainProj -- "Game of Life" :: String
+    title   = pack $ view P.name mainProj
+    resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt
+    resY    = (unsafeCoerce $ view P.resy mainProj) :: CInt
 
-    resx' = view P.resx mainProj
-    resy' = view P.resy mainProj
-    resX  = unsafeCoerce resx' :: CInt -- unsafeCoerce m :: CInt
-    resY  = unsafeCoerce resy' :: CInt -- unsafeCoerce n :: CInt
-    -- opts  = BackendOptions
-    --         { primitiveMode = Triangles
-    --         , bgrColor      = Color4 0.0 0.0 0.0 1.0
-    --         , ptSize        = 3.0
-    --         }
-    sz'     = Sz2 resx' resy'
-
-  window <- openWindow
-            title
-            (resX, resY)
+  window    <- openWindow
+               title
+               (resX, resY)
 
   -- | SDL Mouse Options
   let camMode' =
@@ -373,28 +318,41 @@ main = do
 
   _ <- setMouseLocationMode camMode'
 
-  putStrLn "\n Initializing App"
-  intro <- initApp initVAO introProj
-  main'  <- initApp initVAO mainProj
+  putStrLn "\n Initializing Apps"
+  intrApp' <- intrApp introProj
+  mainApp' <- mainApp mainProj
+  -- optsApp' <- optsApp optsProj
+  -- infoApp' <- mainApp pInfoProj
+  counter' <- newMVar 0 :: IO (MVar Int)
+  putStrLn "\n Initializing GUI"
 
-  graph'  <- genArray resx' resy'
+  let
+    resx' = view P.resx mainProj
+    resy' = view P.resy mainProj
+    sz'     = Sz2 resx' resy'
+
+  graph' <- genArray resx' resy'    
   mArr   <- newMArray sz' 1 :: IO (MArray RealWorld S Ix2 Word8)
 
   let
-    gr  = Graph sz' graph' mArr
-    -- grs = gr:repeat gr :: [Graph]
+    gr       = Graph sz' graph' mArr
+    res      = ()
     
     initApp' =
       Application
-      Intro -- interface current state
-      intro
-      main'
+      (intrApp' ^. App.gui)
+      intrApp' 
+      mainApp' 
+      -- optsApp' 
+      -- infoApp' 
       []
+      counter'
 
-  app' <- initGraphResources initApp' [gr]
-
+  --app <- initResources initApp'
+  app <- initResources' initApp' [gr]
+  
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> appRun app' &&& handleExit)
+    (parseWinInput >>> mainLoop app &&& handleExit)
   return ()
