@@ -11,6 +11,7 @@ module Application.Application
   , info
   , counter
   , gui
+  , quit
   ) where
 
 import Control.Lens ( view, makeLenses )
@@ -30,6 +31,7 @@ data Application
   {
     --_interface :: Interface
     _gui     :: GUI
+  , _quit    :: Bool
   , _intr    :: App
   , _main    :: App
   , _opts    :: App

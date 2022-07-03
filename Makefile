@@ -142,12 +142,12 @@ newtest:
 solarsystem:
 	cabal build exe:e1340
 	#cabal build
-	cabal run exe:genProject -- ./projects/solarsystem
-	cabal run exe:genUUID -- -p ./projects/solarsystem
-	cabal run exe:genProject -- ./projects/options 	
-	cabal run exe:genUUID -- -p ./projects/options 	
-	cabal run exe:genProject -- ./projects/infoearth
-	cabal run exe:genUUID -- -p ./projects/infoearth
+	#cabal run exe:genProject -- ./projects/solarsystem
+	#cabal run exe:genUUID -- -p ./projects/solarsystem
+	#cabal run exe:genProject -- ./projects/options 	
+	#cabal run exe:genUUID -- -p ./projects/options 	
+	#cabal run exe:genProject -- ./projects/infoearth
+	#cabal run exe:genUUID -- -p ./projects/infoearth
 
 	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
 

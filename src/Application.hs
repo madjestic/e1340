@@ -1,8 +1,5 @@
 module Application
   ( Application (..)
---  , GUI         (..)
---  , Interface   (..)
---  , Planet      (..)
   , fromApplication
   , mainLoop
   , handleExit
@@ -10,8 +7,8 @@ module Application
   , appMain
   , appOpts
   , counter
---  , interface
   , gui
+  , quit
   ) where
 
 import Application.Application

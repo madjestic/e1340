@@ -12,7 +12,7 @@ import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
 import Foreign.C          ( CInt )
-import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
+import FRP.Yampa as FRP   ( (>>>), (<<<), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
     , setMouseLocationMode
@@ -48,7 +48,7 @@ import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable
 import Graphics.RedViz.Input.Mouse
 
-import Application
+import Application as A
 import Application.Interface
 import App hiding (debug)
 import Object             as O
@@ -95,7 +95,7 @@ animate window sf =
 
             output lastInteraction window app
 
-            return shouldExit
+            return (shouldExit || (app ^. quit))
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
@@ -268,13 +268,15 @@ main = do
     res      = ()
     initApp' =
       Application
-      (intrApp' ^. App.gui)
-      intrApp' 
-      mainApp' 
-      optsApp' 
-      infoApp' 
-      []
-      counter'
+      {
+        A._gui  = (intrApp' ^. App.gui)
+      , A._intr = intrApp'
+      , A._main = mainApp'
+      , A._opts = optsApp'
+      , A._info = infoApp'
+      , A._counter = counter'
+      , A._quit = False
+      }
 
   app <- initResources initApp'
   

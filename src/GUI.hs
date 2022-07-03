@@ -14,6 +14,7 @@ module GUI
   , quitB
   , xx
   , backB
+  , strtB
   ) where
 
 import GUI.GUI

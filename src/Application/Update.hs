@@ -36,8 +36,8 @@ mainLoop app0 =
               InfoGUI {} -> appInfo  app0 -< (input, gameState)
     returnA -< (app1, app1)
 
-switchApp :: Application -> Event () -> Event () -> GUI
-switchApp appl optsE quitE = ui'
+switchOptsMain :: Application -> Event () -> Event () -> GUI
+switchOptsMain appl optsE startE = ui'
   where
     ui' =
       -- TODO : rename main to mainApp ?
@@ -53,20 +53,29 @@ appIntro app0  =
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
                
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB :: Maybe Widget)
-               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB :: Maybe Widget)
+               strtE <- arr isPressed >>> edge -< (app' ^? App.gui . strtB :: Maybe Widget)
+               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB  :: Maybe Widget)
+               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB  :: Maybe Widget)
                
                let
+                 strtB' = fromJust $ app0 ^? intr . App.gui . strtB
                  optsB' = fromJust $ app0 ^? intr . App.gui . optsB
                  quitB' = fromJust $ app0 ^? intr . App.gui . quitB
                  
-                 result = app1 { _intr = app' }
-                 result'= app1 { _intr = app' & App.gui . optsB .~ optsB'
-                                              & App.gui . quitB .~ quitB' }
+                 result = app1 { _intr = app'
+                               , _quit = isEvent quitE }
+                 result'= app1 { _quit = isEvent quitE
+                               , _intr = app' & App.gui . optsB .~ optsB'
+                                              & App.gui . quitB .~ quitB'
+                                              & App.gui . strtB .~ strtB'}
                           
                returnA -< ( result
-                          , catEvents [quitE, optsE] $>
-                            result' { Appl._gui = switchApp app0 (optsE $> ()) (quitE $> ())})
+                          , catEvents [strtE, optsE] $>
+                            result' { Appl._gui =
+                                      switchOptsMain app0
+                                      (optsE $> ())
+                                      (strtE $> ())
+                                    })
                
            cont arg =
              proc (input', app') -> do
@@ -141,6 +150,6 @@ appInfo app0 =
              proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
-           
+
 handleExit :: SF AppInput Bool
 handleExit = quitEvent >>^ isEvent
