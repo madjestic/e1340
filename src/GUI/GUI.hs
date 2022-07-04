@@ -73,6 +73,10 @@ fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
     BC -> ( 0.0,-0.5)
     BR -> ( 1.0, 0.5)
 
+defBBox :: BBox
+defBBox =
+  BBox (-0.2) (0.1) (0.2) (-0.1)
+
 introGUI :: (Int, Int) -> GUI
 introGUI res =
   IntrGUI
@@ -86,11 +90,11 @@ introGUI res =
   , _a_space_oddysey =
     TextField True ["a space odyssey"]
     (Format TC (-0.2) (-0.25) 0.0 0.03 0.5)
-  , _strtB   = Button True "NEW GAME" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+  , _strtB   = Button True "NEW GAME" defBBox False False
     (Format CC (0.0) ( 0.0) 0.0 0.033 0.5)
-  , _optsB    = Button True "OPTIONS"  (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+  , _optsB    = Button True "OPTIONS" defBBox False False
     (Format CC (0.0) (-0.075) 0.0 0.033 0.5)
-  , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+  , _quitB    = Button True "QUIT"    defBBox False False
     (Format CC (0.0) (-0.15) 0.0 0.033 0.5)
   }
 
@@ -100,7 +104,7 @@ optsGUI res =
   {
     _res     = res
   , _cursor  = Cursor True "" (0.0, 0.0)
-  , _backB   = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
 --  , _inpBack = False
   }
 
@@ -109,9 +113,9 @@ mainGUI res =
   MainGUI
   {
     _res    = res
-  , _fps  = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0)
+  , _fps    = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0)
   , _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
-  , _backB  = Button True "< Main" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
+  , _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
   , _cursor = Cursor True "" (0.0, 0.0)
   }
 

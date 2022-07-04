@@ -10,6 +10,10 @@ import Data.Functor                          (($>))
 import FRP.Yampa
 import Foreign.C                             (CInt)
 import Data.Maybe (fromJust)
+import Linear.V3
+import Linear.Matrix
+import Linear.Vector
+import Control.Lens
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Input (AppInput)
@@ -20,7 +24,7 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput
 import GUI.GUI
 import Debug
 
--- import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 updateGUIPre :: GUI -> SF AppInput GUI
 updateGUIPre gui0 =
@@ -110,6 +114,21 @@ updateFormat' res btn0 =
         returnA -< (btn0, moE $> btn')
     cont = updateFormat res
 
+bbox' :: Widget -> BBox
+bbox' btn0@(Button {}) = newBBox (_format btn0) (btn0 ^. lable)
+  where
+    newBBox :: Format -> String -> BBox
+    newBBox fmt str = result
+      where
+        offset = fromIntegral $ length str + 1
+        s1     = fmt ^. soffset
+        result =
+          BBox
+          (0.0)
+          (fmt^.ssize * 0.085)
+          (offset *s1 * 0.85)
+          (0.0)
+
 insideBBox :: (Int, Int) -> BBox -> (Double, Double) -> (Double, Double) -> Bool
 insideBBox res (BBox x0 y0 x1 y1) (bx, by) (mx, my) = inside 
   where
@@ -129,14 +148,14 @@ mouseOverE res crsr btn = (btn', event')
       { _format =
         fmtBtn
         { _soffset = fmtBtn ^. soffset * bms, _ssize = fmtBtn ^. ssize * bms
-        , _xoffset = (\x y z -> x - y*z) (fmtBtn ^. xoffset) (hsize bboxBtn) bos }
+        , _xoffset = (\x y z -> x - y*z) (fmtBtn ^. xoffset) (hsize $ bbox' btn) bos }
       , _rover  = True
       }
             
     event' = if inside then Event () else NoEvent
       where
         (bx, by) = fromFormat fmtBtn
-        inside   = insideBBox res bboxBtn (bx, by) (mx, my)
+        inside   = insideBBox res (bbox' btn) (bx, by) (mx, my)
 
 mouseOverE' :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE' res crsr btn = (btn', event')
@@ -149,7 +168,7 @@ mouseOverE' res crsr btn = (btn', event')
       { _format =
         fmtBtn
         { _soffset = fmtBtn ^. soffset * 1/bms, _ssize = fmtBtn ^. ssize * 1/bms
-        , _xoffset = (\x y z -> x + y*z) (fmtBtn ^. xoffset) (hsize bboxBtn) bos
+        , _xoffset = (\x y z -> x + y*z) (fmtBtn ^. xoffset) (hsize $ bbox' btn) bos
         }
       , _rover = False
       }
@@ -157,7 +176,7 @@ mouseOverE' res crsr btn = (btn', event')
     event' = if not inside then Event () else NoEvent
       where
         (bx, by) = fromFormat fmtBtn
-        inside   = insideBBox res bboxBtn (bx, by) (mx, my)
+        inside   = insideBBox res (bbox' btn) (bx, by) (mx, my)
 
 updateCursor :: SF (AppInput, Widget) Widget
 updateCursor =
