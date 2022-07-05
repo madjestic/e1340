@@ -335,8 +335,8 @@ main = do
   mArr   <- newMArray sz' 1 :: IO (MArray RealWorld S Ix2 Word8)
 
   let
-    gr       = Graph sz' graph' mArr
-    res      = ()
+    gr  = Graph sz' graph' mArr
+    res = intrApp' ^. options . App.res
     
     initApp' =
       Application
@@ -354,5 +354,5 @@ main = do
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> mainLoop app &&& handleExit)
+    (parseWinInput res >>> mainLoop app &&& handleExit)
   return ()

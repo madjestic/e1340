@@ -11,6 +11,7 @@ import Data.Functor        (($>))
 import FRP.Yampa
 import Linear.Matrix as LM
 import SDL hiding          ((*^), (^+^), (^-^), (^/), norm, Event, Mouse)
+import Data.Ord
 
 import Graphics.RedViz.Camera       as Camera
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
@@ -19,6 +20,16 @@ import Graphics.RedViz.Input
 import Graphics.RedViz.Input.FRP.Yampa.Update
 import Graphics.RedViz.Utils
 
+import Debug.Trace    as DT
+
+clampBy :: Double -> Double -> Double
+clampBy d x = d'
+  where
+    d' = case signum x of
+           (-1) -> clamp (x, 0) $ x + d
+           1    -> clamp (0, x) $ x - d
+           _    -> x
+
 updateCameraController :: Camera -> SF (AppInput, Camera) Camera
 updateCameraController cam0 =
   switch sf cont
@@ -26,28 +37,41 @@ updateCameraController cam0 =
     sf =
       proc (input, cam) ->
         do
-          (mouse', mevs) <- updateMouse         -< input
+          (mouse', mevs) <- updateMouse -< input
           (kbrd',  kevs) <- updateKeyboard (view (controller.device.keyboard) cam0) -< (input, (view (controller.device.keyboard) cam))
 
           let
             s'       = 1.0  :: Double -- | mouse sensitivity scale
             t'       = 2    :: Double -- | mouse idle threshold
+                                      -- | inactive radius
+            rad      = (0.1 *) $ fromIntegral $ snd $ cam0^.res :: Double 
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
+
+            -- | compute rotation velocity = length (mouseP - originP) * scalar
+            (mrx', mry') = mouse' ^. rpos
+            (mx' , my')  = mouse' ^. pos
+            (cx  , cy)   = ( fromIntegral $ (fst $ cam0^.res) `div` 2
+                           , fromIntegral $ (snd $ cam0^.res) `div` 2)
+            mdist        = abs $ norm (V3 (mx' - cx) (my' - cy) (0.0))
             
             ypr'     =
               (view (controller.ypr) cam +) $
               (0.00001 * (view mouseS cam) *
-                (V3 (case (abs mry' <= t') of True -> 0; _ -> (mry' / t') * (abs mry')**s')
-                    (case (abs mrx' <= t') of True -> 0; _ -> (mrx' / t') * (abs mrx')**s')
-                     0.0) +) $
+                -- (V3 (case (abs mry' <= t') of True -> 0; _ -> (mry' / t') * (abs mry')**s')
+                --     (case (abs mrx' <= t') of True -> 0; _ -> (mrx' / t') * (abs mrx')**s')
+                --      0.0) +) $
+                (V3
+                 (case (mdist <= rad) of True -> 0; _ -> (clampBy rad $ my' - cy)**s')
+                 (case (mdist <= rad) of True -> 0; _ -> (clampBy rad $ mx' - cx)**s')
+                  0.0) +) $
               foldr1 (+) $
               fmap ( 0.0000001 * scalar * (view keyboardRS cam) *) $ -- <- make it keyboard controllabe: speed up/down            
               zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                             [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                             [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
               where
-                (mrx', mry') = view rpos mouse'
+                --(mrx', mry') = view rpos mouse'
                 pPitch = (keyVecs kbrd')!!6  -- positive  pitch
                 nPitch = (keyVecs kbrd')!!7  -- negative  pitch
                 pYaw   = (keyVecs kbrd')!!8  -- positive  yaw
@@ -72,7 +96,14 @@ updateCameraController cam0 =
             mtx0 = view Controllable.transform ctl0
             rot =
               (view _m33 mtx0)
-              !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
+              !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) ((DT.trace
+                                                                         (
+                                                                           "mouse pos : " ++ show (mx', my')   ++ "\n" ++
+                                                                           "centroid  : " ++ show (cx, cy)     ++ "\n" ++
+                                                                           "mdist     : " ++ show (mdist)      ++ "\n" ++
+                                                                           "my' - cy  : " ++ show (clampBy rad (my' - cy)) ++ "\n"
+                                                                         )                                                                                      
+                                                                        ) view _x ypr')) -- yaw
               !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
               !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
    

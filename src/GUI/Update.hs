@@ -58,16 +58,28 @@ updateGUI' gui0@(IntrGUI {}) =
         
     returnA -< result
 
-updateGUI' gui0@(OptsGUI res cursor0 backB0) =
+updateGUI' gui0@(OptsGUI {}) =
   proc (input, gui) -> do
-    let OptsGUI res cursor_ backB_ = gui
-    cursor' <- updateCursor            -< (input, cursor_)
-    backB'  <- updateButton res backB0 -< (input, cursor', backB_)
+    cursor' <- updateCursor                           -< (input, _cursor gui)
+    backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
     let
       result =
         gui
         { _backB  = backB'
         , _cursor = cursor'
+        }
+        
+    returnA -< result
+
+updateGUI' gui0@(MainGUI {} ) =
+  proc (input, gui) -> do
+    cursor' <- updateCursor                           -< (input, _cursor gui)
+    --backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
+    let
+      result =
+        gui
+        { --_backB  = backB'
+          _cursor = cursor'
         }
         
     returnA -< result

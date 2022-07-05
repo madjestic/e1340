@@ -76,7 +76,8 @@ fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
 fromProject prj0 = do 
   objs <- ObjectTree.fromProject prj0
   let
-    cams = fromProjectCamera <$> view P.cameras prj0
+    --cams = fromProjectCamera <$> view P.cameras prj0
+    cams = (fromProjectCamera prj0) <$> view P.cameras prj0
     pCam = head cams
 
   return (objs, cams, pCam)    

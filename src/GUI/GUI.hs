@@ -46,7 +46,7 @@ data GUI
        _res    :: (Int, Int)
      , _fps    :: Widget
      , _info   :: Widget
-     , _backB  :: Widget -- button
+     --, _backB  :: Widget -- button
      , _cursor :: Widget
      }
   |  InfoGUI
@@ -82,7 +82,8 @@ introGUI res =
   IntrGUI
   {
     _res    = res
-  , _cursor = Cursor True "" (0.0, 0.0)
+  --, _cursor = Cursor True "" (0.0, 0.0)
+  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
     TextField True ["XXII"]
@@ -115,7 +116,7 @@ mainGUI res =
     _res    = res
   , _fps    = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0)
   , _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
-  , _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
+  --, _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
   , _cursor = Cursor True "" (0.0, 0.0)
   }
 
@@ -135,32 +136,28 @@ infoGUI res =
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
-    --IntrGUI fps info strtB optionsB quitB cursor ->
     gui@(IntrGUI {}) ->
       [
         _cursor gui
-      --   fps
       , _xx     gui
       , _a_space_oddysey gui -- ^. _a_space_oddysey
       , _strtB gui
       , _optsB gui
       , _quitB gui
-      -- , cursor
       ]
-    OptsGUI res cursor backB ->
+    OptsGUI {} ->
       [
-        cursor
-      , backB
+        _cursor gui 
+      , _backB  gui 
       ]
-    MainGUI res fps info backB cursor ->
+    MainGUI {} ->
       [
-        fps
-      , info
-      , backB
-      , cursor
+        _fps    gui
+      , _info   gui 
+      , _cursor gui 
       ]
-    InfoGUI res fps infos cursor ->
+    InfoGUI {} ->
       [
-        fps
-      , cursor      
-      ] ++ infos
+        _fps    gui 
+      , _cursor gui     
+      ] ++ _infos gui

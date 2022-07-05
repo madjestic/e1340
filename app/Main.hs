@@ -254,6 +254,7 @@ main = do
           _ -> error "wrong mouse mode"
 
   _ <- setMouseLocationMode camMode'
+  _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
   intrApp' <- intrApp introProj
@@ -265,7 +266,7 @@ main = do
   putStrLn "\n Initializing GUI"
 
   let
-    res      = ()
+    res = (\(x,y) -> (x`div`2, y`div`2)) (intrApp' ^. options . App.res)
     initApp' =
       Application
       {
@@ -279,9 +280,10 @@ main = do
       }
 
   app <- initResources initApp'
+  --warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
   
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput >>> mainLoop app &&& handleExit)
+    (parseWinInput res >>> mainLoop app &&& handleExit)
   return ()
