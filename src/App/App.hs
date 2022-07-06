@@ -158,7 +158,7 @@ mainApp prj0 = do
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')
   where
-    mpos = unsafeCoerce $ view (playCam . controller . device' . mouse . pos) app -- :: (Double, Double)
+    mpos = _coords (app ^. App.App.gui . cursor)
     resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
     resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
     res  = (toEnum resX, toEnum resY) :: (CInt, CInt)

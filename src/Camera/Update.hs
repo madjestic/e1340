@@ -96,14 +96,7 @@ updateCameraController cam0 =
             mtx0 = view Controllable.transform ctl0
             rot =
               (view _m33 mtx0)
-              !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) ((DT.trace
-                                                                         (
-                                                                           "mouse pos : " ++ show (mx', my')   ++ "\n" ++
-                                                                           "centroid  : " ++ show (cx, cy)     ++ "\n" ++
-                                                                           "mdist     : " ++ show (mdist)      ++ "\n" ++
-                                                                           "my' - cy  : " ++ show (clampBy rad (my' - cy)) ++ "\n"
-                                                                         )                                                                                      
-                                                                        ) view _x ypr')) -- yaw
+              !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
               !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
               !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
    
@@ -151,7 +144,8 @@ updateCameraController cam0 =
                    , Controllable._ypr       = ypr' * rlag
                    , Controllable._device    =
                        (dev' { _keyboard = kbrd'
-                             , _mouse    = mouse' })
+                             --, _mouse    = mouse'
+                             })
                    }
             result =
               cam {Camera._controller = ctl'}

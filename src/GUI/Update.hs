@@ -54,6 +54,7 @@ updateGUI' gui0@(IntrGUI {}) =
         , _optsB  = optsB'
         , _quitB  = quitB'
         , _cursor = cursor'
+        --, _cursor = (DT.trace ("cursor' : " ++ show cursor')) cursor'
         }
         
     returnA -< result

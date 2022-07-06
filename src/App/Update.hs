@@ -67,7 +67,7 @@ updateIntroApp app0 =
 
    (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
    objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
-   gui'        <- updateGUI (app0 ^. gui)                                 -< input
+   gui'        <- updateGUIPre     (app0 ^. gui)                          -< input
     
    --let selectable' = selectByDist (10.0 :: Double) cam objs
    let selectable' = selectByDist (50000000.0 :: Double) cam objs
@@ -79,16 +79,14 @@ updateIntroApp app0 =
      
      result =
        app'
-       { App._objects = (objTree {_foreground = objs })
-       , App._cameras = cams
+       {
+         App._objects = (objTree {_foreground = objs })
        , _gui         = gui' -- { _inpOpts = inpOpts'
                              -- , _inpQuit = inpQuit' }
+       , App._cameras = cams                        
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'
-       -- , _ui = IntrApp
-       --         { _inpQuit = inpQuit'
-       --         , _inpOpts = inpOpts' }
        }
 
    returnA  -< result
