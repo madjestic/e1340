@@ -206,7 +206,7 @@ initResources app0 =
       icnObjs' = case fntObjs of
         [] -> []
         _  -> [head fntObjs]
-      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      objs   = fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
       txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
       uuids  = fmap (view T.uuid) txs
       hmap   = toList . fromList $ zip uuids [0..]
@@ -218,7 +218,7 @@ initResources app0 =
 
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
+        --introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
         icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
@@ -228,15 +228,8 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  introProj <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
   mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!1)   :: FilePath)
-  optsProj  <- if debug then P.read ("./projects/options"     :: FilePath)
-               else          P.read (unsafeCoerce (args!!2)   :: FilePath)
-  pInfoProj <- if debug then P.read ("./projects/infoearth"   :: FilePath)
-               else          P.read (unsafeCoerce (args!!3)   :: FilePath)
-  
+               else          P.read (unsafeCoerce (args!!0)   :: FilePath)  
   let
     title   = pack $ view P.name mainProj
     resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt
@@ -254,14 +247,11 @@ main = do
           _ -> error "wrong mouse mode"
 
   _ <- setMouseLocationMode camMode'
-  -- _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
+  _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
   -- _ <- warpMouse WarpGlobal (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
-  intrApp' <- intrApp introProj
   mainApp' <- mainApp mainProj
-  optsApp' <- optsApp optsProj
-  infoApp' <- mainApp pInfoProj
   counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
@@ -271,11 +261,8 @@ main = do
     initApp' =
       Application
       {
-        A._gui  = (intrApp' ^. App.gui)
-      , A._intr = intrApp'
+        A._gui  = mainApp' ^. App.gui
       , A._main = mainApp'
-      , A._opts = optsApp'
-      , A._info = infoApp'
       , A._counter = counter'
       , A._quit = False
       }

@@ -217,3 +217,16 @@ grapher:
 	cabal run exe:genUUID -- -p ./projects/graph 	
 	cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
 	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem
+
+
+projectviewer:
+	cabal build exe:ProjectViewer
+	#cabal build
+	#cabal run exe:genProject -- ./projects/solarsystem
+	#cabal run exe:genUUID -- -p ./projects/solarsystem
+	#cabal run exe:genProject -- ./projects/options 	
+	#cabal run exe:genUUID -- -p ./projects/options 	
+	#cabal run exe:genProject -- ./projects/infoearth
+	#cabal run exe:genUUID -- -p ./projects/infoearth
+
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solarsystem

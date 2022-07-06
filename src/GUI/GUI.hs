@@ -118,8 +118,9 @@ mainGUI res =
   , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5)
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5)
   --, _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
-  --, _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)  
-  , _cursor = Cursor True "" (0.0, 0.0)
+  --, _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
+  --, _cursor = Cursor True "" (0.0, 0.0)
   }
 
 infoGUI :: (Int, Int) -> GUI
