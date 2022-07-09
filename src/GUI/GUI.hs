@@ -15,12 +15,14 @@ module GUI.GUI
   , xx
   , backB
   , strtB
+  , speed
   ) where
 
 import Control.Lens
 import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
+import Graphics.RedViz.Camera hiding (_res, res)
 
 data GUI
   =  IntrGUI
@@ -39,15 +41,12 @@ data GUI
        _res      :: (Int, Int)
      , _cursor   :: Widget
      , _backB    :: Widget -- button
-     --, _inpBack  :: Bool
      }
   |  MainGUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
      , _speed  :: Widget
-     --, _info   :: Widget
-     --, _backB  :: Widget -- button
      , _cursor :: Widget
      }
   |  InfoGUI
@@ -83,7 +82,6 @@ introGUI res =
   IntrGUI
   {
     _res    = res
-  --, _cursor = Cursor True "" (0.0, 0.0)
   , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
@@ -107,7 +105,6 @@ optsGUI res =
     _res     = res
   , _cursor  = Cursor True "" (0.0, 0.0)
   , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
---  , _inpBack = False
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -117,10 +114,7 @@ mainGUI res =
     _res    = res
   , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5)
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5)
-  --, _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0)
-  --, _backB  = Button True "< Main" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
   , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
-  --, _cursor = Cursor True "" (0.0, 0.0)
   }
 
 infoGUI :: (Int, Int) -> GUI
@@ -157,7 +151,6 @@ fromGUI gui =
       [
         _fps    gui
       , _speed  gui
-      --, _info   gui 
       , _cursor gui 
       ]
     InfoGUI {} ->

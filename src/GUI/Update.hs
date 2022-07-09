@@ -20,9 +20,10 @@ import Graphics.RedViz.Input (AppInput)
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
+import Graphics.RedViz.Camera hiding (_res)
+import Graphics.RedViz.Controllable
 
 import GUI.GUI
-import Debug
 
 import Debug.Trace    as DT
 
@@ -74,14 +75,11 @@ updateGUI' gui0@(OptsGUI {}) =
 
 updateGUI' gui0@(MainGUI {} ) =
   proc (input, gui) -> do
-    cursor' <- updateCursor                           -< (input, _cursor gui)
-    --backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
+    cursor' <- updateCursor -< (input, _cursor gui)
     let
       result =
         gui
-        { --_backB  = backB'
-          _cursor = cursor'
-        }
+        { _cursor = cursor' }
         
     returnA -< result
 

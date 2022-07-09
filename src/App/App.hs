@@ -116,7 +116,6 @@ optsApp prj0 = do
     result = 
       App
       { _debug   = (0,0)
-      --, _ui      = OptsApp {_inpBack = False}
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res
@@ -139,12 +138,11 @@ mainApp prj0 = do
     result =
       App
       { _debug   = (0,0)
-      --, _ui      = MainApp
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res
                    , _test = False }
-      , _gui     = mainGUI res 
+      , _gui     = mainGUI res
       , _objects = objTree
       , _playCam = pCam
       , _cameras = cams

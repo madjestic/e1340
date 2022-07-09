@@ -125,7 +125,7 @@ updateMainApp app0 =
 
    (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
    objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
-   gui'        <- updateGUI (app0 ^. gui)                                 -< input
+   gui'        <- updateGUIPre (app0 ^. gui)                              -< input
     
    --let selectable' = selectByDist (10.0 :: Double) cam objs
    let selectable' = selectByDist (50000000.0 :: Double) cam objs
@@ -140,7 +140,7 @@ updateMainApp app0 =
        { 
          App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui         = gui'
+       , _gui = gui' & speed . text .~ [show . abs . norm $ (cam ^. controller . vel)]
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'

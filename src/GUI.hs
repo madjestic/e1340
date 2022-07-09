@@ -15,6 +15,7 @@ module GUI
   , xx
   , backB
   , strtB
+  , speed
   ) where
 
 import GUI.GUI
