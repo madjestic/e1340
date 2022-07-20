@@ -128,10 +128,13 @@ stars:
 	./resources/convertGeo.sh star_sector_08 --skip
 	./resources/convertGeo.sh star_sector_09 --skip
 
-3bodies:
-	./resources/convertGeo.sh body_0
-	./resources/convertGeo.sh body_1
-	./resources/convertGeo.sh body_2
+body3:
+	# ./resources/convertGeo.sh body_0
+	# ./resources/convertGeo.sh body_1
+	# ./resources/convertGeo.sh body_2
+	cabal build exe:genProject
+	cabal run exe:genProject -- ./projects/body3
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/body3
 
 newtest:
 	cabal build exe:e1340
@@ -141,7 +144,7 @@ newtest:
 
 solarsystem:
 	cabal build exe:e1340
-	#cabal build
+	#cabal buildo
 	#cabal run exe:genProject -- ./projects/solarsystem
 	#cabal run exe:genUUID -- -p ./projects/solarsystem
 	#cabal run exe:genProject -- ./projects/options 	
@@ -192,14 +195,14 @@ infoearth:
 	cabal run exe:genProject -- ./projects/infoearth
 	cabal run exe:genUUID -- -p ./projects/infoearth
 	cabal build exe:e1340
-	cabal run +RTS -sstderr -RTS e1340 ./projects/infoearth ./projects/infoearth
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/infoearth
 
 test:
 	cabal build exe:genProject
 	cabal run exe:genProject -- ./projects/test
 	cabal run exe:genUUID -- -p ./projects/test
 	cabal build exe:e1340
-	cabal run +RTS -sstderr -RTS e1340 ./projects/test ./projects/test
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/test
 
 options:
 	cabal clean

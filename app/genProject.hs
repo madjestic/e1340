@@ -12,6 +12,7 @@ import Projects.Test
 import Projects.SolarSystem
 import Projects.InfoEarth
 import Projects.Graph
+import Projects.Body3
 
 -- import Debug.Trace as DT
 
@@ -30,10 +31,11 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "testchecker" -> Project.write Projects.Test.projectTestChecker filePath
   "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
   "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
-  "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
+--  "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
   "test"        -> Project.write Projects.Test.project            filePath
   "graph"       -> Project.write Projects.Graph.project           filePath
-  "options"     -> Project.write Projects.Test.options            filePath  
+  "options"     -> Project.write Projects.Test.options            filePath
+  "body3"       -> Project.write Projects.Body3.project           filePath
   _ -> Project.write Projects.Test.project                        filePath
                                    
 splitter :: String -> IO (String, String)
