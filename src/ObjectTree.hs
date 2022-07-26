@@ -20,8 +20,8 @@ import Linear (V3(..), V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
-import Graphics.RedViz.Project as Project
-import Graphics.RedViz.Project as P
+import Graphics.RedViz.Project as Project hiding (_solvers)
+import Graphics.RedViz.Project as P       hiding (_solvers)
 import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
@@ -34,7 +34,7 @@ import Graphics.RedViz.LoadShaders
 import Graphics.RedViz.Widget as Widget
 
 import Object
-import Solvable
+import Solvable hiding (_ypr)
 
 import Debug.Trace as DT
 
@@ -161,21 +161,50 @@ fromPreObject prj0 cls pObj0 = do
       case _ptype pObj0 of
         "planet" -> return $
           Planet
-          (Object'
-           ds'
-           materials'
-           programs'
-           transforms'
-           (head transforms')
-           (sum ypr')
-           (V3 0 0 0 :: V3 Double)
-           time')
-          name'
-          velocity'
-          avelocity'
-          mass'
-          density'
-          solvers''
+          {
+           _base = 
+              ( Object'
+                {
+                 _descriptors = ds'
+                ,_materials   = materials'
+                ,_programs    = programs'
+                ,_transforms  = transforms'
+                ,_transform0  = (head transforms')
+                ,_ypr0        = (sum ypr')
+                ,_ypr         = (V3 0 0 0 :: V3 Double)
+                ,_time        = time'
+                }
+              )
+          ,_nameP     = name'
+          ,_velocity  = velocity'
+          ,_avelocity = avelocity'
+          ,_mass      = mass'
+          ,_density   = density'
+          ,_solvers   = solvers''
+          }
+        "rbd" -> return $
+          RBD
+          {
+            _base = 
+            ( Object'
+              {
+               _descriptors = ds'
+              ,_materials   = materials'
+              ,_programs    = programs'
+              ,_transforms  = transforms'
+              ,_transform0  = (head transforms')
+              ,_ypr0        = (sum ypr')
+              ,_ypr         = (V3 0 0 0 :: V3 Double)
+              ,_time        = time'
+              }
+            )
+          ,_nameP     = name'
+          ,_velocity  = velocity'
+          ,_avelocity = avelocity'
+          ,_mass      = mass'
+          ,_density   = density'
+          ,_solvers   = solvers''
+          }
         "sprite" -> return $
           Sprite
           (Object'

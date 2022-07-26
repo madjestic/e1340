@@ -18,6 +18,8 @@ module Object.Object
   , ypr0
   , ypr
   , velocity
+  , force
+  , mass
   , solvers
   , objectNames
   , time
@@ -41,6 +43,18 @@ data Object
      {
        _base        :: Object'
      }  -- a unit
+  |  RBD
+     {
+       _base        :: Object'
+     , _nameP       :: String
+     , _velocity    :: V3 Double
+     , _avelocity   :: V3 Double    -- | Angular velocity
+     --, _impulse     :: V3 Double
+     , _force       :: V3 Double
+     , _mass        :: Double
+     , _density     :: Double
+     , _solvers     :: [Solver]
+     }
   |  Planet
      {
        _base        :: Object'

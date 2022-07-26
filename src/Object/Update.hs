@@ -11,10 +11,11 @@ import FRP.Yampa
 import Linear.Matrix   as LM
 import Linear.V3       as LV3
 import Linear.V4
+--import Linear.Vector
 import Linear.Quaternion hiding (rotate)
 
 import Graphics.RedViz.Utils
-import Graphics.RedViz.Object as Obj
+import Graphics.RedViz.Object as Object
 
 import Object.Object as Obj
 import Solvable
@@ -42,7 +43,39 @@ updateObjects' =
       objs' = updateObject <$> objs
     returnA -< objs'
 
+updateXform :: M44 Double -> [M44 Double] -> [Solver] -> V3 Double -> [M44 Double]
+updateXform xform0 xforms0 slvs0 v0 = transforms'
+  where
+    mtx0 = extractTransform xform0 slvs0 :: M44 Double
+    mtx1 = mtx0 & translation .~ ((mtx0^. translation) + v0)   
+    transforms' = fmap (flip (!*!) mtx1) xforms0 :: [M44 Double]
+
+updateVel :: V3 Double -> V3 Double -> V3 Double
+updateVel v0 a0 = v0 + a0
+
+updateAccel :: Double -> V3 Double -> V3 Double
+updateAccel m0 f0 = f0^/m0
+
+updateForce :: V3 Double
+updateForce  = V3 0 (-0.1) 0
+
+-- updateObject' :: Object' -> Object'
+-- updateObject' = undefined
+
 updateObject :: Object -> Object
+updateObject obj0@(RBD {}) = result
+  where
+    slvs0   = updateSolvers $ obj0 ^. solvers :: [Solver]
+    xform0  = obj0 ^. base . transform0 :: M44 Double
+    xforms0 = obj0 ^. base . transforms :: [M44 Double]
+    force'  = updateForce
+    accel'  = updateAccel (_mass obj0)     force'
+    vel'    = updateVel   (_velocity obj0) accel'
+    transforms' = updateXform xform0 xforms0 slvs0 vel'
+    result =
+      obj0
+      & base . transforms .~ transforms'
+
 updateObject obj0 = result
   where
     slvs' = updateSolvers $ obj0 ^. solvers
@@ -61,6 +94,7 @@ updateSolver slv0 =
   case slv0 of
       Translate anim cs pos vel      -> translate anim cs pos vel
       Rotate    anim cs pv0 ypr avel -> rotate    anim cs pv0 ypr avel
+      --Gravity   objids               -> 
       _ -> slv0
 
 translate :: Animation -> CoordSys -> V3 Double -> V3 Double -> Solver
@@ -114,11 +148,27 @@ extractTransform' mtx0 slv =
 ------------------------------
 -- Gravity Solver Prototype --
 ------------------------------
-gravitySolver :: SF [Object] [Object]
-gravitySolver =
+gravitySolverSF :: SF [Object] [Object]
+gravitySolverSF =
   proc objs0 -> do
     let objs = (gravitySolver' <$> decomp objs0) :: [Object]
     returnA -< objs
+
+-- (\n xs -> take (length xs) $ drop n $ cycle xs) 0 [0..3] -- rotate list
+--rotateList :: Int ->  [a] -> [a]
+--rotate = (take (length xs) $ drop n $ cycle)
+--rotateList n xs = take (length xs) . drop n $ cycle xs
+
+gravitySolver :: [Object] -> [Object]
+gravitySolver objs = objs'
+  where
+    objs'   = undefined :: [Object]-- objs >>= updateP :: [Object]
+    -- (co, os) = undefined :: (Object, [Object])
+    -- newP co os = undefined :: V3 Double -- new position
+    xs' = undefined :: [[Object]] -- a list of object list rotations
+    newPs xs = (\xs' -> newP (head xs') (tail xs')) <$>  xs' :: [Object]
+    newP x xs = undefined :: Object -- update current object's (pos, vel, accel, force) in relation to all other objs
+  --fmap (gravityForce co) os -- co - current object, os - objects
 
 decomp :: [a] -> [(a, [a])]
 decomp = fmap decomp' . rotatedLists
@@ -133,11 +183,11 @@ gravitySolver' :: (Object, [Object]) -> Object
 gravitySolver' (obj0, objs0) = obj
   where
     m0     =  _mass obj0                                   :: Double
-    xform0 = head $ obj0 ^. base . transforms             :: M44 Double
+    xform0 = head $ obj0 ^. base . transforms              :: M44 Double
     p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
                                                             
     ms'    = fmap _mass objs0                              :: [Double]
-    xforms = fmap (head . _transforms) $ _base <$> objs0  :: [M44 Double]
+    xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
     ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
 
     acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double

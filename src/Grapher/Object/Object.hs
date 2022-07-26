@@ -50,6 +50,16 @@ data Object
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]
+     }
+  |  RBD
+     {
+       _base        :: Object'
+     , _nameP       :: String
+     , _velocity    :: V3 Double
+     , _avelocity   :: V3 Double    -- | Angular velocity
+     , _mass        :: Double
+     , _density     :: Double
+     , _solvers     :: [Solver]
      } 
   |  Sprite
      {

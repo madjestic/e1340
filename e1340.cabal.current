@@ -326,10 +326,15 @@ executable ProjectViewer
               , Object.Object
               , Object.Update
               , Solvable
-              , Projects.Test
               , GUI
               , GUI.GUI
               , GUI.Update
+              , Projects.Test
+              , Projects.Body3
+              , Projects.Graph
+              , Projects.InfoEarth
+              , Projects.SolarSystem
+              , Projects.Test
               , Debug
               
   default-language:
@@ -410,6 +415,7 @@ executable genProject
               , Projects.SolarSystem
               , Projects.InfoEarth
               , Projects.Graph
+              , Projects.Body3
 
   default-language:
                 Haskell2010
