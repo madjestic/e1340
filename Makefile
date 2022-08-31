@@ -132,9 +132,10 @@ body3:
 	./resources/convertGeo.sh body_0
 	./resources/convertGeo.sh body_1
 	./resources/convertGeo.sh body_2
-	# cabal clean
-	cabal build exe:ProjectViewer
-	cabal build exe:genProject
+	#cabal clean
+	#cabal build exe:ProjectViewer
+	#cabal build exe:genProject
+
 	cabal run exe:genProject -- ./projects/body3
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/body3
 

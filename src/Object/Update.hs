@@ -40,14 +40,14 @@ updateObjects' :: SF [Object] [Object]
 updateObjects' =
   proc objs -> do
     let
-      objs' = updateObject <$> objs
+      objs' = (updateObject objs) <$> objs
     returnA -< objs'
 
 updateXform :: M44 Double -> [M44 Double] -> [Solver] -> V3 Double -> [M44 Double]
 updateXform xform0 xforms0 slvs0 v0 = transforms'
   where
     mtx0 = extractTransform xform0 slvs0 :: M44 Double
-    mtx1 = mtx0 & translation .~ ((mtx0^. translation) + v0)   
+    mtx1 = mtx0 & translation .~ ((mtx0^. translation) + v0)
     transforms' = fmap (flip (!*!) mtx1) xforms0 :: [M44 Double]
 
 updateVel :: V3 Double -> V3 Double -> V3 Double
@@ -56,27 +56,42 @@ updateVel v0 a0 = v0 + a0
 updateAccel :: Double -> V3 Double -> V3 Double
 updateAccel m0 f0 = f0^/m0
 
-updateForce :: V3 Double
-updateForce  = V3 0 (-0.1) 0
+remove :: Object -> [Object] -> [Object]
+remove _ [] = []
+remove x (y:[]) =
+  if x == y then [] else y:[]
+remove x (y:ys) =
+  if x == y then remove x ys else y : remove x ys
 
--- updateObject' :: Object' -> Object'
--- updateObject' = undefined
+updateGForce :: Object -> [Object] -> V3 Double
+updateGForce obj0 objs0 = acc * 99999999
+--updateGForce obj0 objs0 = V3 0 (-0.1) 0 -- debug
+  where
+    m0     =  _mass obj0                                   :: Double
+    xform0 = head $ obj0 ^. base . transforms              :: M44 Double
+    p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
+    xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
+    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
+    ms'    = fmap _mass objs0                              :: [Double]
+    acc    = sum $ fmap (gravity p0 m0) (zip ps' ms')      :: V3 Double
 
-updateObject :: Object -> Object
-updateObject obj0@(RBD {}) = result
+updateObject :: [Object] -> Object -> Object
+updateObject objs obj0@(RBD {}) = result
   where
     slvs0   = updateSolvers $ obj0 ^. solvers :: [Solver]
     xform0  = obj0 ^. base . transform0 :: M44 Double
     xforms0 = obj0 ^. base . transforms :: [M44 Double]
-    force'  = updateForce
+    force'  = updateGForce obj0 (remove obj0 objs)
     accel'  = updateAccel (_mass obj0)     force'
     vel'    = updateVel   (_velocity obj0) accel'
+    --vel' = V3 0 0 0
     transforms' = updateXform xform0 xforms0 slvs0 vel'
     result =
       obj0
       & base . transforms .~ transforms'
+      & velocity          .~ vel'
 
-updateObject obj0 = result
+updateObject _ obj0 = result
   where
     slvs' = updateSolvers $ obj0 ^. solvers
     mtx0  = obj0 ^. base . transform0 :: M44 Double

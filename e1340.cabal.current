@@ -48,7 +48,7 @@ library
               , store
               , text                
               , uuid                
-              , vector
+              , vector < 0.13
               , Yampa
   exposed-modules:
               Graphics.RedViz.LoadShaders
@@ -104,7 +104,7 @@ executable Grapher
                 , locators                               
                 , massiv              
                 , random              
-                , vector
+                , vector < 0.13
                 , GLUT
                 , GLUtil
                 , OpenGL
@@ -194,7 +194,7 @@ executable e1340
                , Yampa             
                , simple-affine-space 
                , sort                
-               , vector              
+               , vector < 0.13              
                , uuid                
 
   other-modules:
@@ -280,7 +280,7 @@ executable ProjectViewer
                , Yampa             
                , simple-affine-space 
                , sort                
-               , vector              
+               , vector < 0.13              
                , uuid                
 
   other-modules:
@@ -365,7 +365,7 @@ executable genMaterial
               , split               
               , text                
               , uuid                
-              , vector                         
+              , vector < 0.13                         
 
   other-modules:
                 Paths_e1340
@@ -401,7 +401,7 @@ executable genProject
               , text                
               , sort                
               , uuid                
-              , vector
+              , vector < 0.13
               , split
 
   other-modules:
@@ -444,7 +444,7 @@ executable genUUID
               , text                
               , uuid                
               , random              
-              , vector              
+              , vector < 0.13              
               
   other-modules:
                 Paths_e1340
@@ -486,7 +486,7 @@ executable geoIndexer
               , time-compat          
               , time                 
               , uuid                 
-              , vector               
+              , vector < 0.13               
               
   other-modules:
                 Paths_e1340
@@ -525,7 +525,7 @@ executable rpcShuffler
               , simple-affine-space  
               , linear               
               , massiv               
-              , vector               
+              , vector < 0.13               
               , uuid                 
               
   other-modules:

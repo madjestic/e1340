@@ -38,6 +38,9 @@ import Graphics.RedViz.Object
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
 
+instance Eq Object where
+  (==) obj0 obj1 = (_nameP obj0 == _nameP obj1)
+
 data Object
   =  Empty
      {

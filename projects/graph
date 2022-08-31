@@ -22,7 +22,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "sprite",
-            "uuid": "91bdecac-4722-48d1-84a7-d43abbb3102f"
+            "uuid": "b09fdd7a-579b-4036-a492-9461c40e39f7"
         },
         {
             "pname": "gizmo",
@@ -34,7 +34,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "f8992c2d-2b8f-4a0b-b7df-118041c7522a"
+            "uuid": "d3663cfc-dd51-47a2-900f-aee0b97376c3"
         }
     ],
     "background": [],

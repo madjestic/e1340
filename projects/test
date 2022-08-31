@@ -36,7 +36,7 @@
             "presolvers": [],
             "presolverAttrs": [],
             "ptype": "planet",
-            "uuid": "bbd30101-aa85-4ec6-af5c-ca7b0ce60c33"
+            "uuid": "51330fa2-839e-42b6-89aa-d8f06218fcfb"
         }
     ],
     "background": [],
@@ -294,6 +294,9 @@
             },
             {
                 "path": "models/fnt_Z.bgeo"
+            },
+            {
+                "path": "models/fnt_LT.bgeo"
             }
         ],
         "icons": [
