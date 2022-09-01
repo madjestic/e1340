@@ -11,7 +11,6 @@ import FRP.Yampa
 import Linear.Matrix   as LM
 import Linear.V3       as LV3
 import Linear.V4
---import Linear.Vector
 import Linear.Quaternion hiding (rotate)
 
 import Graphics.RedViz.Utils
@@ -64,10 +63,11 @@ remove x (y:ys) =
   if x == y then remove x ys else y : remove x ys
 
 updateGForce :: Object -> [Object] -> V3 Double
-updateGForce obj0 objs0 = acc * 99999999
---updateGForce obj0 objs0 = V3 0 (-0.1) 0 -- debug
+updateGForce _ [] = V3 0 0 0
+updateGForce obj0 objs0 = acc * 99999
   where
-    m0     =  _mass obj0                                   :: Double
+    --m0     =  _mass obj0                                   :: Double
+    m0     =  (DT.trace (show $ _mass obj0)_mass obj0)                                    :: Double
     xform0 = head $ obj0 ^. base . transforms              :: M44 Double
     p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
     xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
@@ -81,10 +81,10 @@ updateObject objs obj0@(RBD {}) = result
     slvs0   = updateSolvers $ obj0 ^. solvers :: [Solver]
     xform0  = obj0 ^. base . transform0 :: M44 Double
     xforms0 = obj0 ^. base . transforms :: [M44 Double]
-    force'  = updateGForce obj0 (remove obj0 objs)
+    gforce  = updateGForce obj0 (remove obj0 objs)
+    force'  = gforce -- + other forces
     accel'  = updateAccel (_mass obj0)     force'
     vel'    = updateVel   (_velocity obj0) accel'
-    --vel' = V3 0 0 0
     transforms' = updateXform xform0 xforms0 slvs0 vel'
     result =
       obj0
@@ -160,72 +160,6 @@ extractTransform' mtx0 slv =
     
     _ -> (LM.identity :: M44 Double)
 
-------------------------------
--- Gravity Solver Prototype --
-------------------------------
-gravitySolverSF :: SF [Object] [Object]
-gravitySolverSF =
-  proc objs0 -> do
-    let objs = (gravitySolver' <$> decomp objs0) :: [Object]
-    returnA -< objs
-
--- (\n xs -> take (length xs) $ drop n $ cycle xs) 0 [0..3] -- rotate list
---rotateList :: Int ->  [a] -> [a]
---rotate = (take (length xs) $ drop n $ cycle)
---rotateList n xs = take (length xs) . drop n $ cycle xs
-
-gravitySolver :: [Object] -> [Object]
-gravitySolver objs = objs'
-  where
-    objs'   = undefined :: [Object]-- objs >>= updateP :: [Object]
-    -- (co, os) = undefined :: (Object, [Object])
-    -- newP co os = undefined :: V3 Double -- new position
-    xs' = undefined :: [[Object]] -- a list of object list rotations
-    newPs xs = (\xs' -> newP (head xs') (tail xs')) <$>  xs' :: [Object]
-    newP x xs = undefined :: Object -- update current object's (pos, vel, accel, force) in relation to all other objs
-  --fmap (gravityForce co) os -- co - current object, os - objects
-
-decomp :: [a] -> [(a, [a])]
-decomp = fmap decomp' . rotatedLists
-
-decomp' :: [a] -> (a, [a])
-decomp' xs = (head (take 1 xs), drop 1 xs)
-
-rotatedLists :: [a] -> [[a]]
-rotatedLists xs = rotateList' <$> DLI.indexed (replicate (length xs) xs)
-
-gravitySolver' :: (Object, [Object]) -> Object
-gravitySolver' (obj0, objs0) = obj
-  where
-    m0     =  _mass obj0                                   :: Double
-    xform0 = head $ obj0 ^. base . transforms              :: M44 Double
-    p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
-                                                            
-    ms'    = fmap _mass objs0                              :: [Double]
-    xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
-    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
-
-    acc = sum $ fmap (gravity p0 m0) (zip ps' ms') :: V3 Double
-    -- acc = sum $ fmap (gravity (DT.trace ("p0 :" ++ show p0) p0)
-    --                           (DT.trace ("m0 :" ++ show m0 ++ "\n") m0)) (zip (DT.trace ("\n\n ps :" ++ show ps) ps)
-    --                                                                   (DT.trace ("ms :" ++ show ms) ms)) :: V3 Double
-
-    s    = 100000000.0*1.0
-    s1   = 0.0
-
-    vel'= _velocity obj0*s1 + (acc*s)     :: V3 Double
-    mtx =
-      mkTransformationMat
-      rot
-      tr
-      where
-        rot = view _m33 xform0
-        tr  = vel'+ p0
-
-    obj = obj0
-          & base . transforms .~ [mtx]
-          & velocity .~ vel'
-
 g :: Double
 g = 6.673**(-11.0) :: Double
 
@@ -235,6 +169,6 @@ gravity p0 m0 (p1, m1) = acc
     dir  = p1 ^-^ p0                 :: V3 Double
     dist = norm dir                  :: Double
     f    = g * m0 * m1 / dist**2.0   :: Double
-    acc  = (f / m1) *^ (dir ^/ dist) :: V3 Double
+    acc  = (f / m0) *^ (dir ^/ dist) :: V3 Double
 -- | F = G*@mass*m2/(dist^2);       // Newton's gravity equation
 -- | a += (F/@mass)*normalize(dir); // Acceleration

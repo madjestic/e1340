@@ -25,7 +25,15 @@ import Graphics.RedViz.Project as P       hiding (_solvers)
 import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
-import Graphics.RedViz.PGeo (readBGeo, fromVGeo, fromSVGeo, VGeo(..), SVGeo(..), smp, sxf, svl)
+import Graphics.RedViz.PGeo ( readBGeo
+                            , fromVGeo
+                            , fromSVGeo
+                            , VGeo(..)
+                            , SVGeo(..)
+                            , smp
+                            , sxf
+                            , svl
+                            , sms )
 import Graphics.RedViz.Utils as U
 import Graphics.RedViz.Object as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
@@ -139,9 +147,10 @@ fromPreObject prj0 cls pObj0 = do
             foldPretransformers (mtx0, _ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, _ypr0) ss)
   
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
-    velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?
+    velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
     avelocity'   = V3 0 0 0 :: V3 Double
-    mass'        = 1.0 :: Double
+    ms           = toListOf (traverse . sms) svgeos' :: [Float]
+    mass'        = (float2Double (head ms)) --1.0 :: Double
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
 
