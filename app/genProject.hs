@@ -13,6 +13,7 @@ import Projects.SolarSystem
 import Projects.InfoEarth
 import Projects.Graph
 import Projects.Body3
+import Projects.PlanetSputnik
 
 -- import Debug.Trace as DT
 
@@ -25,18 +26,19 @@ import Projects.Body3
 main :: IO ()
 main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   case projectName of
-  "testred"     -> Project.write Projects.Test.projectTestRed     filePath
-  "testgreen"   -> Project.write Projects.Test.projectTestGreen   filePath 
-  "testblue"    -> Project.write Projects.Test.projectTestBlue    filePath 
-  "testchecker" -> Project.write Projects.Test.projectTestChecker filePath
+  "testred"       -> Project.write Projects.Test.projectTestRed     filePath
+  "testgreen"     -> Project.write Projects.Test.projectTestGreen   filePath 
+  "testblue"      -> Project.write Projects.Test.projectTestBlue    filePath 
+  "testchecker"   -> Project.write Projects.Test.projectTestChecker filePath
   "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
-  "solarsystem" -> Project.write Projects.SolarSystem.project     filePath
---  "infoearth"   -> Project.write Projects.InfoEarth.project       filePath
-  "test"        -> Project.write Projects.Test.project            filePath
-  "graph"       -> Project.write Projects.Graph.project           filePath
-  "options"     -> Project.write Projects.Test.options            filePath
-  "body3"       -> Project.write Projects.Body3.project           filePath
-  _ -> Project.write Projects.Test.project                        filePath
+  "solarsystem"   -> Project.write Projects.SolarSystem.project     filePath
+--  "infoearth"     -> Project.write Projects.InfoEarth.project       filePath
+  "test"          -> Project.write Projects.Test.project            filePath
+  "graph"         -> Project.write Projects.Graph.project           filePath
+  "options"       -> Project.write Projects.Test.options            filePath
+  "body3"         -> Project.write Projects.Body3.project           filePath
+  "planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
+  _ -> Project.write Projects.Test.project                          filePath
                                    
 splitter :: String -> IO (String, String)
 splitter fs = return (last $ splitOn "/" fs, fs )

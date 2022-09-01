@@ -335,6 +335,7 @@ executable ProjectViewer
               , Projects.InfoEarth
               , Projects.SolarSystem
               , Projects.Test
+              , Projects.PlanetSputnik
               , Debug
               
   default-language:
@@ -416,6 +417,7 @@ executable genProject
               , Projects.InfoEarth
               , Projects.Graph
               , Projects.Body3
+              , Projects.PlanetSputnik
 
   default-language:
                 Haskell2010

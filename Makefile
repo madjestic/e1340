@@ -139,6 +139,16 @@ body3:
 	cabal run exe:genProject -- ./projects/body3
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/body3
 
+planetsputnik:
+	./resources/convertGeo.sh planet_0
+	./resources/convertGeo.sh sputnik
+	#cabal clean
+	#cabal build exe:ProjectViewer
+	#cabal build exe:genProject
+
+	cabal run exe:genProject -- ./projects/planetsputnik
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/planetsputnik
+
 newtest:
 	cabal build exe:e1340
 	cabal run exe:genProject -- ./projects/newtest
