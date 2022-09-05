@@ -26,6 +26,7 @@ import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
+                            , readPGeo
                             , fromVGeo
                             , fromSVGeo
                             , VGeo(..)
@@ -125,10 +126,10 @@ fromPreObject prj0 cls pObj0 = do
 
     preattrsF    = case presolverAttrs' of
                      [] -> [[]]
-                     _  -> presolverAttrs'  :: [[Double]]
+                     _  -> presolverAttrs'    :: [[Double]]
     attrsF       = case solverAttrs' of
                      [] -> [[]]
-                     _  -> solverAttrs'  :: [[Double]]
+                     _  -> solverAttrs'       :: [[Double]]
 
     presolvers''  = toSolver <$> zip presolversF preattrsF :: [Solver]                     
     solvers''     = toSolver <$> zip solversF    attrsF    :: [Solver]
@@ -148,9 +149,11 @@ fromPreObject prj0 cls pObj0 = do
   
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
+    --velocity'    = V3 0 0 0 -- toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
     avelocity'   = V3 0 0 0 :: V3 Double
     ms           = toListOf (traverse . sms) svgeos' :: [Float]
     mass'        = (float2Double (head ms)) --1.0 :: Double
+    --mass'        = 1.0 :: Double
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
 
@@ -163,6 +166,7 @@ fromPreObject prj0 cls pObj0 = do
        programs'
        transforms'
        (head transforms')
+       --(identity :: M44 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -171,19 +175,19 @@ fromPreObject prj0 cls pObj0 = do
         "planet" -> return $
           Planet
           {
-           _base = 
-              ( Object'
-                {
-                 _descriptors = ds'
-                ,_materials   = materials'
-                ,_programs    = programs'
-                ,_transforms  = transforms'
-                ,_transform0  = (head transforms')
-                ,_ypr0        = (sum ypr')
-                ,_ypr         = (V3 0 0 0 :: V3 Double)
-                ,_time        = time'
-                }
-              )
+            _base = 
+            ( Object'
+              {
+               _descriptors = ds'
+              ,_materials   = materials'
+              ,_programs    = programs'
+              ,_transforms  = transforms'
+              ,_transform0  = (head transforms')
+              ,_ypr0        = (sum ypr')
+              ,_ypr         = (V3 0 0 0 :: V3 Double)
+              ,_time        = time'
+              }
+            )
           ,_nameP     = name'
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
@@ -250,7 +254,7 @@ initIconObjects prj0 = do
                
 initObject' :: VGeo -> IO Object
 initObject' vgeo = do
-  let (VGeo is_ st_ vs_ _ _ _ xf_) = vgeo
+  let (VGeo is_ st_ vs_ _ _ _ _ xf_) = vgeo
       vaoArgs       = (,,) <$.> is_ <*.> st_ <*.> vs_
       preTransforms = U.fromList <$> xf_
       
@@ -282,6 +286,7 @@ toVGeo prj0 pObj0 = do
     modelSet    = toListOf (models . traverse . Model.path) prj0 :: [String]
     modelPaths' = (modelSet!!) <$> view modelIDXs pObj0
     vgeos       = readBGeo <$> modelPaths'
+    --vgeos       = readPGeo <$> ["models/box.pgeo"]
   sequence vgeos
 
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])

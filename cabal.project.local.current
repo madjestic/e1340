@@ -1,4 +1,4 @@
-profiling:            False
-executable-profiling: False
-library-profiling:    False
-optimization:         2
+profiling:            True
+executable-profiling: True
+library-profiling:    True
+--optimization:         2

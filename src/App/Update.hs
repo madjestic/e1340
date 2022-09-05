@@ -125,6 +125,7 @@ updateMainApp app0 =
 
    (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
    objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
+   --let objs = (app0 ^. objects . foreground)
    gui'        <- updateGUIPre (app0 ^. gui)                              -< input
     
    --let selectable' = selectByDist (10.0 :: Double) cam objs

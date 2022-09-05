@@ -42,12 +42,21 @@ updateObjects' =
       objs' = (updateObject objs) <$> objs
     returnA -< objs'
 
-updateXform :: M44 Double -> [M44 Double] -> [Solver] -> V3 Double -> [M44 Double]
-updateXform xform0 xforms0 slvs0 v0 = transforms'
+updateXform :: M44 Double -> [M44 Double] -> [Solver] -> V3 Double -> V3 Double -> [M44 Double]
+updateXform xform0 xforms0 slvs0 v0 av0 = transforms'
   where
-    mtx0 = extractTransform xform0 slvs0 :: M44 Double
-    mtx1 = mtx0 & translation .~ ((mtx0^. translation) + v0)
+    mtx0 = extractTransform xform0 slvs0 :: M44 Double       -- static  solver matrices
+    -- TODO : move mtx1 to extractTransform
+    mtx1 = --mtx0 & translation .~ ((mtx0^. translation) + v0) -- dynamic simulation matrices
+      LM.mkTransformationMat rot tr
+      where
+        rot = LM.identity
+              !*! fromQuaternion (axisAngle (view _x (LM.identity)) (view _x av0)) -- yaw
+              !*! fromQuaternion (axisAngle (view _y (LM.identity)) (view _y av0)) -- pitch
+              !*! fromQuaternion (axisAngle (view _z (LM.identity)) (view _z av0)) -- roll
+        tr  = (mtx0^. translation) + v0 :: V3 Double
     transforms' = fmap (flip (!*!) mtx1) xforms0 :: [M44 Double]
+    --transforms' = [xform0]
 
 updateVel :: V3 Double -> V3 Double -> V3 Double
 updateVel v0 a0 = v0 + a0
@@ -66,8 +75,8 @@ updateGForce :: Object -> [Object] -> V3 Double
 updateGForce _ [] = V3 0 0 0
 updateGForce obj0 objs0 = acc * 99999
   where
-    --m0     =  _mass obj0                                   :: Double
-    m0     =  (DT.trace (show $ _mass obj0)_mass obj0)                                    :: Double
+    m0     =  _mass obj0                                   :: Double
+    --m0     =  (DT.trace (show $ _mass obj0)_mass obj0)                                    :: Double
     xform0 = head $ obj0 ^. base . transforms              :: M44 Double
     p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
     xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
@@ -79,13 +88,20 @@ updateObject :: [Object] -> Object -> Object
 updateObject objs obj0@(RBD {}) = result
   where
     slvs0   = updateSolvers $ obj0 ^. solvers :: [Solver]
+    
     xform0  = obj0 ^. base . transform0 :: M44 Double
     xforms0 = obj0 ^. base . transforms :: [M44 Double]
+    
     gforce  = updateGForce obj0 (remove obj0 objs)
     force'  = gforce -- + other forces
-    accel'  = updateAccel (_mass obj0)     force'
-    vel'    = updateVel   (_velocity obj0) accel'
-    transforms' = updateXform xform0 xforms0 slvs0 vel'
+    
+    accel'  = updateAccel (_mass obj0)      force'
+    vel'    = updateVel   (_velocity  obj0) accel'
+    
+    avel' = _avelocity obj0
+    
+    transforms' = updateXform xform0 xforms0 slvs0 vel' avel'
+    
     result =
       obj0
       & base . transforms .~ transforms'

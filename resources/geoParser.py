@@ -154,9 +154,10 @@ def parseJSON(jsonFile):
     ### Global Attributes
     globAttrs         = attrs ["globalattributes"]
     # print("globAttrs :", globAttrs)
-    glAttrM           = (toDict(toDict((globAttrs[0])[1])["values"])["arrays"])    
-    glAttrV           = (toDict(toDict((globAttrs[1])[1])["values"])["tuples"])    
-    glAttrXform       = (toDict(toDict((globAttrs[2])[1])["values"])["tuples"])
+    glAttrAV          = (toDict(toDict((globAttrs[0])[1])["values"])["tuples"])    
+    glAttrM           = (toDict(toDict((globAttrs[1])[1])["values"])["arrays"])    
+    glAttrV           = (toDict(toDict((globAttrs[2])[1])["values"])["tuples"])
+    glAttrXform       = (toDict(toDict((globAttrs[3])[1])["values"])["tuples"])
     # print("debug :", glAttrXform)      
 
     # DEBUG:
@@ -240,6 +241,9 @@ def parseJSON(jsonFile):
     data.update(jsonEntry)
 
     jsonEntry = {'v' : glAttrV}
+    data.update(jsonEntry)
+
+    jsonEntry = {'av' : glAttrAV}
     data.update(jsonEntry)
 
     jsonEntry = {'xform' : glAttrXform}

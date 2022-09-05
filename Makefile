@@ -103,6 +103,10 @@ fonts:
 	./resources/convertGeo.sh fnt_Z
 	./resources/convertGeo.sh fnt_crosshair
 
+ui:
+	make fonts
+	./resources/convertGeo.sh gizmo
+
 intro:
 	./resources/convertGeo.sh intro_square
 
@@ -142,11 +146,12 @@ body3:
 planetsputnik:
 	./resources/convertGeo.sh planet_0
 	./resources/convertGeo.sh sputnik
-	#cabal clean
-	#cabal build exe:ProjectViewer
-	#cabal build exe:genProject
-
-	cabal run exe:genProject -- ./projects/planetsputnik
+	# cabal clean
+	# cabal build exe:ProjectViewer
+	# cabal build exe:genProject
+	#  
+	# cabal run exe:genProject -- ./projects/planetsputnik
+	# cabal run exe:genUUID -- -p ./projects/planetsputnik
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/planetsputnik
 
 newtest:
@@ -211,6 +216,7 @@ infoearth:
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/infoearth
 
 test:
+	./resources/convertGeo.sh box
 	cabal build exe:genProject
 	cabal run exe:genProject -- ./projects/test
 	cabal run exe:genUUID -- -p ./projects/test

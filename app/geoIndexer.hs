@@ -13,7 +13,7 @@ import Options.Applicative
 
 import Graphics.RedViz.PGeo
 
---import Debug.Trace as DT
+import Debug.Trace as DT
 
 data GeoArgs =
   GeoArgs
@@ -49,45 +49,52 @@ formatTime' = take 8 . show . timeToTimeOfDay . utctDayTime
 formatTime'' :: UTCTime -> String
 formatTime'' = take 8 . drop 11 . show . (utcToLocalTime (TimeZone 60 False "AMS"))
 
-writeVGeo :: FilePath -> VGeo -> IO ()
-writeVGeo fileOut' vgeo =
-  do
-    --I.writeFile "../models/debug.vgeo"
-    I.writeFile fileOut'
-      (encodeToLazyText ( is vgeo
-                        , st vgeo
-                        , vs vgeo
-                        , ms vgeo
-                        , xf vgeo ))
+-- writeVGeo :: FilePath -> VGeo -> IO ()
+-- writeVGeo fileOut' vgeo =
+--   do
+--     --I.writeFile "../models/debug.vgeo"
+--     I.writeFile fileOut'
+--       (encodeToLazyText ( is vgeo
+--                         , st vgeo
+--                         , vs vgeo
+--                         , ms vgeo
+--                         , xf vgeo ))
 
 writeBGeo :: FilePath -> VGeo -> IO ()
 writeBGeo fileOut' vgeo =
   do
     -- print $ "writeBGeo.vgeo :" ++ show vgeo
-    BS.writeFile fileOut' $ encode $ ( is vgeo, st vgeo, vs vgeo, mts vgeo, ms vgeo, vls vgeo, xf vgeo )
+    --BS.writeFile fileOut' $ encode $ ( is vgeo, st vgeo, vs vgeo, mts vgeo, ms vgeo, vls vgeo, xf vgeo )
+    BS.writeFile fileOut' (encode vgeo)
 
 main :: IO ()
 main = do
   let
     opts = info (geoArgs <**> helper)
         ( fullDesc
-       <> progDesc "(optionaly) reduce repetitions in a pgeo and save as a bgeo"
-       <> header "(optionally) index (pgeo List -> bgeo Set)" )
+       <> progDesc "(optionally) reduce repetitions in a pgeo and save as a bgeo"
+       <> header   "(optionally) index (pgeo List -> bgeo Set)" )
   args <- execParser opts
   putStrLn $ "args :" ++ show args
 
   pgeo <- readPGeo (fileIn args)
-  -- print $ "geoIndexer.pgeo :" ++ show pgeo
+  --print $ "geoIndexer.pgeo :" ++ show pgeo
   putStrLn "running indexer..."
   let vgeo = fromPGeo pgeo
         -- if skip args 
         -- then fromPGeo  pgeo
         -- else fromPGeo' pgeo
-  -- _ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
+  --_ <- DT.trace ("geoIndexer.vgeo :" ++ show vgeo) $ return ()
   currentTime' <- getCurrentTime
   putStrLn $ "Finished converting PGeo: " ++ formatTime'' currentTime'
   
   writeBGeo (fileOut args) vgeo
   currentTime'' <- getCurrentTime
   putStrLn $ "Finished writing BGeo   : " ++ formatTime'' currentTime''
+  
+  -- let
+  --   vgeosDebug = readBGeo (fileOut args)
+  -- vgeosDebug' <- vgeosDebug
+  -- print $ "vgeosDebug : " ++ (show vgeosDebug')
   -- writeVGeo fileOut vgeo
+

@@ -107,8 +107,8 @@ preTransformer solver (mtx0, ypr0) = (mtx, ypr')
     (mtx, ypr') = case solver of
       PreTranslate cs offset -> preTranslate cs mtx0 ypr0 offset
       PreRotate    cs _ ypr1 -> preRotate cs mtx0 ypr0 ypr1
-      Identity                -> Solvable.identity' mtx0
-      _                       -> (mtx0, ypr0)
+      Identity               -> Solvable.identity' mtx0
+      _                      -> (mtx0, ypr0)
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx

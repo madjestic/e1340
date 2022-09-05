@@ -18,7 +18,7 @@ module Object.Object
   , ypr0
   , ypr
   , velocity
-  , force
+  --, force
   , mass
   , solvers
   , objectNames
@@ -53,7 +53,7 @@ data Object
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
      --, _impulse     :: V3 Double
-     , _force       :: V3 Double
+     --, _force       :: V3 Double
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]

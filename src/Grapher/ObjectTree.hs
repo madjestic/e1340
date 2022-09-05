@@ -212,7 +212,7 @@ initIconObjects prj0 = do
                
 initObject' :: VGeo -> IO Object
 initObject' vgeo = do
-  let (VGeo is_ st_ vs_ _ _ _ xf_) = vgeo
+  let (VGeo is_ st_ vs_ _ _ _ _ xf_) = vgeo
       vaoArgs       = (,,) <$.> is_ <*.> st_ <*.> vs_
       preTransforms = U.fromList <$> xf_
       

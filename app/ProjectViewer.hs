@@ -59,7 +59,7 @@ import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
-debug = False
+debug = True
 #else
 debug = False
 #endif
@@ -228,8 +228,9 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)   :: FilePath)  
+  --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/test" :: FilePath)
+               else          P.read (unsafeCoerce (args!!0)     :: FilePath)  
   let
     title   = pack $ view P.name mainProj
     resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt
