@@ -71,10 +71,9 @@ data Solver =
      {
        _models :: [FilePath]
      }
-  |  Gravity -- Force
-    {
-      _fxyz :: V3 Double
-    } deriving Show
+  |  Gravity
+  |  Spin
+  deriving Show
 $(makeLenses ''Solver)
 
 toSolver :: (String, [Double]) -> Solver
@@ -96,7 +95,8 @@ toSolver (solver, parms) =
     "translateconst"-> Translate    Static  WorldSpace  (toV3 parms) (toV3 parms)
     "rotateconst"   -> Rotate       Static  WorldSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
 --    "rotateconst"   -> RotateConst  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
---    "gravity"       -> Gravity      (double2Int <$> parms)
+    "gravity"       -> Gravity
+    "spin"          -> Spin
     "identity"      -> Identity
     _               -> Identity
 

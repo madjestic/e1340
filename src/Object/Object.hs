@@ -18,6 +18,7 @@ module Object.Object
   , ypr0
   , ypr
   , velocity
+  , avelocity
   --, force
   , mass
   , solvers

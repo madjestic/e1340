@@ -148,10 +148,10 @@ planetsputnik:
 	./resources/convertGeo.sh sputnik
 	# cabal clean
 	# cabal build exe:ProjectViewer
-	# cabal build exe:genProject
+	cabal build exe:genProject
 	#  
-	# cabal run exe:genProject -- ./projects/planetsputnik
-	# cabal run exe:genUUID -- -p ./projects/planetsputnik
+	cabal run exe:genProject -- ./projects/planetsputnik
+	cabal run exe:genUUID -- -p ./projects/planetsputnik
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/planetsputnik
 
 newtest:

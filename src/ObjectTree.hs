@@ -34,6 +34,7 @@ import Graphics.RedViz.PGeo ( readBGeo
                             , smp
                             , sxf
                             , svl
+                            , savl
                             , sms )
 import Graphics.RedViz.Utils as U
 import Graphics.RedViz.Object as Obj
@@ -149,8 +150,10 @@ fromPreObject prj0 cls pObj0 = do
   
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
+    avels        = toListOf (traverse . savl) svgeos' :: [[Float]]
+    avelocity'   = toV3 (fmap float2Double (head avels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
     --velocity'    = V3 0 0 0 -- toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
-    avelocity'   = V3 0 0 0 :: V3 Double
+    --avelocity'   = V3 0 0 0 :: V3 Double
     ms           = toListOf (traverse . sms) svgeos' :: [Float]
     mass'        = (float2Double (head ms)) --1.0 :: Double
     --mass'        = 1.0 :: Double
