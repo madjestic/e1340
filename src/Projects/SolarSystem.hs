@@ -141,44 +141,49 @@ project :: Project
 project =
   Project
   "Solar System"
-  -- 1280
-  -- 800
-  640
-  400
+  1280
+  800
+  -- 640
+  -- 400
   -- "AbsoluteLocation"
   "RelativeLocation"
   [
-    Model "models/stars.bgeo"
-  , Model "models/star_sector_01.bgeo"
-  , Model "models/star_sector_02.bgeo"
-  , Model "models/star_sector_03.bgeo"
-  , Model "models/star_sector_04.bgeo"
-  , Model "models/star_sector_05.bgeo"
-  , Model "models/star_sector_06.bgeo"
-  , Model "models/star_sector_07.bgeo"
-  , Model "models/star_sector_08.bgeo"
-  , Model "models/star_sector_09.bgeo"
-  , Model "models/sun.bgeo"
-  , Model "models/mercury.bgeo"
-  , Model "models/venus.bgeo"
+  --   Model "models/stars.bgeo"
+  -- , Model "models/star_sector_01.bgeo"
+  -- , Model "models/star_sector_02.bgeo"
+  -- , Model "models/star_sector_03.bgeo"
+  -- , Model "models/star_sector_04.bgeo"
+  -- , Model "models/star_sector_05.bgeo"
+  -- , Model "models/star_sector_06.bgeo"
+  -- , Model "models/star_sector_07.bgeo"
+  -- , Model "models/star_sector_08.bgeo"
+  -- , Model "models/star_sector_09.bgeo"
+    Model "models/sun.bgeo"
+  -- , Model "models/mercury.bgeo"
+  -- , Model "models/venus.bgeo"
   , Model "models/earth.bgeo"
-  , Model "models/moon.bgeo"
-  , Model "models/mars.bgeo"
-  , Model "models/jupiter.bgeo"
+  -- , Model "models/moon.bgeo"
+  -- , Model "models/mars.bgeo"
+  -- , Model "models/jupiter.bgeo"
   , Model "models/gizmo.bgeo"
   ]
+  -- [
+  --   sun     [10]
+  -- , mercury [11]
+  -- , venus   [12]
+  -- , earth   [13]
+  -- , moon    [14]
+  -- , mars    [15]
+  -- , jupiter [16]
+  -- , gizmo   [17]
+  -- ]
   [
-    sun     [10]
-  , mercury [11]
-  , venus   [12]
-  , earth   [13]
-  , moon    [14]
-  , mars    [15]
-  , jupiter [16]
-  , gizmo   [17]
+    sun     [0]
+  , earth   [1]
+  , gizmo   [2]
   ]
   [
-    stars [0..9]
+    -- stars [0..9]
   ]
   gui
   [

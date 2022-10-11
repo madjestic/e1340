@@ -14,10 +14,10 @@ project :: Project
 project =
   Project
   "Test Project"
-  -- 1280
-  -- 800
-  640
-  400
+  1280
+  800
+  -- 640
+  -- 400
   "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
   [ (PreObject
@@ -28,6 +28,46 @@ project =
     []
     []
     ["rotate", "translate"]
+    [[0,0,0,0,0,0.01]
+    ,[0.01,0,0]]
+    )
+  ]
+  []
+  gui
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-11,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
+  ]
+
+test2 :: Project
+test2 =
+  Project
+  "Test Project"
+  1280
+  800
+  -- 640
+  -- 400
+  "AbsoluteLocation"
+  [
+    (Model   "models/earth.bgeo")
+  ]
+  [ (PreObject
+    "box"
+    "planet"
+    nil
+    [0]
+    []
+    []
+    --["rotate", "translate"]
+    []
     [[0,0,0,0,0,0.01]
     ,[0.01,0,0]]
     )

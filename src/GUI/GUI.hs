@@ -85,8 +85,8 @@ introGUI res =
   , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
-    TextField True ["XXII"]
-    (Format TC (-0.16) (-0.2) 0.0 0.12 2.0)
+    TextField True ["PARAYA"]
+    (Format TC (-0.19) (-0.2) 0.0 0.08 1.1)
   , _a_space_oddysey =
     TextField True ["a space odyssey"]
     (Format TC (-0.2) (-0.25) 0.0 0.03 0.5)

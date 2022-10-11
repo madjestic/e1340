@@ -161,14 +161,16 @@ newtest:
 	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
 solarsystem:
+	#./resources/convertGeo.sh sun
+	./resources/convertGeo.sh earth
 	cabal build exe:e1340
-	#cabal buildo
-	#cabal run exe:genProject -- ./projects/solarsystem
-	#cabal run exe:genUUID -- -p ./projects/solarsystem
-	#cabal run exe:genProject -- ./projects/options 	
-	#cabal run exe:genUUID -- -p ./projects/options 	
-	#cabal run exe:genProject -- ./projects/infoearth
-	#cabal run exe:genUUID -- -p ./projects/infoearth
+	cabal build
+	cabal run exe:genProject -- ./projects/solarsystem
+	cabal run exe:genUUID -- -p ./projects/solarsystem
+	cabal run exe:genProject -- ./projects/options 	
+	cabal run exe:genUUID -- -p ./projects/options 	
+	cabal run exe:genProject -- ./projects/infoearth
+	cabal run exe:genUUID -- -p ./projects/infoearth
 
 	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
 
@@ -223,14 +225,23 @@ test:
 	cabal build exe:e1340
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/test
 
+test2:
+	./resources/convertGeo.sh earth
+	cabal build exe:genProject
+	cabal run exe:genProject -- ./projects/test2
+	cabal run exe:genUUID -- -p ./projects/test2
+	cabal build exe:e1340
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/test2
+
 options:
-	cabal clean
-	cabal build
+	#cabal clean
+	#cabal build
 	#cabal build exe:genProject
 	cabal run exe:genProject -- ./projects/options 	
 	cabal run exe:genUUID -- -p ./projects/options 	
 	#cabal build exe:e1340
-	cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options
+	#cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/options
 
 grapher:
 	# cabal clean
@@ -243,9 +254,9 @@ grapher:
 
 projectviewer:
 	cabal build exe:ProjectViewer
-	#cabal build
-	#cabal run exe:genProject -- ./projects/solarsystem
-	#cabal run exe:genUUID -- -p ./projects/solarsystem
+	cabal build
+	cabal run exe:genProject -- ./projects/solarsystem
+	cabal run exe:genUUID -- -p ./projects/solarsystem
 	#cabal run exe:genProject -- ./projects/options 	
 	#cabal run exe:genUUID -- -p ./projects/options 	
 	#cabal run exe:genProject -- ./projects/infoearth

@@ -1,4 +1,4 @@
-module Projects.Body3 where
+module Projects.PlanetSputnik where
 
 import Data.UUID
 
@@ -13,54 +13,44 @@ gui =
 project :: Project
 project =
   Project
-  "3 Body Problem"
+  "Planet with Sputnik"
   -- 1280
   -- 800
   640
   400
   "AbsoluteLocation"
-  [ (Model   "models/body_0.bgeo")
-  , (Model   "models/body_1.bgeo")
-  , (Model   "models/body_2.bgeo")
+  [ (Model   "models/planet_0.bgeo")
+  , (Model   "models/sputnik.bgeo")
   ]
   [ (PreObject
-    "red"
+    "planet"
     "rbd"
     nil
     [0]
     []
     []
-    --["rotate", "translate"]
+    []
+    []
+    -- ["rotate", "translate"]
     -- [[0,0,0,0,0,1000]
     -- ,[1000,0,0]]
-    ["gravity"]
-    [[1,2]]
+    -- ["gravity"]
+    -- [[1,2]]
     )
   , (PreObject
-    "blue"
+    "sputnik"
     "rbd"
     nil
     [1]
     []
     []
-    --["rotate", "translate"]
+    -- ["rotate", "translate"]
     -- [[0,0,0,0,0,1000]
     -- ,[1000,0,0]]
-    ["gravity"]
-    [[0,2]]
-    )
-  , (PreObject
-    "green"
-    "rbd"
-    nil
-    [2]
-    []
-    []
-    --["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
-    ["gravity"]
-    [[0,1]]
+    -- ["rotate","gravity"]
+    -- [[0,0,0,0,0,-0.01],[]]
+    ["rotate"]
+    [[0,0,0,0,0,-0.01]]
     )
   ]
   []
@@ -82,4 +72,4 @@ emptyGUI :: GUI'
 emptyGUI =
   GUI'
   []
-  []--defaultFonts
+  []
