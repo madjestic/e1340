@@ -101,7 +101,7 @@ solveDynamic objs0 obj0 slv =
     Spin -> obj1
       where
         mtx0   = obj0 ^. base . transform0
-        ypr0 = V3 0 0 (-0.01)
+        ypr0 = V3 0 0 (-0.035)
         
         mtx1 =
           mkTransformationMat
@@ -141,16 +141,7 @@ solveDynamic objs0 obj0 slv =
         vel0 = _velocity obj0
         vel1 = gvel obj0 (remove obj0 objs0)
         vel  = vel0 + vel1
-        
-        mtx1 = 
-          mkTransformationMat
-          rot
-          tr
-          where
-            tr  = vel :: V3 Double
-            rot = LM.identity
-
-        mtx  = mtx0 !*! mtx1            
+        mtx  = mtx0 & translation .~ (mtx0 ^. translation + vel)
 
         obj1 =
           obj0
