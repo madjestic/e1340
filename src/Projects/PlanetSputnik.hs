@@ -14,43 +14,51 @@ project :: Project
 project =
   Project
   "Planet with Sputnik"
-  -- 1280
-  -- 800
-  640
-  400
+  1280
+  800
+  -- 640
+  -- 400
   "AbsoluteLocation"
   [ (Model   "models/planet_0.bgeo")
   , (Model   "models/sputnik.bgeo")
   ]
-  [ (PreObject
-    "planet"
-    "rbd"
-    nil
-    [0]
-    []
-    []
-    []
-    []
-    -- ["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
-    -- ["gravity"]
-    -- [[1,2]]
-    )
-  , (PreObject
+  [
+    -- (PreObject
+    -- "planet"
+    -- "rbd"
+    -- nil
+    -- [0]
+    -- []
+    -- []
+    -- []
+    -- []
+    -- -- ["rotate", "translate"]
+    -- -- [[0,0,0,0,0,1000]
+    -- -- ,[1000,0,0]]
+    -- -- ["gravity"]
+    -- -- [[1,2]]
+    -- )
+    (PreObject
     "sputnik"
     "rbd"
     nil
     [1]
     []
     []
-    -- ["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
+    [
+      "translateconst"
+--    , "translate"      
+    , "rotate"
+    ]
+    [
+      [0,3,0]
+--    , [0,-0.01,0]     
+    , [0,0,0,0,0,0.01]
+    ]
     -- ["rotate","gravity"]
     -- [[0,0,0,0,0,-0.01],[]]
-    ["rotate"]
-    [[0,0,0,0,0,-0.01]]
+    -- ["rotate'"]
+    -- [[-5,0,0,0,0,-0.01]]
     )
   ]
   []

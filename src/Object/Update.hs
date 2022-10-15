@@ -2,6 +2,7 @@
 
 module Object.Update
   ( updateObjectsPre
+  , updateObjectStatic
   ) where
 
 import Control.Lens    hiding (transform)
@@ -65,28 +66,178 @@ gvel obj0 objs0 = acc * 99999
 updateObject :: [Object] -> Object -> Object
 updateObject objs0 obj0 = obj1
   where
-    slvs = obj0 ^. solvers
-    sbls = fmap (extractTransform objs0 obj0) slvs :: [Solvable]
-    (mtx, vel)  = foldl1 productSolvable sbls :: (M44 Double, V3 Double)
-    transforms' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
+    slvs = obj0 ^. solvers :: [Solver]
+    obj1 = foldl (solveDynamic objs0) obj0 slvs
+
+updateObjectStatic :: Object -> Object
+updateObjectStatic obj0 = obj1
+  where
+    slvs = obj0 ^. solvers :: [Solver]
+    obj1 = foldl solveStatic obj0 slvs
+
+solve :: [Object] -> Object -> Solver -> Object
+solve objs0 obj0 slv0 = obj1
+  where
+    (mtx, vel) = extractTransform objs0 obj0 slv0
+    trxs' = fmap (!*! mtx) (obj0 ^. base . transforms):: [M44 Double]
+    
     obj1 =
       obj0
-      & base . transforms .~ transforms'
+      & base . transforms .~ trxs'
       & velocity          .~ vel
-
-productSolvable :: Solvable -> Solvable -> Solvable
-productSolvable slbl0 slbl1 = (mtx, vel)
-  where
-    (mtx0, vel0) = slbl0
-    (mtx1, vel1) = slbl1
-    mtx = mtx0 !*! mtx1 :: M44 Double
-    vel = vel0 + vel1   :: V3 Double
 
 type Solvable = (M44 Double, V3 Double)
 
+solveStatic :: Object -> Solver -> Object
+solveStatic obj0 slv =
+  case slv of
+    Translate Static WorldSpace txyz _ -> obj1
+      where
+        mtx0   = obj0 ^. base . transform0
+        mtx1   = (LM.identity :: M44 Double) & translation .~ txyz
+        mtx    = mtx0 !*! mtx1
+        trxs'  = (!*!) mtx <$> (obj0 ^. base . transforms):: [M44 Double]
+        obj1 =
+          obj0
+          & base . transform0 .~ mtx
+          & base . transforms .~ trxs'
+    _ -> obj0
+
+solveDynamic :: [Object] -> Object -> Solver -> Object
+solveDynamic objs0 obj0 slv =
+  case slv of
+    Translate Dynamic WorldSpace txyz _ -> obj1
+      where
+        mtx0   = obj0 ^. base . transform0
+        mtx1   = (LM.identity :: M44 Double) & translation .~ txyz
+        mtx    = mtx0 !*! mtx1
+        trxs   = obj0 ^. base . transforms
+        obj1 =
+          obj0
+          & base . transform0 .~ mtx
+          & base . transforms .~ replicate (length trxs) mtx
+
+    Spin -> obj1
+      where
+        ypr0 = V3 0 0 0.01
+        mtx1 =
+          mkTransformationMat
+            rot
+            tr
+            where
+              tr   = V3 0 0 0
+              rot0 = LM.identity :: M33 Double
+              rot  = 
+                (LM.identity :: M33 Double)
+                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
+                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+
+        trxs = obj0 ^. base . transforms
+        obj1 =
+          obj0
+          & base . transforms .~ fmap (flip (!*!) (inv44 mtx1)) trxs
+
+    Rotate  _ WorldSpace _ ypr0 _ -> obj1
+      where
+        mtx0   = obj0 ^. base . transform0
+        -- mtx0'  = mtx0 & translation .~ V3 0 0 0
+
+        mtx1 =
+          mkTransformationMat
+            rot
+            tr
+            where
+              tr   = V3 0 0 0
+              --tr = mtx0 ^. translation
+              rot0 = LM.identity :: M33 Double
+              --rot0 = inv33 $ mtx0 ^. _m33 
+              rot  = 
+                (LM.identity :: M33 Double)
+                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
+                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+
+        rot0 = LM.identity :: M33 Double
+        rot  = 
+          (LM.identity :: M33 Double)
+          !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
+          !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+          !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+
+        mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
+        
+        --mtx    = flip (!*!) mtx0' (mtx1)
+        --mtx'   = mtx & translation .~ mtx0 ^. translation
+        trxs = obj0 ^. base . transforms
+        trvs = (^. translation) <$> trxs :: [V3 Double]
+        trvs'= (*! rot) <$> trvs :: [V3 Double]
+        trxs'= (\(trx, trv) -> trx & translation .~ trv ) <$> zip trxs trvs'
+        --trvs'= (V3 1 0 0 :: V3 Double) *! (LM.identity :: M33 Double)
+        obj1 =
+          obj0
+          -- & base . transform0 .~ mtx
+          -- & base . transform0 .~ (LM.identity :: M44 Double)
+          & base . transforms .~ trxs' --fmap (flip (!*!) (mtx1)) trxs'
+
+    -- Rotate  _ WorldSpace _ ypr0 _ -> obj1
+    --   where
+    --     mtx0   = obj0 ^. base . transform0
+    --     --mtx0 = LM.identity :: M44 Double
+    --     mtx0' =
+    --       mkTransformationMat
+    --         rot
+    --         tr
+    --         where
+    --           rot = mtx0 ^. _m33
+    --           tr  = V3 0 0 0
+    --     mtx1 =
+    --       mkTransformationMat
+    --         rot
+    --         tr
+    --         where
+    --           tr   = V3 0 0 0
+    --           --tr = mtx0 ^. translation
+    --           --rot0 = (LM.identity :: M33 Double)
+    --           rot0 = mtx0 ^. _m33 
+    --           rot  =                                                                                         
+    --             (LM.identity :: M33 Double)                                                             
+    --             !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
+    --             !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
+    --             !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+    --     mtx    = (!*!) mtx0' mtx1
+    --     --trxs' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
+    --     mtx'   = mtx & translation .~ mtx0 ^. translation
+    --     trxs   = obj0 ^. base . transforms
+    --     obj1 =
+    --       obj0
+    --       & base . transform0 .~ mtx'
+    --       & base . transforms .~ replicate (length trxs) mtx'
+        
+        -- result      =
+        --   obj0 & base . transforms .~ trxs'
+          
+
+    -- Rotate Dynamic WorldSpace _ ypr0 _ -> obj1
+    --   where
+    --     mtx0   = obj0 ^. base . transform0
+    --     mtx1   = (LM.identity :: M44 Double) & translation .~ txyz
+    --     mtx    = mtx0 !*! mtx1
+    --     trxs   = obj0 ^. base . transforms
+    --     obj1 =
+    --       obj0
+    --       & base . transform0 .~ mtx
+    --       & base . transforms .~ replicate (length trxs) mtx
+
+    _ -> obj0
+          
+          
 extractTransform :: [Object] -> Object -> Solver -> Solvable
 extractTransform objs0 obj0 slv =
   case slv of
+    Translate Static WorldSpace txyz _ -> (mtx, V3 0 0 0)
+      where
+        mtx = (LM.identity :: M44 Double) & translation .~ txyz
     Translate _ _ txyz _ -> (mtx, V3 0 0 0)
       where
         mtx = (LM.identity :: M44 Double) & translation .~ txyz  
@@ -104,9 +255,9 @@ extractTransform objs0 obj0 slv =
                 !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
                 !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
                 !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
-        transforms' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
+        trxs' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
         result      =
-          obj0 & base . transforms .~ transforms'
+          obj0 & base . transforms .~ trxs'
         
     Rotate  _ ObjectSpace _ ypr0 _ -> (mtx, V3 0 0 0)
       where
