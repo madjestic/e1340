@@ -119,7 +119,10 @@ solveDynamic objs0 obj0 slv =
 
     Spin -> obj1
       where
-        ypr0 = V3 0 0 0.01
+        mtx0   = obj0 ^. base . transform0
+        
+        ypr0 = V3 0 0 (-0.01)
+        
         mtx1 =
           mkTransformationMat
             rot
@@ -133,30 +136,18 @@ solveDynamic objs0 obj0 slv =
                 !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
                 !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
 
+        mtx  = mtx0 !*! mtx1
         trxs = obj0 ^. base . transforms
+        
         obj1 =
           obj0
-          & base . transforms .~ fmap (flip (!*!) (inv44 mtx1)) trxs
+          & base . transform0 .~ mtx
+          & base . transforms .~ replicate (length trxs) mtx
+          -- & base . transforms .~ fmap (flip (!*!) (mtx1)) trxs
 
     Rotate  _ WorldSpace _ ypr0 _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
-        -- mtx0'  = mtx0 & translation .~ V3 0 0 0
-
-        mtx1 =
-          mkTransformationMat
-            rot
-            tr
-            where
-              tr   = V3 0 0 0
-              --tr = mtx0 ^. translation
-              rot0 = LM.identity :: M33 Double
-              --rot0 = inv33 $ mtx0 ^. _m33 
-              rot  = 
-                (LM.identity :: M33 Double)
-                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
-                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
-                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
 
         rot0 = LM.identity :: M33 Double
         rot  = 
@@ -167,67 +158,13 @@ solveDynamic objs0 obj0 slv =
 
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         
-        --mtx    = flip (!*!) mtx0' (mtx1)
-        --mtx'   = mtx & translation .~ mtx0 ^. translation
         trxs = obj0 ^. base . transforms
-        trvs = (^. translation) <$> trxs :: [V3 Double]
-        trvs'= (*! rot) <$> trvs :: [V3 Double]
-        trxs'= (\(trx, trv) -> trx & translation .~ trv ) <$> zip trxs trvs'
-        --trvs'= (V3 1 0 0 :: V3 Double) *! (LM.identity :: M33 Double)
+
         obj1 =
           obj0
-          -- & base . transform0 .~ mtx
-          -- & base . transform0 .~ (LM.identity :: M44 Double)
-          & base . transforms .~ trxs' --fmap (flip (!*!) (mtx1)) trxs'
-
-    -- Rotate  _ WorldSpace _ ypr0 _ -> obj1
-    --   where
-    --     mtx0   = obj0 ^. base . transform0
-    --     --mtx0 = LM.identity :: M44 Double
-    --     mtx0' =
-    --       mkTransformationMat
-    --         rot
-    --         tr
-    --         where
-    --           rot = mtx0 ^. _m33
-    --           tr  = V3 0 0 0
-    --     mtx1 =
-    --       mkTransformationMat
-    --         rot
-    --         tr
-    --         where
-    --           tr   = V3 0 0 0
-    --           --tr = mtx0 ^. translation
-    --           --rot0 = (LM.identity :: M33 Double)
-    --           rot0 = mtx0 ^. _m33 
-    --           rot  =                                                                                         
-    --             (LM.identity :: M33 Double)                                                             
-    --             !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
-    --             !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
-    --             !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
-    --     mtx    = (!*!) mtx0' mtx1
-    --     --trxs' = fmap (flip (!*!) mtx) (obj0 ^. base . transforms):: [M44 Double]
-    --     mtx'   = mtx & translation .~ mtx0 ^. translation
-    --     trxs   = obj0 ^. base . transforms
-    --     obj1 =
-    --       obj0
-    --       & base . transform0 .~ mtx'
-    --       & base . transforms .~ replicate (length trxs) mtx'
-        
-        -- result      =
-        --   obj0 & base . transforms .~ trxs'
-          
-
-    -- Rotate Dynamic WorldSpace _ ypr0 _ -> obj1
-    --   where
-    --     mtx0   = obj0 ^. base . transform0
-    --     mtx1   = (LM.identity :: M44 Double) & translation .~ txyz
-    --     mtx    = mtx0 !*! mtx1
-    --     trxs   = obj0 ^. base . transforms
-    --     obj1 =
-    --       obj0
-    --       & base . transform0 .~ mtx
-    --       & base . transforms .~ replicate (length trxs) mtx
+          & base . transform0 .~ mtx
+          -- & base . transforms .~ trxs' --fmap (flip (!*!) (mtx1)) trxs'
+          & base . transforms .~ replicate (length trxs) mtx
 
     _ -> obj0
           
