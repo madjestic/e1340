@@ -23,45 +23,41 @@ project =
   , (Model   "models/sputnik.bgeo")
   ]
   [
-    -- (PreObject
-    -- "planet"
-    -- "rbd"
-    -- nil
-    -- [0]
-    -- []
-    -- []
-    -- []
-    -- []
-    -- -- ["rotate", "translate"]
-    -- -- [[0,0,0,0,0,1000]
-    -- -- ,[1000,0,0]]
-    -- -- ["gravity"]
-    -- -- [[1,2]]
-    -- )
-    (PreObject
+    PreObject
+    "planet"
+    "rbd"
+    nil
+    [0] [] []
+    ["gravity"]
+    [[]]
+    -- ["rotate", "translate"]
+    -- [[0,0,0,0,0,1000]
+    -- ,[1000,0,0]]
+    -- ["gravity"]
+    -- [[1,2]]
+  , PreObject
     "sputnik"
     "rbd"
     nil
-    [1]
-    []
-    []
-    [
-      "translateconst"
---    , "translate"      
-    , "rotate"
-    , "spin"
-    ]
-    [
-      [0,3,0]
---    , [0,-0.01,0]     
-    , [0,0,0,0,0,-0.01]
-    , []
-    ]
+    [1] [] []
+    ["gravity"]
+    [[]]
+    -- [
+    --   "translateconst"
+    -- , "translate"      
+    -- , "rotate"
+    -- , "spin"
+    -- ]
+    -- [
+    --   [0,3,0]
+    -- , [0,-0.01,0]     
+    -- , [0,0,0,0,0,-0.01]
+    -- , []
+    -- ]
     -- ["rotate","gravity"]
     -- [[0,0,0,0,0,-0.01],[]]
     -- ["rotate'"]
     -- [[-5,0,0,0,0,-0.01]]
-    )
   ]
   []
   gui

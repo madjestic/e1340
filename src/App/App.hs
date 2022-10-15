@@ -43,6 +43,7 @@ import Graphics.RedViz.Project.Utils
 import Object hiding (Empty)                         
 import ObjectTree
 import GUI
+import Graphics.RedViz.Object (transform0)
 --import Application.Interface as AI (Interface (..))
 
 -- import Debug.Trace as DT
@@ -182,5 +183,6 @@ toDrawable' mpos time0 res cam obj = drs
     names  = repeat $ objectNames obj
     mats   = obj ^. base . materials :: [Material]
     progs  = obj ^. base . programs  :: [Program]
-    xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]
+    xform0 = obj ^. base . transform0
+    xforms = concat $ replicate n $ replicate n xform0 :: [M44 Double]
     ds     = obj ^. base . descriptors :: [Descriptor]

@@ -45,7 +45,7 @@ import Graphics.RedViz.Widget as Widget
 
 import Object
 import Solvable hiding (_ypr)
-import Object.Update (updateObjectStatic)
+import Object.Update (updateOnce)
 
 import Debug.Trace as DT
 
@@ -162,7 +162,7 @@ fromPreObject prj0 cls pObj0 = do
     time'        = 0.0 :: Double
 
   case cls of
-    Font -> return $ updateObjectStatic $
+    Font -> return $ updateOnce $
       Object.Sprite
       (Object'
        ds'
@@ -176,7 +176,7 @@ fromPreObject prj0 cls pObj0 = do
        time')
     _ ->
       case _ptype pObj0 of
-        "planet" -> return $ updateObjectStatic $
+        "planet" -> return $ updateOnce $
           Planet
           {
             _base = 
@@ -199,7 +199,7 @@ fromPreObject prj0 cls pObj0 = do
           ,_density   = density'
           ,_solvers   = solvers''
           }
-        "rbd" -> return $ updateObjectStatic $
+        "rbd" -> return $ updateOnce $
           RBD
           {
             _base = 
@@ -222,7 +222,7 @@ fromPreObject prj0 cls pObj0 = do
           ,_density   = density'
           ,_solvers   = solvers''
           }
-        "sprite" -> return $ updateObjectStatic $
+        "sprite" -> return $ updateOnce $
           Sprite
           (Object'
            ds'

@@ -54,8 +54,8 @@ appIntro app0  =
                
                skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
                strtE <- arr isPressed >>> edge -< (app' ^? App.gui . strtB :: Maybe Widget)
-               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB  :: Maybe Widget)
-               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB  :: Maybe Widget)
+               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB :: Maybe Widget)
+               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB :: Maybe Widget)
                
                let
                  strtB' = fromJust $ app0 ^? intr . App.gui . strtB
