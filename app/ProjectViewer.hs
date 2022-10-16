@@ -6,7 +6,7 @@
 module Main where 
 
 --import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
-import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
+import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, putMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
@@ -21,9 +21,13 @@ import SDL
     , Event(eventPayload)
     , EventPayload
     , LocationMode(AbsoluteLocation, RelativeLocation)
-    , Window )
+    , Window
+    , delay
+    )
 import SDL.Input.Mouse
 import SDL.Vect
+
+import SDL.FPS
 
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Color4 (Color4)
@@ -35,6 +39,7 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Capability (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
+--import GHC.Float                 ( roundDouble )
     
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
@@ -73,9 +78,10 @@ animate :: SDL.Window
         -> IO ()
 animate window sf =
   do
+    fps <- newMVar (replicate 500 0.002) :: IO (MVar [Double])
     reactimate (return NoEvent)
                senseInput
-               renderOutput
+               (renderOutput fps)
                sf
     closeWindow window
     
@@ -83,22 +89,22 @@ animate window sf =
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time
-            currentTime <- SDL.time                          
+            currentTime     <- SDL.time                          
             dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
             mEvent <- SDL.pollEvent
             
             return (dt, Event . SDL.eventPayload <$> mEvent)
             
-        renderOutput _ (app, shouldExit) =
+        renderOutput fps _ (app, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
 
-            output lastInteraction window app
+            output fps lastInteraction window app
 
             return (shouldExit || (app ^. quit))
 
-output :: MVar Double -> Window -> Application -> IO ()
-output lastInteraction window application = do
+output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
+output fps lastInteraction window application = do
   -- ticks   <- SDL.ticks
   -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
 
@@ -107,7 +113,7 @@ output lastInteraction window application = do
   --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
   -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
 
-  -- dt <- (currentTime -) <$> readMVar lastInteraction
+  --dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
@@ -156,7 +162,7 @@ output lastInteraction window application = do
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
-    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
+    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
     renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
@@ -170,8 +176,8 @@ output lastInteraction window application = do
 
   glSwapWindow window
 
-renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderWidget lastInteraction drs cmds wgt =
+renderWidget :: MVar [Double] -> MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderWidget fps lastInteraction drs cmds wgt =
   case wgt of
     TextField a t f ->
       when a $ renderString cmds drs f $ concat t
@@ -179,9 +185,16 @@ renderWidget lastInteraction drs cmds wgt =
       when a $ renderString cmds drs f l
     FPS a f ->
       when a $ do
-        ct <- SDL.time -- current time
-        dt <- (ct -) <$> readMVar lastInteraction
-        renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
+        dts <- readMVar fps
+        ct  <- SDL.time -- current time
+        dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
+        dts'<- swapMVar fps $ tail dts ++ [dt]
+        let dt' = (sum dts')/(fromIntegral $ length dts')
+        renderString cmds drs f $ "fps:" ++ show (round (1.0/dt') :: Integer)
+          where
+            fps' = 30   :: Double
+            msps = 1000 :: Double
+            
     Cursor {} -> return ()
 
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
