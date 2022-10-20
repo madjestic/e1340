@@ -49,7 +49,7 @@ library
               , store
               , text                
               , uuid                
-              , vector < 0.13
+              , vector
               , Yampa
   exposed-modules:
               Graphics.RedViz.LoadShaders
@@ -106,7 +106,7 @@ executable Grapher
                 , locators                               
                 , massiv              
                 , random              
-                , vector < 0.13
+                , vector
                 , GLUT
                 , GLUtil
                 , OpenGL
@@ -144,7 +144,6 @@ executable Grapher
                 , Graphics.RedViz.Object
                 , Graphics.RedViz.PGeo
                 , Graphics.RedViz.Project.Utils
-                , Debug
                 , Grapher.Application.Application
                 , Grapher.Graph
                 , Grapher.GUI
@@ -161,6 +160,7 @@ executable Grapher
                 , Grapher.Application
                 , Grapher.Application.Update                
                 , Solvable
+                , Debug
 
   default-language:    Haskell2010
                 
@@ -197,7 +197,7 @@ executable e1340
                , Yampa             
                , simple-affine-space 
                , sort                
-               , vector < 0.13              
+               , vector              
                , uuid                
 
   other-modules:
@@ -278,13 +278,13 @@ executable ProjectViewer
                , OpenGL              
                , random                        
                , sdl2                
-               , split               
+               , split              
                , store               
                , text                
                , Yampa             
                , simple-affine-space 
                , sort                
-               , vector < 0.13              
+               , vector              
                , uuid                
 
   other-modules:
@@ -333,7 +333,6 @@ executable ProjectViewer
               , GUI
               , GUI.GUI
               , GUI.Update
-              , Projects.Test
               , Projects.Body3
               , Projects.Graph
               , Projects.InfoEarth
@@ -370,7 +369,7 @@ executable genMaterial
               , split               
               , text                
               , uuid                
-              , vector < 0.13                         
+              , vector                         
 
   other-modules:
                 Paths_e1340
@@ -406,7 +405,7 @@ executable genProject
               , text                
               , sort                
               , uuid                
-              , vector < 0.13
+              , vector
               , split
 
   other-modules:
@@ -450,7 +449,7 @@ executable genUUID
               , text                
               , uuid                
               , random              
-              , vector < 0.13              
+              , vector              
               
   other-modules:
                 Paths_e1340
@@ -492,7 +491,7 @@ executable geoIndexer
               , time-compat          
               , time                 
               , uuid                 
-              , vector < 0.13               
+              , vector               
               
   other-modules:
                 Paths_e1340
@@ -531,7 +530,7 @@ executable rpcShuffler
               , simple-affine-space  
               , linear               
               , massiv               
-              , vector < 0.13               
+              , vector               
               , uuid                 
               
   other-modules:

@@ -154,6 +154,18 @@ planetsputnik:
 	cabal run exe:genUUID -- -p ./projects/planetsputnik
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/planetsputnik
 
+solar_system_mini:
+	# cabal clean
+	# cabal build exe:ProjectViewer
+
+	./resources/convertGeo.sh star_0
+	./resources/convertGeo.sh planet_0
+	cabal build exe:genProject
+	#  
+	cabal run exe:genProject -- ./projects/solar_system_mini
+	cabal run exe:genUUID -- -p ./projects/solar_system_mini
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solar_system_mini
+
 newtest:
 	cabal build exe:e1340
 	cabal run exe:genProject -- ./projects/newtest
@@ -161,7 +173,7 @@ newtest:
 	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
 solarsystem:
-	#./resources/convertGeo.sh sun
+	./resources/convertGeo.sh sun
 	./resources/convertGeo.sh earth
 	cabal build exe:e1340
 	cabal build
@@ -172,7 +184,8 @@ solarsystem:
 	cabal run exe:genProject -- ./projects/infoearth
 	cabal run exe:genUUID -- -p ./projects/infoearth
 
-	cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
+	#cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solarsystem
 
 testred:
 	cabal build exe:e1340

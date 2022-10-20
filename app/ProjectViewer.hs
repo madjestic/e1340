@@ -27,8 +27,6 @@ import SDL
 import SDL.Input.Mouse
 import SDL.Vect
 
-import SDL.FPS
-
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Color4 (Color4)
                                  , clear

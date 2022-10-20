@@ -120,6 +120,7 @@ solveDynamic objs0 obj0 slv =
         
         obj1 = obj0 & base . transform0 .~ mtx
 
+    -- TODO: experiment with the center of rotation: analytic orbiting
     Rotate  _ WorldSpace _ ypr0 _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
@@ -130,7 +131,17 @@ solveDynamic objs0 obj0 slv =
           !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
           !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
-        
+        obj1 = obj0 & base . transform0 .~ mtx
+
+    Orbit cxyz qrot -> obj1
+      where
+        (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
+        mtx0 = obj0 ^. base . transform0
+        rot0 = LM.identity :: M33 Double
+        rot  = 
+          (LM.identity :: M33 Double)
+          !*! fromQuaternion (axisAngle vec angle) -- yaw  
+        mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
     Gravity -> obj1
