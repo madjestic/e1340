@@ -23,6 +23,7 @@ project =
   [ (PreObject
     "box"
     "planet"
+    0
     nil
     [0]
     []
@@ -62,6 +63,7 @@ test2 =
   [ (PreObject
     "box"
     "planet"
+        0
     nil
     [0]
     []
@@ -100,6 +102,7 @@ options =
   [ (PreObject
     "box"
     "planet"
+        0
     nil
     [0]
     []
@@ -150,6 +153,7 @@ projectTestRed =
   [ (PreObject
     "red box"
     "planet"
+        0
     nil
     [0]
     []
@@ -184,6 +188,7 @@ projectTestGreen =
   [ (PreObject
     "green box"
     "planet"
+        0
     nil
     [0]
     []
@@ -218,6 +223,7 @@ projectTestBlue =
   [ (PreObject
     "blue box"
     "planet"
+        0
     nil
     [0]
     []
@@ -252,6 +258,7 @@ projectTestChecker =
   [ (PreObject
     "Checker box"
     "planet"
+        0
     nil
     [0]
     [
@@ -294,6 +301,7 @@ projectTestCheckerOffset =
   [ (PreObject
     "Checker box"
     "planet"
+        0
     nil
     [0]
     [    ]

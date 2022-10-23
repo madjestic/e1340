@@ -30,7 +30,8 @@ library
                 base                
               , aeson               
               , aeson-pretty
-              --, bearriver           
+              --, bearriver
+              , Yampa              
               , bytestring
               , containers          
               , GLUtil              
@@ -50,7 +51,6 @@ library
               , text                
               , uuid                
               , vector
-              , Yampa
   exposed-modules:
               Graphics.RedViz.LoadShaders
               Graphics.RedViz.Rendering
@@ -97,7 +97,8 @@ executable Grapher
                   base                
                 , aeson               
                 , aeson-pretty                         
-                , bearriver           
+                --, bearriver
+                , Yampa
                 , bytestring          
                 , containers                             
                 , ilist                                  
@@ -179,7 +180,8 @@ executable e1340
                  base                
                , aeson               
                , aeson-pretty        
-               --, bearriver           
+               --, bearriver
+               , Yampa             
                , bytestring          
                , containers          
                , GLUtil              
@@ -194,7 +196,6 @@ executable e1340
                , split               
                , store               
                , text                
-               , Yampa             
                , simple-affine-space 
                , sort                
                , vector              
@@ -266,7 +267,8 @@ executable ProjectViewer
                  base                
                , aeson               
                , aeson-pretty        
-               --, bearriver           
+               --, bearriver
+               , Yampa                              
                , bytestring          
                , containers          
                , GLUtil              
@@ -281,7 +283,6 @@ executable ProjectViewer
                , split              
                , store               
                , text                
-               , Yampa             
                , simple-affine-space 
                , sort                
                , vector              
@@ -421,6 +422,7 @@ executable genProject
               , Projects.Graph
               , Projects.Body3
               , Projects.PlanetSputnik
+              , Projects.SolarSystemMini
 
   default-language:
                 Haskell2010

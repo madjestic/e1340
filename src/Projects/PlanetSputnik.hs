@@ -26,6 +26,7 @@ project =
     PreObject
     "planet"
     "rbd"
+    0
     nil
     [0] [] []
     ["gravity"]
@@ -38,6 +39,7 @@ project =
   , PreObject
     "sputnik"
     "rbd"
+        0
     nil
     [1] [] []
     ["gravity", "spin"]

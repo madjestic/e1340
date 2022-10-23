@@ -133,15 +133,16 @@ solveDynamic objs0 obj0 slv =
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
-    Orbit cxyz qrot -> obj1
+    Orbit cxyz qrot idx -> obj1
       where
         (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
         mtx0 = obj0 ^. base . transform0
+        tr0  = mtx0 ^. translation
         rot0 = LM.identity :: M33 Double
         rot  = 
           (LM.identity :: M33 Double)
           !*! fromQuaternion (axisAngle vec angle) -- yaw  
-        mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
+        mtx = mtx0 & translation .~ ((tr0 - cxyz) *! rot + cxyz)
         obj1 = obj0 & base . transform0 .~ mtx
 
     Gravity -> obj1

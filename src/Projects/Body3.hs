@@ -26,6 +26,7 @@ project =
   [ (PreObject
     "red"
     "rbd"
+    0
     nil
     [0]
     []
@@ -39,6 +40,7 @@ project =
   , (PreObject
     "blue"
     "rbd"
+    0
     nil
     [1]
     []
@@ -52,6 +54,7 @@ project =
   , (PreObject
     "green"
     "rbd"
+    0
     nil
     [2]
     []

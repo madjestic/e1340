@@ -12,11 +12,11 @@ gui =
 
 graph   :: [Int] -> PreObject
 graph   idxs =
-  PreObject "graph"  "sprite" nil idxs [] [] [] []
+  PreObject "graph"  "sprite" 0 nil idxs [] [] [] []
 
 gizmo   :: [Int] -> PreObject
 gizmo   idxs =
-  PreObject "gizmo" "planet" nil idxs [] [] [] []
+  PreObject "gizmo" "planet" 0 nil idxs [] [] [] []
 
 graphCam :: ProjectCamera
 graphCam =
