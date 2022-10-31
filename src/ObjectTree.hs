@@ -112,6 +112,7 @@ fromPreObject prj0 cls pObj0 = do
 
   let
     name'           = view pname pObj0        :: String
+    idx'            = view pidx  pObj0        :: Integer
     
     presolvers'     = pObj0 ^. P.presolvers   :: [String]
     psolvers'       = pObj0 ^. P.solvers      :: [String]
@@ -193,6 +194,7 @@ fromPreObject prj0 cls pObj0 = do
               }
             )
           ,_nameP     = name'
+          ,_idxP      = idx'
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
           ,_mass      = mass'
@@ -216,6 +218,7 @@ fromPreObject prj0 cls pObj0 = do
               }
             )
           ,_nameP     = name'
+          ,_idxP      = idx'          
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
           ,_mass      = mass'

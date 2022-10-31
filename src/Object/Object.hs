@@ -11,6 +11,7 @@ module Object.Object
   , defaultObj
   , base
   , nameP
+  , idxP
   , materials
   , programs
   , descriptors
@@ -40,7 +41,8 @@ import Graphics.RedViz.Object
 -- < Object > ------------------------------------------------------------------
 
 instance Eq Object where
-  (==) obj0 obj1 = (_nameP obj0 == _nameP obj1)
+  (==) obj0 obj1 =
+    (_nameP obj0 == _nameP obj1) && (_idxP obj0 == _idxP obj1)
 
 data Object
   =  Empty
@@ -51,8 +53,9 @@ data Object
      {
        _base        :: Object'
      , _nameP       :: String
+     , _idxP        :: Integer
      , _velocity    :: V3 Double
-     , _avelocity   :: V3 Double    -- | Angular velocity
+     , _avelocity   :: V3 Double -- | Angular velocity
      --, _impulse     :: V3 Double
      --, _force       :: V3 Double
      , _mass        :: Double
@@ -63,6 +66,7 @@ data Object
      {
        _base        :: Object'
      , _nameP       :: String
+     , _idxP        :: Integer
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
      , _mass        :: Double
@@ -102,6 +106,7 @@ defaultObj =
      (V3 0 0 0 :: V3 Double)
      0.0)
     ""
+    0
     (V3 0 0 0)
     (V3 0 0 0)
     (1.0)
@@ -109,5 +114,4 @@ defaultObj =
     []
 
 objectNames :: Object -> String
---objectNames obj = obj ^.. base . materials . traverse . Material.name
 objectNames obj = obj ^. nameP

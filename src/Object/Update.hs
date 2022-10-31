@@ -1,4 +1,4 @@
-{-# LANGUAGE Arrows #-}
+{-# LANGUAGE Arrows, LambdaCase #-}
 
 module Object.Update
   ( updateObjectsPre
@@ -8,6 +8,7 @@ module Object.Update
 import Control.Lens    hiding (transform)
 import Control.Arrow
 import Data.List.Index as DLI (indexed)
+import Data.List (delete)
 import FRP.Yampa
 import Linear.Matrix   as LM
 import Linear.V3       as LV3
@@ -90,7 +91,14 @@ solveStatic obj0 slv =
 
 solveDynamic :: [Object] -> Object -> Solver -> Object
 solveDynamic objs0 obj0 slv =
-  case slv of
+  --case slv of
+  case (DT.trace
+        (
+           "\n" ++          
+           "trying obj0 : " ++ show (obj0 ^. nameP) ++ "\n" ++
+           "slv         : " ++ show slv ++ "\n" ++
+           "obj0 tr0    : " ++ show ((obj0 ^. base . transform0) ^. translation)
+        ) slv) of
     Translate Dynamic WorldSpace txyz _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
@@ -135,14 +143,16 @@ solveDynamic objs0 obj0 slv =
 
     Orbit cxyz qrot idx -> obj1
       where
+        --objs0' = filter orbits' objs0 :: [Object] -- Objects with Orbit Solver
         (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
         mtx0 = obj0 ^. base . transform0
         tr0  = mtx0 ^. translation
-        rot0 = LM.identity :: M33 Double
         rot  = 
           (LM.identity :: M33 Double)
-          !*! fromQuaternion (axisAngle vec angle) -- yaw  
-        mtx = mtx0 & translation .~ ((tr0 - cxyz) *! rot + cxyz)
+          !*! fromQuaternion (axisAngle vec angle) -- yaw
+        acc  = accOrbits objs0 (Just obj0)
+        --mtx  = mtx0 & translation .~ ((tr0 - (DT.trace ("acc : " ++ show acc) acc)) *! rot + acc)
+        mtx  = mtx0 & translation .~ ((tr0 - acc) *! rot + acc)
         obj1 = obj0 & base . transform0 .~ mtx
 
     Gravity -> obj1
@@ -161,7 +171,117 @@ solveDynamic objs0 obj0 slv =
           & velocity .~ vel
 
     _ -> obj0
-          
+
+-- TODO: change vector sum to v0 - (v1 - v2) = v0 + (-(v1 + (-v2)))
+accOrbits :: [Object] -> Maybe Object -> V3 Double
+accOrbits _ Nothing = V3 0 0 0
+accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj -- accOrbits objs0 obj - (pivot - p0)
+--accOrbits objs0 (Just obj0) = (accOrbits objs0 obj - (pivot - p0))
+  where
+    p0    = obj0 ^. base . transform0 . translation
+    obj   = obj0 `orbits` objs0
+    pivot = case obj of
+      Just obj' ->  obj' ^. base . transform0 . translation
+      _ -> V3 0 0 0
+
+orbits :: Object -> [Object] -> Maybe Object
+orbits obj0 objs = result
+  where
+    slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
+    result =
+      if not . null $ slvs'
+      then Just $ lookupObj objs (_idx (head slvs'))
+      else Nothing
+
+orbits' :: Object -> Bool
+orbits' obj0 = undefined
+  where
+    slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
+    result = not . null $ slvs'
+
+maybeOrbit1 :: [Object] -> Object -> Maybe (V3 Double, Integer)
+maybeOrbit1 [] _ = Nothing
+maybeOrbit1 objs0 obj0 = temp
+  where
+    temp = undefined
+    slvs'
+      = (\slv -> case slv of
+              Orbit {} -> Just $ (pv, idx)
+                where
+                  pv  = undefined -- maybeOrbit1 objs0 
+                  idx = _idx slv
+              _ -> Nothing
+        ) <$> obj0 ^. solvers
+    result =
+      if not . null $ slvs'
+      then head slvs'
+      else Nothing
+
+lookupObj :: [Object] -> Integer -> Object
+lookupObj objs0 idx = obj
+  where
+    obj = head $ filter (\obj -> _idxP obj == idx ) objs0
+
+accumulateOrbitalPivots :: [Object] -> Object -> V3 Double
+accumulateOrbitalPivots [] _ = V3 0 0 0
+accumulateOrbitalPivots [obj1] obj0 =
+  case obj0 `maybeOrbits` obj1 of
+    Just pivot -> pivot + accumulateOrbitalPivots [] obj1
+    Nothing -> V3 0 0 0
+--accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots (delete obj0 objs) obj1
+accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs obj1
+  where pivot' = 
+          --case obj0 `maybeOrbits` obj1 of
+          case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
+                                              "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
+                                              "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
+                                              "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
+                                              "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
+                                              "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
+                                              "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
+                                              "\n"
+                                             ) obj1) of
+          --case obj0 `maybeOrbits` (DT.trace ("show (obj1 ^. base . transform0 . translation)" ++ show (obj1 ^. base . transform0 . translation)) obj1) of
+            --Just pivot -> pivot
+            Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
+            Nothing -> V3 0 0 0
+
+maybeOrbits' :: [Object] -> Object -> Maybe (V3 Double)
+maybeOrbits' objs0 obj0 = undefined
+
+maybeOrbits'' :: Object -> Object -> Maybe (V3 Double, Object)
+maybeOrbits'' obj0 obj1 =
+  case maybeOrbit obj0 of
+    Just idx ->
+      if idx == _idxP obj1
+      then Nothing --Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
+      else Nothing
+    Nothing -> Nothing
+    
+maybeOrbits :: Object -> Object -> Maybe (V3 Double)
+maybeOrbits obj0 obj1 =
+  case maybeOrbit obj0 of
+    Just idx ->
+      if idx == _idxP obj1
+      then Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
+      else Nothing
+    Nothing -> Nothing
+
+-- | an object orbits something : index => 0
+-- | or Nothing
+maybeOrbit :: Object -> Maybe Integer
+maybeOrbit obj0 = result
+  where
+    slvs'
+      = (\slv -> case slv of
+              Orbit {} -> Just $ _idx slv
+              _ -> Nothing
+        ) <$> obj0 ^. solvers
+    result =
+      if not . null $ slvs'
+      then head slvs'
+      else Nothing
+            
 g :: Double
 g = 6.673**(-11.0) :: Double
 

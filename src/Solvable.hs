@@ -67,7 +67,7 @@ data Solver =
      {
        _pivot :: V3 Double
      , _qrot  :: V4 Double
-     , _idx   :: Int
+     , _idx   :: Integer
      }
   |  Scale
      {
@@ -103,7 +103,7 @@ toSolver (solver, parms) =
 --    "rotateconst"   -> RotateConst  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "gravity"       -> Gravity
     "spin"          -> Spin
-    "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (double2Int $ last parms)
+    "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (round $ last parms)
     "identity"      -> Identity
     _               -> Identity
 

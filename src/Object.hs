@@ -13,6 +13,7 @@ module Object
   , updateObjectsPre
   , objectNames
   , nameP
+  , idxP
   , time
   ) where
 

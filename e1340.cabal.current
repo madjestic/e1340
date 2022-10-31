@@ -262,7 +262,7 @@ executable ProjectViewer
   ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   --ghc-options:   -O2 -threaded
   --cpp-options:   -DDEBUG
-  --cpp-options:   -DDEBUGMAIN
+  cpp-options:   -DDEBUGMAIN
   build-depends:
                  base                
                , aeson               

@@ -160,6 +160,7 @@ solar_system_mini:
 
 	./resources/convertGeo.sh star_0
 	./resources/convertGeo.sh planet_0
+	./resources/convertGeo.sh moon_0_0
 	cabal build exe:genProject
 	#  
 	cabal run exe:genProject -- ./projects/solar_system_mini

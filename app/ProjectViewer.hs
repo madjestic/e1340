@@ -240,7 +240,7 @@ main = do
 
   args      <- getArgs
   --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
-  mainProj  <- if debug then P.read ("./projects/test" :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/solar_system_mini" :: FilePath)
                else          P.read (unsafeCoerce (args!!0)     :: FilePath)  
   let
     title   = pack $ view P.name mainProj
