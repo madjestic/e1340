@@ -91,14 +91,12 @@ solveStatic obj0 slv =
 
 solveDynamic :: [Object] -> Object -> Solver -> Object
 solveDynamic objs0 obj0 slv =
+  case (DT.trace ("obj name : " ++ show (obj0 ^. nameP) ++ "\n" ++
+                  "slv      : " ++ show (slv)           ++ "\n" ++
+                  "tr0      : " ++ show (obj0 ^. (base . transform0 . translation)) ++ "\n" ++
+                  "trace    : " ++ show (obj0 ^. trs)   ++ "\n"
+                 ) slv) of
   --case slv of
-  case (DT.trace
-        (
-           "\n" ++          
-           "trying obj0 : " ++ show (obj0 ^. nameP) ++ "\n" ++
-           "slv         : " ++ show slv ++ "\n" ++
-           "obj0 tr0    : " ++ show ((obj0 ^. base . transform0) ^. translation)
-        ) slv) of
     Translate Dynamic WorldSpace txyz _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
@@ -128,7 +126,6 @@ solveDynamic objs0 obj0 slv =
         
         obj1 = obj0 & base . transform0 .~ mtx
 
-    -- TODO: experiment with the center of rotation: analytic orbiting
     Rotate  _ WorldSpace _ ypr0 _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
@@ -141,6 +138,7 @@ solveDynamic objs0 obj0 slv =
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
+    -- TODO: experiment with the center of rotation: analytic orbiting
     Orbit cxyz qrot idx -> obj1
       where
         --objs0' = filter orbits' objs0 :: [Object] -- Objects with Orbit Solver
@@ -151,14 +149,12 @@ solveDynamic objs0 obj0 slv =
           (LM.identity :: M33 Double)
           !*! fromQuaternion (axisAngle vec angle) -- yaw
         acc  = accOrbits objs0 (Just obj0)
-        --mtx  = mtx0 & translation .~ ((tr0 - (DT.trace ("acc : " ++ show acc) acc)) *! rot + acc)
         mtx  = mtx0 & translation .~ ((tr0 - acc) *! rot + acc)
         obj1 = obj0 & base . transform0 .~ mtx
 
     Gravity -> obj1
       where
-        mtx0   = obj0 ^. base . transform0
-        
+        mtx0 = obj0 ^. base . transform0
         av0  = _avelocity obj0
         vel0 = _velocity obj0
         vel1 = gvel obj0 (remove obj0 objs0)
@@ -170,13 +166,16 @@ solveDynamic objs0 obj0 slv =
           & base . transform0 .~ mtx
           & velocity .~ vel
 
+    Trace trs -> obj1
+      where
+        tr0  = obj0 ^. (base . transform0 . translation) :: V3 Double
+        obj1 = obj0 & Obj.trs .~ (tr0 : obj0 ^. Obj.trs)
+
     _ -> obj0
 
--- TODO: change vector sum to v0 - (v1 - v2) = v0 + (-(v1 + (-v2)))
 accOrbits :: [Object] -> Maybe Object -> V3 Double
 accOrbits _ Nothing = V3 0 0 0
-accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj -- accOrbits objs0 obj - (pivot - p0)
---accOrbits objs0 (Just obj0) = (accOrbits objs0 obj - (pivot - p0))
+accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj
   where
     p0    = obj0 ^. base . transform0 . translation
     obj   = obj0 `orbits` objs0

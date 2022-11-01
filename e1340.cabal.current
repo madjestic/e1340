@@ -317,6 +317,7 @@ executable ProjectViewer
               , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
               , Graphics.RedViz.Object
               , Graphics.RedViz.Widget
+              , Graphics.RedViz.Primitives
               , ObjectTree
               , App
               , App.App

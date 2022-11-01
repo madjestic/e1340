@@ -44,7 +44,7 @@ import Graphics.RedViz.LoadShaders
 import Graphics.RedViz.Widget as Widget
 
 import Object
-import Solvable hiding (_ypr)
+import Solvable hiding (_ypr, _trs)
 import Object.Update (updateOnce)
 
 import Debug.Trace as DT
@@ -161,6 +161,7 @@ fromPreObject prj0 cls pObj0 = do
     --mass'        = 1.0 :: Double
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
+    trs'         = []
 
   case cls of
     Font -> return $ updateOnce $
@@ -224,6 +225,7 @@ fromPreObject prj0 cls pObj0 = do
           ,_mass      = mass'
           ,_density   = density'
           ,_solvers   = solvers''
+          ,_trs       = trs'
           }
         "sprite" -> return $ updateOnce $
           Sprite

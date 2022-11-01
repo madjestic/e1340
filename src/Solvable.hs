@@ -79,6 +79,10 @@ data Solver =
      }
   |  Gravity
   |  Spin
+  |  Trace
+     {
+       _trs :: [V3 Double]
+     }
   deriving Show
 $(makeLenses ''Solver)
 
@@ -104,6 +108,7 @@ toSolver (solver, parms) =
     "gravity"       -> Gravity
     "spin"          -> Spin
     "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (round $ last parms)
+    "trace"         -> Trace        []
     "identity"      -> Identity
     _               -> Identity
 

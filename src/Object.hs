@@ -10,6 +10,7 @@ module Object
   , ypr
   , velocity
   , solvers
+  , trs
   , updateObjectsPre
   , objectNames
   , nameP

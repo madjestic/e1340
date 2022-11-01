@@ -23,6 +23,7 @@ module Object.Object
   --, force
   , mass
   , solvers
+  , trs
   , objectNames
   , time
   ) where
@@ -61,6 +62,7 @@ data Object
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]
+     , _trs         :: [V3 Double]
      }
   |  Planet
      {
@@ -72,6 +74,7 @@ data Object
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]
+     , _trs         :: [V3 Double]
      } 
   |  Sprite
      {
@@ -104,13 +107,15 @@ defaultObj =
      (identity::M44 Double)
      (V3 0 0 0 :: V3 Double)
      (V3 0 0 0 :: V3 Double)
-     0.0)
+     0.0
+    )
     ""
     0
     (V3 0 0 0)
     (V3 0 0 0)
     (1.0)
     (1.0)
+    []
     []
 
 objectNames :: Object -> String
