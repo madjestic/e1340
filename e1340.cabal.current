@@ -25,7 +25,8 @@ library
   hs-source-dirs:
                 src
   --ghc-options: -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
-  ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+  --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+  ghc-options:   -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   build-depends:
                 base                
               , aeson               
@@ -339,8 +340,10 @@ executable ProjectViewer
               , Projects.Graph
               , Projects.InfoEarth
               , Projects.SolarSystem
+              , Projects.SolarSystemMini
               , Projects.Test
               , Projects.PlanetSputnik
+              , Projects.Curve
               , Debug
               
   default-language:

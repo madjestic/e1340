@@ -160,7 +160,7 @@ output fps lastInteraction window application = do
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
-    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
+    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
     renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
@@ -241,7 +241,10 @@ main = do
   args      <- getArgs
   --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
   mainProj  <- if debug then P.read ("./projects/solar_system_mini" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)     :: FilePath)  
+               else          P.read (unsafeCoerce (args!!0)     :: FilePath)
+  -- mainProj  <- if debug then P.read ("./projects/curve"     :: FilePath)
+  --              else          P.read (unsafeCoerce (args!!0) :: FilePath)  
+  
   let
     title   = pack $ view P.name mainProj
     resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt

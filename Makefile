@@ -277,3 +277,11 @@ projectviewer:
 	#cabal run exe:genUUID -- -p ./projects/infoearth
 
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solarsystem
+
+curve:
+	./resources/convertGeo.sh square
+	cabal build exe:genProject
+	#  
+	cabal run exe:genProject -- ./projects/curve
+	cabal run exe:genUUID -- -p ./projects/curve
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/curve	

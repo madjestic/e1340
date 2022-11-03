@@ -15,6 +15,7 @@ import Projects.Graph
 import Projects.Body3
 import Projects.PlanetSputnik
 import Projects.SolarSystemMini
+import Projects.Curve
 
 -- import Debug.Trace as DT
 
@@ -41,6 +42,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "options"       -> Project.write Projects.Test.options            filePath
   "body3"         -> Project.write Projects.Body3.project           filePath
   "planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
+  "curve"         -> Project.write Projects.Curve.project           filePath
   _ -> Project.write Projects.Test.project                          filePath
                                    
 splitter :: String -> IO (String, String)

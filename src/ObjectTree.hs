@@ -28,6 +28,7 @@ import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
                             , readPGeo
                             , fromVGeo
+                            , fromPGeo
                             , fromSVGeo
                             , VGeo(..)
                             , SVGeo(..)
@@ -104,11 +105,19 @@ fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
 fromPreObject prj0 cls pObj0 = do
   (ds', svgeos') <- toDescriptorSVGeo prj0 pObj0 :: IO ([Descriptor], [SVGeo])
   materials'     <- mapM Material.read $ toListOf (traverse . smp) svgeos' :: IO [Material]
-  programs'      <- mapM
-    (\mat -> loadShaders
-             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ])
-    materials'
+  programs'      <-
+    mapM (\mat -> case _geomShader mat of
+             Just geomShader' ->
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo GeometryShader (FileSource geomShader')
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  ]
+             Nothing ->             
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+         ) materials'
 
   let
     name'           = view pname pObj0        :: String
@@ -269,9 +278,24 @@ initObject' vgeo = do
       
   mats' <- mapM Material.read $ mts vgeo :: IO [Material]
   ds    <- mapM toDescriptor vaoArgs
-  progs <- mapM (\mat -> loadShaders
-                         [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-                         , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
+  -- progs <- mapM (\mat -> loadShaders
+  --                        [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+  --                        , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
+  progs <-
+    mapM (\mat -> case _geomShader mat of
+             Just geomShader' ->
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo GeometryShader (FileSource geomShader')
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  ]
+             Nothing ->             
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+         ) mats'
+  
+  
   return $
     Object.Sprite
     {
@@ -294,8 +318,8 @@ toVGeo prj0 pObj0 = do
   let
     modelSet    = toListOf (models . traverse . Model.path) prj0 :: [String]
     modelPaths' = (modelSet!!) <$> view modelIDXs pObj0
-    vgeos       = readBGeo <$> modelPaths'
-    --vgeos       = readPGeo <$> ["models/box.pgeo"]
+    vgeos       = readBGeo <$> modelPaths' :: [IO VGeo]
+    --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"]
   sequence vgeos
 
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
