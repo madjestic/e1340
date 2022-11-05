@@ -23,6 +23,7 @@ import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Camera hiding (_res, res)
+import Graphics.RedViz.Backend
 
 data GUI
   =  IntrGUI
@@ -82,20 +83,20 @@ introGUI res =
   IntrGUI
   {
     _res    = res
-  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
+  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
-    TextField True ["PARAYA"]
-    (Format TC (-0.19) (-0.2) 0.0 0.08 1.1)
+    TextField True ["PARAYA"] 
+    (Format TC (-0.19) (-0.2) 0.0 0.08 1.1) defOpts
   , _a_space_oddysey =
-    TextField True ["a space odyssey"]
-    (Format TC (-0.2) (-0.25) 0.0 0.03 0.5)
+    TextField True ["a space odyssey"] 
+    (Format TC (-0.2) (-0.25) 0.0 0.03 0.5) defOpts
   , _strtB   = Button True "NEW GAME" defBBox False False
-    (Format CC (0.0) ( 0.0) 0.0 0.033 0.5)
+    (Format CC (0.0) ( 0.0) 0.0 0.033 0.5) defOpts
   , _optsB    = Button True "OPTIONS" defBBox False False
-    (Format CC (0.0) (-0.075) 0.0 0.033 0.5)
+    (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
   , _quitB    = Button True "QUIT"    defBBox False False
-    (Format CC (0.0) (-0.15) 0.0 0.033 0.5)
+    (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
   }
 
 optsGUI :: (Int, Int) -> GUI
@@ -103,8 +104,8 @@ optsGUI res =
   OptsGUI
   {
     _res     = res
-  , _cursor  = Cursor True "" (0.0, 0.0)
-  , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0)
+  , _cursor  = Cursor True "" (0.0, 0.0) defOpts
+  , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -112,9 +113,9 @@ mainGUI res =
   MainGUI
   {
     _res    = res
-  , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5)
-  , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5)
-  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2)
+  , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5) defOpts
+  , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5) defOpts
+  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts
   }
 
 infoGUI :: (Int, Int) -> GUI
@@ -122,12 +123,12 @@ infoGUI res =
   InfoGUI
   {
     _res   = res
-  , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0)
+  , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
   , _infos =
-    [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0)
-    , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0)
+    [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
+    , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
     ]
-  , _cursor = Cursor True "" (0.0, 0.0)
+  , _cursor = Cursor True "" (0.0, 0.0) defOpts
   }
   
 fromGUI :: GUI -> [Widget]

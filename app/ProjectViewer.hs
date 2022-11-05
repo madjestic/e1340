@@ -46,7 +46,7 @@ import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
-import Graphics.RedViz.Widget
+import Graphics.RedViz.Widget as W
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable
 import Graphics.RedViz.Input.Mouse
@@ -156,12 +156,14 @@ output fps lastInteraction window application = do
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
-                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
-    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })    :: Drawable -> IO ()
+    renderAsTriangles'= render txs hmap :: BackendOptions -> Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })    :: Drawable -> IO ()
+    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles        
+                                              , depthMsk      = Disabled  })    :: Drawable -> IO ()
+    renderWidgets     = renderWidget  fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
+    renderWidgets'    = renderWidget' fps lastInteraction fntsDrs renderAsTriangles' :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles  :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
@@ -177,11 +179,37 @@ output fps lastInteraction window application = do
 renderWidget :: MVar [Double] -> MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget fps lastInteraction drs cmds wgt =
   case wgt of
-    TextField a t f ->
+    TextField a t f _ ->
       when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f->
+    Button a l _ _ _ f _ ->
       when a $ renderString cmds drs f l
-    FPS a f ->
+    FPS a f _ ->
+      when a $ do
+        dts <- readMVar fps
+        ct  <- SDL.time -- current time
+        dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
+        dts'<- swapMVar fps $ tail dts ++ [dt]
+        let dt' = (sum dts')/(fromIntegral $ length dts')
+        renderString cmds drs f $ "fps:" ++ show (round (1.0/dt') :: Integer)
+          where
+            fps' = 30   :: Double
+            msps = 1000 :: Double
+            
+    Cursor {} -> return ()
+
+renderWidget' :: MVar [Double] -> MVar Double -> [Drawable] -> (BackendOptions -> Drawable -> IO ()) -> Widget-> IO ()
+renderWidget' fps lastInteraction drs f wgt =
+  let
+    opts = W._options wgt :: BackendOptions
+    cmds = f opts    :: (Drawable -> IO ())
+  in
+
+  case wgt of
+    TextField a t f _ ->
+      when a $ renderString cmds drs f $ concat t
+    Button a l _ _ _ f _ ->
+      when a $ renderString cmds drs f l
+    FPS a f _ ->
       when a $ do
         dts <- readMVar fps
         ct  <- SDL.time -- current time
@@ -198,7 +226,7 @@ renderWidget fps lastInteraction drs cmds wgt =
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a l (x',y') ->
+    Cursor a l (x',y') _ ->
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 1.0)

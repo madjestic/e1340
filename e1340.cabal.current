@@ -319,6 +319,7 @@ executable ProjectViewer
               , Graphics.RedViz.Object
               , Graphics.RedViz.Widget
               , Graphics.RedViz.Primitives
+              , Graphics.RedViz.Backend
               , ObjectTree
               , App
               , App.App

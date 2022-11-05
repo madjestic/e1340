@@ -86,7 +86,7 @@ updateGUI' gui0@(MainGUI {} ) =
 updateGUI' gui = proc _ -> do returnA -< gui
 
 updateButton :: (Int, Int) -> Widget -> SF (AppInput, Widget, Widget) Widget
-updateButton res btn0@(Button _ _ _ _ _ _) =
+updateButton res btn0@(Button {}) =
   proc (input, crsr, btn) -> do
     btn'     <- updateFormat  res btn0 -< (btn, crsr)
     lbpE     <- lbp -< input
@@ -151,8 +151,8 @@ insideBBox res (BBox x0 y0 x1 y1) (bx, by) (mx, my) = inside
 mouseOverE :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE res crsr btn = (btn', event')
   where
-    Button _ _ bboxBtn _ _ fmtBtn = btn 
-    Cursor _ _ (mx, my)           = crsr
+    Button _ _ bboxBtn _ _ fmtBtn _ = btn 
+    Cursor _ _ (mx, my)           _ = crsr
     
     btn'   =
       btn
@@ -171,8 +171,8 @@ mouseOverE res crsr btn = (btn', event')
 mouseOverE' :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE' res crsr btn = (btn', event')
   where
-    Button _ _ bboxBtn _ _ fmtBtn = btn 
-    Cursor _ _ (mx, my)           = crsr
+    Button _ _ bboxBtn _ _ fmtBtn _ = btn 
+    Cursor _ _ (mx, my)           _ = crsr
 
     btn'   =
       btn
@@ -191,9 +191,9 @@ mouseOverE' res crsr btn = (btn', event')
 
 updateCursor :: SF (AppInput, Widget) Widget
 updateCursor =
-  proc (input, Cursor activeC lableC (mx, my))-> do
+  proc (input, Cursor activeC lableC (mx, my) opts)-> do
     (mouse', mevs) <- updateMouse -< input
     let
       coords' = mouse' ^. pos
-      result' = (Cursor activeC lableC coords')
+      result' = (Cursor activeC lableC coords' opts)
     returnA -< result'

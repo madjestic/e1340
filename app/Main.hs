@@ -173,11 +173,11 @@ output lastInteraction window application = do
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget lastInteraction drs cmds wgt =
   case wgt of
-    TextField a t f ->
+    TextField a t f _ ->
       when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f->
+    Button a l _ _ _ f _->
       when a $ renderString cmds drs f l
-    FPS a f ->
+    FPS a f _ ->
       when a $ do
         ct <- SDL.time -- current time
         dt <- (ct -) <$> readMVar lastInteraction
@@ -187,7 +187,7 @@ renderWidget lastInteraction drs cmds wgt =
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a l (x',y') ->
+    Cursor a l (x',y') _ ->
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 1.0)
