@@ -1,7 +1,7 @@
 module Object
   ( Object (..)
   , emptyObj
-  , defaultObj
+  --, defaultObj
   , base
   , materials
   , programs

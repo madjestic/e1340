@@ -114,17 +114,25 @@ output fps lastInteraction window application = do
   --dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
+    vs = [V3 0 0 0, V3 0 10 0, V3 10 0 0]       :: [V3 Double]
+  curveObj <- toCurve vs :: IO Object -- Sprite
+
+  let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
     fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
+
+    --vs       = undefined   :: [V3 Double]
+    --curveObj = toCurve vs  :: Object -- Sprite
+    curvObjs = [curveObj]  :: [Object]
 
     icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
     --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-    --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
+    curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Widget
 
@@ -156,18 +164,18 @@ output fps lastInteraction window application = do
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })    :: Drawable -> IO ()
-    renderAsTriangles'= render txs hmap :: BackendOptions -> Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })    :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles        
-                                              , depthMsk      = Disabled  })    :: Drawable -> IO ()
-    renderWidgets     = renderWidget  fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderWidgets'    = renderWidget' fps lastInteraction fntsDrs renderAsTriangles' :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles  :: Widget   -> IO ()
+    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })      :: Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })      :: Drawable -> IO ()
+    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles          
+                                              , depthMsk      = Disabled  })      :: Drawable -> IO ()
+    renderWidgets     = renderWidget    fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles    :: Widget   -> IO ()
+    renderAsCurves    = render txs hmap (opts { primitiveMode = LineLoop })          :: Drawable -> IO ()
 
-  mapM_ renderAsTriangles objsDrs
-  mapM_ renderAsPoints    bgrsDrs
-  mapM_ renderWidgets     wgts
+  mapM_ renderAsCurves    curvDrs
+  --mapM_ renderAsTriangles objsDrs
+  --mapM_ renderAsPoints    bgrsDrs
+  --mapM_ renderWidgets     wgts
   renderCursorM           crsr
   
   -- case app ^. objects . gui . fonts of
@@ -176,34 +184,9 @@ output fps lastInteraction window application = do
 
   glSwapWindow window
 
+
 renderWidget :: MVar [Double] -> MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget fps lastInteraction drs cmds wgt =
-  case wgt of
-    TextField a t f _ ->
-      when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f _ ->
-      when a $ renderString cmds drs f l
-    FPS a f _ ->
-      when a $ do
-        dts <- readMVar fps
-        ct  <- SDL.time -- current time
-        dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
-        dts'<- swapMVar fps $ tail dts ++ [dt]
-        let dt' = (sum dts')/(fromIntegral $ length dts')
-        renderString cmds drs f $ "fps:" ++ show (round (1.0/dt') :: Integer)
-          where
-            fps' = 30   :: Double
-            msps = 1000 :: Double
-            
-    Cursor {} -> return ()
-
-renderWidget' :: MVar [Double] -> MVar Double -> [Drawable] -> (BackendOptions -> Drawable -> IO ()) -> Widget-> IO ()
-renderWidget' fps lastInteraction drs f wgt =
-  let
-    opts = W._options wgt :: BackendOptions
-    cmds = f opts    :: (Drawable -> IO ())
-  in
-
   case wgt of
     TextField a t f _ ->
       when a $ renderString cmds drs f $ concat t

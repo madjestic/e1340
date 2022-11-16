@@ -47,6 +47,7 @@ data GUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
+     , _orbit  :: Maybe Widget
      , _speed  :: Widget
      , _cursor :: Widget
      }
@@ -114,8 +115,9 @@ mainGUI res =
   {
     _res    = res
   , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5) defOpts
+  --, _orbit  = Just $ Orbit defOpts'
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5) defOpts
-  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts
+  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts  
   }
 
 infoGUI :: (Int, Int) -> GUI

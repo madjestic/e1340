@@ -12,11 +12,12 @@ module ObjectTree
   , Widget (..)
   , ObjectTree.fonts
   , ObjectTree.icons
+  , toCurve
   ) where
 
 import Control.Lens hiding (transform, pre)
 import Linear.Matrix
-import Linear (V3(..), V4(..))
+import Linear (V3(..), V4(..), Metric (dot))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
@@ -36,7 +37,9 @@ import Graphics.RedViz.PGeo ( readBGeo
                             , sxf
                             , svl
                             , savl
-                            , sms )
+                            , sms
+                            , toVAO
+                            , VAO)
 import Graphics.RedViz.Utils as U
 import Graphics.RedViz.Object as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
@@ -322,6 +325,9 @@ toVGeo prj0 pObj0 = do
     --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"]
   sequence vgeos
 
+toVGeo' :: [V3 Double] -> [VGeo]
+toVGeo' vs = undefined
+
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
 toDescriptorSVGeo prj0 pObj0 = do
   vgeos' <- toVGeo prj0 pObj0
@@ -330,3 +336,59 @@ toDescriptorSVGeo prj0 pObj0 = do
     vao'   = fromSVGeo <$> svgeos :: VAO'
   ds' <- mapM toDescriptor vao'
   return (ds', svgeos) :: IO ([Descriptor], [SVGeo])
+
+toCurve :: [V3 Double] -> IO Object
+toCurve vs = do
+  --(ds, svgeo) <- curve vs
+  let
+    svgeo  = toCurve' vs :: SVGeo 
+    vao'   = fromSVGeo svgeo
+  ds         <- toDescriptor vao'
+  materials' <- mapM Material.read $ toListOf (traverse . smp) [svgeo] :: IO [Material]
+  programs'  <-
+    mapM (\mat -> case _geomShader mat of
+             Just geomShader' ->
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo GeometryShader (FileSource geomShader')
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  ]
+             Nothing ->             
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+         ) materials'
+  let
+    base =
+      defaultObject'
+      & descriptors .~ [ds]
+      & materials   .~ materials'
+      & programs    .~ programs'
+
+    curveObj' =
+      Sprite base
+  
+  return curveObj'
+      
+toCurve' :: [V3 Double] -> SVGeo
+toCurve' vs = svgeo
+  where
+    idxs  = snd <$> zip vs [0..]
+    as    = snd <$> zip vs (repeat 1.0)
+    cds   = snd <$> zip vs (repeat  (1, 1, 1))
+    ns    = snd <$> zip vs (repeat  (0, 0, 1))
+    ts    = snd <$> zip vs (repeat  (0, 0, 0))
+    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs
+    vao   = toVAO [idxs] as cds ns ts ps :: VAO
+    svgeo =
+      SVGeo
+      {
+        _sis = idxs
+      , _sst = 13
+      , _svs = concat . concat $ vao
+      , _smp = "mat/default/default"
+      , _sms = 1.0
+      , _svl = []
+      , _savl= []
+      , _sxf = []
+      }

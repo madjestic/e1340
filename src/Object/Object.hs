@@ -8,7 +8,7 @@
 module Object.Object
   ( Object (..)
   , emptyObj
-  , defaultObj
+  --, defaultObj
   , base
   , nameP
   , idxP
@@ -62,7 +62,7 @@ data Object
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]
-     , _trs         :: [V3 Double]
+     , _trs         :: [V3 Double] -- | Trace - useful for visualising paths, orbits, etc.
      }
   |  Planet
      {
@@ -89,34 +89,38 @@ data Object
   deriving Show
 $(makeLenses ''Object)
 
+-- Object -> trace -> curve -> drawable object 
+-- toCurve :: Object -> Object
+-- toCurve obj0 = Sprite curv
+--   where
+--     curv = undefined :: Object'
+
 emptyObj :: Object
 emptyObj =
   Object.Object.Empty
   defaultObject'
-  -- (Object' [] [] [] [] 0.0)
 
-
-defaultObj :: Object
-defaultObj =
-  Planet
-    (Object'
-     []
-     [defaultMat]
-     []
-     [(identity::M44 Double)]
-     (identity::M44 Double)
-     (V3 0 0 0 :: V3 Double)
-     (V3 0 0 0 :: V3 Double)
-     0.0
-    )
-    ""
-    0
-    (V3 0 0 0)
-    (V3 0 0 0)
-    (1.0)
-    (1.0)
-    []
-    []
+-- defaultObj :: Object
+-- defaultObj = undefined -- emptyObj
+  -- Planet
+  --   (Object'
+  --    []
+  --    [defaultMat]
+  --    []
+  --    [(identity::M44 Double)]
+  --    (identity::M44 Double)
+  --    (V3 0 0 0 :: V3 Double)
+  --    (V3 0 0 0 :: V3 Double)
+  --    0.0
+  --   )
+  --   ""
+  --   0
+  --   (V3 0 0 0)
+  --   (V3 0 0 0)
+  --   (1.0)
+  --   (1.0)
+  --   []
+  --   []
 
 objectNames :: Object -> String
 objectNames obj = obj ^. nameP

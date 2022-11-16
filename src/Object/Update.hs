@@ -91,12 +91,12 @@ solveStatic obj0 slv =
 
 solveDynamic :: [Object] -> Object -> Solver -> Object
 solveDynamic objs0 obj0 slv =
-  case (DT.trace ("obj name : " ++ show (obj0 ^. nameP) ++ "\n" ++
-                  "slv      : " ++ show (slv)           ++ "\n" ++
-                  "tr0      : " ++ show (obj0 ^. (base . transform0 . translation)) ++ "\n" ++
-                  "trace    : " ++ show (obj0 ^. trs)   ++ "\n"
-                 ) slv) of
-  --case slv of
+  -- case (DT.trace ("obj name : " ++ show (obj0 ^. nameP) ++ "\n" ++
+  --                 "slv      : " ++ show (slv)           ++ "\n" ++
+  --                 "tr0      : " ++ show (obj0 ^. (base . transform0 . translation)) ++ "\n" ++
+  --                 "trace    : " ++ show (obj0 ^. trs)   ++ "\n"
+  --                ) slv) of
+  case slv of
     Translate Dynamic WorldSpace txyz _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
