@@ -5,7 +5,6 @@
 
 module Main where 
 
---import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, putMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
 import Control.Monad      ( when )
@@ -37,7 +36,6 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Capability (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
---import GHC.Float                 ( roundDouble )
     
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
@@ -105,17 +103,11 @@ output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
 output fps lastInteraction window application = do
   -- ticks   <- SDL.ticks
   -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-
 -- | render FPS current
   currentTime <- SDL.time
   --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
-  -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
-
+  --mloc -- TODO get mouse pos from AppInput, store it in App.gui?
   --dt <- (currentTime -) <$> readMVar lastInteraction
-
-  let
-    vs = [V3 0 0 0, V3 0 10 0, V3 10 0 0]       :: [V3 Double]
-  curveObj <- toCurve vs :: IO Object -- Sprite
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
@@ -123,23 +115,24 @@ output fps lastInteraction window application = do
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-    --vs       = undefined   :: [V3 Double]
-    --curveObj = toCurve vs  :: Object -- Sprite
-    curvObjs = [curveObj]  :: [Object]
-
     icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
     --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-    curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Widget
-
     app  = fromApplication application
-    txs  = concat . concat
-           $   (\obj -> obj ^.. base . materials . traverse . textures)
-           <$> (fgrObjs ++ fntObjs ++ icnObjs) :: [Texture]
+
+  curvObjs <- mapM toCurve fgrObjs
+  let
+    curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
+
+    txs  = concat 
+           (concatMap
+             (\obj -> obj ^.. base . materials . traverse . textures)
+             (fgrObjs ++ fntObjs ++ icnObjs)
+           ) :: [Texture]
     hmap = _hmap application
 
     opts =
@@ -173,9 +166,9 @@ output fps lastInteraction window application = do
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineLoop })          :: Drawable -> IO ()
 
   mapM_ renderAsCurves    curvDrs
-  --mapM_ renderAsTriangles objsDrs
-  --mapM_ renderAsPoints    bgrsDrs
-  --mapM_ renderWidgets     wgts
+  mapM_ renderAsTriangles objsDrs
+  mapM_ renderAsPoints    bgrsDrs
+  mapM_ renderWidgets     wgts
   renderCursorM           crsr
   
   -- case app ^. objects . gui . fonts of
