@@ -93,7 +93,7 @@ executable Grapher
   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
   ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   --ghc-options:   -O2 -threaded
-  -- cpp-options:   -DDEBUG  
+  --cpp-options:   -DDEBUG  
   build-depends:
                   base                
                 , aeson               
@@ -263,7 +263,7 @@ executable ProjectViewer
   ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   --ghc-options:   -O2 -threaded
   --cpp-options:   -DDEBUG
-  cpp-options:   -DDEBUGMAIN
+  --cpp-options:   -DDEBUGMAIN
   build-depends:
                  base                
                , aeson               

@@ -57,13 +57,6 @@ import GUI
 
 import Debug.Trace    as DT
 
-debug :: Bool
-#ifdef DEBUGMAIN
-debug = False
-#else
-debug = False
-#endif
-
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = FRP.Event SDL.EventPayload
 type WinOutput = (Application, Bool)
@@ -228,14 +221,10 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  introProj <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
-  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!1)   :: FilePath)
-  optsProj  <- if debug then P.read ("./projects/options"     :: FilePath)
-               else          P.read (unsafeCoerce (args!!2)   :: FilePath)
-  pInfoProj <- if debug then P.read ("./projects/infoearth"   :: FilePath)
-               else          P.read (unsafeCoerce (args!!3)   :: FilePath)
+  introProj <- P.read (unsafeCoerce (args!!0)   :: FilePath)
+  mainProj  <- P.read (unsafeCoerce (args!!1)   :: FilePath)
+  optsProj  <- P.read (unsafeCoerce (args!!2)   :: FilePath)
+  pInfoProj <- P.read (unsafeCoerce (args!!3)   :: FilePath)
   
   let
     title   = pack $ view P.name mainProj

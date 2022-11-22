@@ -46,6 +46,7 @@ import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
 import Graphics.RedViz.Widget as Widget
+import Graphics.RedViz.Primitives
 
 import Object
 import Solvable hiding (_ypr, _trs)
@@ -335,10 +336,11 @@ toDescriptorSVGeo prj0 pObj0 = do
 toCurve :: Object -> IO Object
 toCurve objs = do
   let
-    vs     = _trs objs   :: [V3 Double]
-    svgeo  = toSVGeo vs  :: SVGeo 
+    vs     =
+      take 100 $ _trs objs   :: [V3 Double]
+    svgeo  = toSVGeo vs Curve  :: SVGeo 
     svao   = fromSVGeo svgeo
-  ds         <- toDescriptor svao
+  ds       <- toDescriptor svao
   material <- Material.read $ _smp svgeo :: IO Material
   program  <-
     (\mat -> case _geomShader mat of
@@ -365,11 +367,15 @@ toCurve objs = do
   
   return curveObj'
 
-toSVGeo :: [V3 Double] -> SVGeo
-toSVGeo vs = svgeo
+toSVGeo :: [V3 Double] -> Primitive -> SVGeo
+toSVGeo vs Curve = svgeo
   where
     idxs  = snd <$> zip vs [0..]
-    as    = snd <$> zip vs (repeat 1.0)
+    as    = alphas vs :: [Float]
+    alphas vs = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs)])
+    gamma = (** 0.75)
+    add   = (+ (-1.0/(int2Float $ length vs)))
+    mult  = (* 5)
     cds   = snd <$> zip vs (repeat  (1, 1, 1))
     ns    = snd <$> zip vs (repeat  (0, 0, 1))
     ts    = snd <$> zip vs (repeat  (0, 0, 0))

@@ -33,7 +33,7 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , ($=)
                                  , ClearBuffer (..)
                                  , DataType (Double)
-                                 , Capability (..))
+                                 , Capability (..), PolygonMode (Line))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
     
@@ -163,7 +163,7 @@ output fps lastInteraction window application = do
                                               , depthMsk      = Disabled  })      :: Drawable -> IO ()
     renderWidgets     = renderWidget    fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
     renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles    :: Widget   -> IO ()
-    renderAsCurves    = render txs hmap (opts { primitiveMode = LineLoop })          :: Drawable -> IO ()
+    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })          :: Drawable -> IO ()
 
   mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs

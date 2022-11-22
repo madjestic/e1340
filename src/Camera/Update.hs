@@ -41,32 +41,35 @@ updateCameraController cam0 =
           (kbrd',  kevs) <- updateKeyboard (view (controller.device.keyboard) cam0) -< (input, (view (controller.device.keyboard) cam))
 
           let
-            s'       = 1.0  :: Double -- | mouse sensitivity scale
+            s'       = 1.0  :: Double -- | mouse sensitivity rvec
             t'       = 2    :: Double -- | mouse idle threshold
                                       -- | inactive radius
-            rad      = (0.1 *) $ fromIntegral $ snd $ cam0^.res :: Double 
+            rad      = (0.25 *) $ fromIntegral $ snd $ cam0^.res :: Double 
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
 
             -- | compute rotation velocity = length (mouseP - originP) * scalar
-            (mrx', mry') = mouse' ^. rpos
+            -- (mrx', mry') = mouse' ^. rpos
             (mx' , my')  = mouse' ^. pos
-            (cx  , cy)   = ( fromIntegral $ (fst $ cam0^.res) `div` 2
-                           , fromIntegral $ (snd $ cam0^.res) `div` 2)
-            mdist        = abs $ norm (V3 (mx' - cx) (my' - cy) (0.0))
             
-            ypr'     =
+            --(mx' , my')  = mouse' ^. (DT.trace ("pos : " ++ show (mouse' ^. pos)) pos)
+            (cx  , cy)   = ( fromIntegral $ (fst $ cam0^.res) `div` 2
+                           , fromIntegral $ (snd $ cam0^.res) `div` 2 )
+            cpos'    = V3 (mx' - cx) (my' - cy) (0.0) -- centralized mouse position (relative to origin, screen center, 0,0,0)
+            cpos    = cpos' ^* (max (logBase 100 (norm cpos')) 0)
+            mdist   = abs $ norm (V3 (mx' - cx) (my' - cy) (0.0))
+            
+            rvec'' = cpos - (cpos^/(norm cpos + 0.00001)) ^* min (norm cpos) rad
+                   + cpos ^* max ((logBase 100 $ norm cpos) - 1.0) 0
+            mVec   = V3 1 1 1 ^* 10
+            rvec'  = max (-mVec) $ min rvec'' mVec
+            rvec   = rvec'^._yxz
+            
+            ypr'     = 
               (view (controller.ypr) cam +) $
-              (0.00001 * (view mouseS cam) *
-                -- (V3 (case (abs mry' <= t') of True -> 0; _ -> (mry' / t') * (abs mry')**s')
-                --     (case (abs mrx' <= t') of True -> 0; _ -> (mrx' / t') * (abs mrx')**s')
-                --      0.0) +) $
-                (V3
-                 (case (mdist <= rad) of True -> 0; _ -> (clampBy rad $ my' - cy)**s')
-                 (case (mdist <= rad) of True -> 0; _ -> (clampBy rad $ mx' - cx)**s')
-                  0.0) +) $
-              foldr1 (+) $
-              fmap ( 0.0000001 * scalar * (view keyboardRS cam) *) $ -- <- make it keyboard controllabe: speed up/down            
+              (0.00001 * (view mouseS cam) * rvec +) $
+              sum $
+              (0.0000001 * scalar * view keyboardRS cam *) <$> -- <- make it keyboard controllabe: speed up/down            
               zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                             [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                             [ pPitch, nPitch,  pYaw,    nYaw,     pRoll, nRoll ]
@@ -152,7 +155,7 @@ updateCameraController cam0 =
                        
           returnA -<
             ( result
-            , catEvents (kevs ++ ((tagWith ()) <$> mevs)) $> result )
+            , catEvents (kevs ++ (tagWith () <$> mevs)) $> result )
 
     cont = updateCameraController
 
