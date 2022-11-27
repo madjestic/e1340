@@ -1,9 +1,9 @@
-{-# LANGUAGE TemplateHaskell #-}
+--{-# LANGUAGE TemplateHaskell #-}
 
 module Grapher.Application.Interface
   where
 
-import Control.Lens ( view, makeLenses )
+--import Control.Lens ( view, makeLenses )
 
 data Planet =
     None

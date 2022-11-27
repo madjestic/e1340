@@ -17,7 +17,7 @@ module ObjectTree
 
 import Control.Lens hiding (transform, pre)
 import Linear.Matrix
-import Linear (V3(..), V4(..), Metric (dot))
+import Linear (V3(..), V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
@@ -27,9 +27,9 @@ import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
-                            , readPGeo
                             , fromVGeo
-                            , fromPGeo
+                            -- , fromPGeo
+                            -- , readPGeo
                             , fromSVGeo
                             , VGeo(..)
                             , SVGeo(..)
@@ -52,7 +52,7 @@ import Object
 import Solvable hiding (_ypr, _trs)
 import Object.Update (updateOnce)
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data ObjectTree =
   ObjectTree
@@ -167,8 +167,8 @@ fromPreObject prj0 cls pObj0 = do
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double  -- TODO: replace with something more sophisticated, like a sum or average?
     avels        = toListOf (traverse . savl) svgeos' :: [[Float]]
     avelocity'   = toV3 (fmap float2Double (head avels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
-    ms           = toListOf (traverse . sms) svgeos' :: [Float]
-    mass'        = float2Double (head ms)
+    ms'          = toListOf (traverse . sms) svgeos' :: [Float]
+    mass'        = float2Double (head ms')
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
     trs'         = [V3 0 0 0, V3 0 0 0, V3 0 0 0]
@@ -321,8 +321,8 @@ toVGeo prj0 pObj0 = do
     --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"]
   sequence vgeos
 
-toVGeo' :: [V3 Double] -> [VGeo]
-toVGeo' vs = undefined
+-- toVGeo' :: [V3 Double] -> [VGeo]
+-- toVGeo' vs = undefined
 
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
 toDescriptorSVGeo prj0 pObj0 = do
@@ -336,9 +336,9 @@ toDescriptorSVGeo prj0 pObj0 = do
 toCurve :: Object -> IO Object
 toCurve objs = do
   let
-    vs     =
+    vs'    =
       take 100 $ _trs objs   :: [V3 Double]
-    svgeo  = toSVGeo vs Curve  :: SVGeo 
+    svgeo  = toSVGeo vs' Curve  :: SVGeo 
     svao   = fromSVGeo svgeo
   ds       <- toDescriptor svao
   material <- Material.read $ _smp svgeo :: IO Material
@@ -356,30 +356,30 @@ toCurve objs = do
              , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
     ) material
   let
-    base =
+    base' =
       defaultObject'
       & descriptors .~ [ds]
       & materials   .~ [material]
       & programs    .~ [program]
 
     curveObj' =
-      Sprite base
+      Sprite base'
   
   return curveObj'
 
 toSVGeo :: [V3 Double] -> Primitive -> SVGeo
-toSVGeo vs Curve = svgeo
+toSVGeo vs0 Curve = svgeo
   where
-    idxs  = snd <$> zip vs [0..]
-    as    = alphas vs :: [Float]
-    alphas vs = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs)])
+    idxs  = snd <$> zip vs0 [0..]
+    as    = alphas vs0 :: [Float]
+    alphas vs' = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs')])
     gamma = (** 0.75)
-    add   = (+ (-1.0/(int2Float $ length vs)))
+    add   = (+ (-1.0/(int2Float $ length vs0)))
     mult  = (* 5)
-    cds   = snd <$> zip vs (repeat  (1, 1, 1))
-    ns    = snd <$> zip vs (repeat  (0, 0, 1))
-    ts    = snd <$> zip vs (repeat  (0, 0, 0))
-    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs
+    cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
+    ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
+    ts    = snd <$> zip vs0 (repeat  (0, 0, 0))
+    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs0
     vao   = toVAO [idxs] as cds ns ts ps :: VAO
     svgeo =
       SVGeo

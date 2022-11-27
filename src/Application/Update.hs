@@ -22,7 +22,7 @@ import App
 import GUI
 import Graphics.RedViz.Widget
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 import Data.Maybe (fromJust)
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
@@ -37,7 +37,8 @@ mainLoop app0 =
     returnA -< (app1, app1)
 
 switchOptsMain :: Application -> Event () -> Event () -> GUI
-switchOptsMain appl optsE startE = ui'
+--switchOptsMain appl optsE startE = ui'
+switchOptsMain appl optsE _ = ui'
   where
     ui' =
       -- TODO : rename main to mainApp ?
@@ -52,7 +53,7 @@ appIntro app0  =
              proc (input, app1) -> do
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
                
-               skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
+               --skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
                strtE <- arr isPressed >>> edge -< (app' ^? App.gui . strtB :: Maybe Widget)
                optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB :: Maybe Widget)
                quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB :: Maybe Widget)
@@ -78,7 +79,7 @@ appIntro app0  =
                                     })
                
            cont arg =
-             proc (input', app') -> do
+             proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
 
@@ -101,7 +102,7 @@ appOpts app0  =
                                result' { Appl._gui = app1 ^. intr . App.gui })
                
            cont arg =
-             proc (input', app') -> do
+             proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
                
@@ -128,7 +129,7 @@ appMain app0 =
                        _  -> appl' ^. info . App.gui
 
            cont arg =
-             proc (input', app') -> do
+             proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
 

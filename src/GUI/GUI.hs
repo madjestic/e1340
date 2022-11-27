@@ -19,10 +19,10 @@ module GUI.GUI
   ) where
 
 import Control.Lens
-import Data.Maybe (fromJust)
+--import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
-import Graphics.RedViz.Camera hiding (_res, res)
+--import Graphics.RedViz.Camera hiding (_res, res)
 import Graphics.RedViz.Backend
 
 data GUI
@@ -47,7 +47,7 @@ data GUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
-     , _orbit  :: Maybe Widget
+     --, _orbit  :: Maybe Widget
      , _speed  :: Widget
      , _cursor :: Widget
      }
@@ -62,7 +62,7 @@ data GUI
 $(makeLenses ''GUI)
 
 fromFormat :: Format -> (Double, Double)
-fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
+fromFormat (Format alignment_ x_ y_ _ _ _) =
   (\ (x0, y0) (x1,y1) -> (x0+x1, y0+y1)) (x_,y_) $
   case alignment_ of
     TL -> (-1.0, 0.5)
@@ -80,11 +80,11 @@ defBBox =
   BBox (-0.2) (0.1) (0.2) (-0.1)
 
 introGUI :: (Int, Int) -> GUI
-introGUI res =
+introGUI res0 =
   IntrGUI
   {
-    _res    = res
-  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts
+    _res    = res0
+  , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
     TextField True ["PARAYA"] 
@@ -101,30 +101,30 @@ introGUI res =
   }
 
 optsGUI :: (Int, Int) -> GUI
-optsGUI res =
+optsGUI res0 =
   OptsGUI
   {
-    _res     = res
+    _res     = res0
   , _cursor  = Cursor True "" (0.0, 0.0) defOpts
   , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
   }
 
 mainGUI :: (Int, Int) -> GUI
-mainGUI res =
+mainGUI res0 =
   MainGUI
   {
-    _res    = res
+    _res    = res0
   , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5) defOpts
   --, _orbit  = Just $ Orbit defOpts'
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5) defOpts
-  , _cursor = Cursor True "" ((fromIntegral $ fst res)/2, (fromIntegral $ snd res)/2) defOpts  
+  , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts  
   }
 
 infoGUI :: (Int, Int) -> GUI
-infoGUI res =
+infoGUI res0 =
   InfoGUI
   {
-    _res   = res
+    _res   = res0
   , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
   , _infos =
     [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
@@ -136,7 +136,7 @@ infoGUI res =
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
-    gui@(IntrGUI {}) ->
+    IntrGUI {} ->
       [
         _cursor gui
       , _xx     gui

@@ -19,7 +19,7 @@ project =
   -- 640
   -- 400
   "AbsoluteLocation"
-  [ (Model   "models/box.bgeo")]
+  [ (Model   "models/graph.bgeo")]
   [ (PreObject
     "box"
     "planet"

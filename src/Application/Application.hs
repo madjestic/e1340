@@ -21,10 +21,10 @@ import Control.Concurrent.MVar
 import Graphics.Rendering.OpenGL as GL    (GLuint)
 
 import App (App(..))
-import Application.Interface
+--import Application.Interface
 import GUI
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data Application
   = Application

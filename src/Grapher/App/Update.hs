@@ -26,9 +26,9 @@ import Grapher.ObjectTree
 import Grapher.Object as Obj-- (Empty)
 --import Camera
 --import Solvable
-import Grapher.GUI
+-- import Grapher.GUI
 
-import Debug.Trace as DT (trace)
+-- import Debug.Trace as DT (trace)
 
 formatDebug' :: App -> String
 formatDebug' app0 =
@@ -106,8 +106,8 @@ updateOptsApp app0 =
    -- selected'    <- updateSelected   app0 -< (input, selectable')
 
    let
-     selectedText = objectNames <$> view selectable result :: [String]
-     objTree      = App._objects app'
+     -- selectedText = objectNames <$> view selectable result :: [String]
+     -- objTree      = App._objects app'
      
      result =
        app'

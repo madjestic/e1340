@@ -12,6 +12,7 @@ module Grapher.ObjectTree
   , Widget (..)
   , Grapher.ObjectTree.fonts
   , Grapher.ObjectTree.icons
+  , toCurve
   ) where
 
 import Control.Lens hiding (transform, pre)
@@ -20,23 +21,38 @@ import Linear (V3(..), V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
-import Graphics.RedViz.Project as Project
-import Graphics.RedViz.Project as P
+import Graphics.RedViz.Project as Project hiding (_solvers)
+import Graphics.RedViz.Project as P       hiding (_solvers)
 import Graphics.RedViz.Project.Model as Model
 import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
-import Graphics.RedViz.PGeo (readBGeo, fromVGeo, fromSVGeo, VGeo(..), SVGeo(..), smp, sxf, svl)
+import Graphics.RedViz.PGeo ( readBGeo
+                            , fromVGeo
+                            -- , fromPGeo
+                            -- , readPGeo
+                            , fromSVGeo
+                            , VGeo(..)
+                            , SVGeo(..)
+                            , smp
+                            , sxf
+                            , svl
+                            , savl
+                            , sms
+                            , toVAO
+                            , VAO)
 import Graphics.RedViz.Utils as U
 import Graphics.RedViz.Object as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
 import Graphics.RedViz.Widget as Widget
+import Graphics.RedViz.Primitives
 
 import Grapher.Object as Object
-import Solvable
+import Solvable hiding (_ypr, _trs)
+import Grapher.Object.Update (updateOnce)
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data ObjectTree =
   ObjectTree
@@ -93,14 +109,23 @@ fromPreObject :: Project -> ObjectClass -> PreObject -> IO Object
 fromPreObject prj0 cls pObj0 = do
   (ds', svgeos') <- toDescriptorSVGeo prj0 pObj0 :: IO ([Descriptor], [SVGeo])
   materials'     <- mapM Material.read $ toListOf (traverse . smp) svgeos' :: IO [Material]
-  programs'      <- mapM
-    (\mat -> loadShaders
-             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ])
-    materials'
+  programs'      <-
+    mapM (\mat -> case _geomShader mat of
+             Just geomShader' ->
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo GeometryShader (FileSource geomShader')
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  ]
+             Nothing ->             
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+         ) materials'
 
   let
     name'           = view pname pObj0        :: String
+    idx'            = view pidx  pObj0        :: Integer
     
     presolvers'     = pObj0 ^. P.presolvers   :: [String]
     psolvers'       = pObj0 ^. P.solvers      :: [String]
@@ -117,10 +142,10 @@ fromPreObject prj0 cls pObj0 = do
 
     preattrsF    = case presolverAttrs' of
                      [] -> [[]]
-                     _  -> presolverAttrs'  :: [[Double]]
+                     _  -> presolverAttrs'    :: [[Double]]
     attrsF       = case solverAttrs' of
                      [] -> [[]]
-                     _  -> solverAttrs'  :: [[Double]]
+                     _  -> solverAttrs'       :: [[Double]]
 
     presolvers''  = toSolver <$> zip presolversF preattrsF :: [Solver]                     
     solvers''     = toSolver <$> zip solversF    attrsF    :: [Solver]
@@ -139,14 +164,17 @@ fromPreObject prj0 cls pObj0 = do
             foldPretransformers (mtx0, _ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, _ypr0) ss)
   
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
-    velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double -- TODO: replace with something more sophisticated?
-    avelocity'   = V3 0 0 0 :: V3 Double
-    mass'        = 1.0 :: Double
+    velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double  -- TODO: replace with something more sophisticated, like a sum or average?
+    avels        = toListOf (traverse . savl) svgeos' :: [[Float]]
+    avelocity'   = toV3 (fmap float2Double (head avels)) :: V3 Double -- TODO: replace with something more sophisticated, like a sum or average?
+    ms'          = toListOf (traverse . sms) svgeos' :: [Float]
+    mass'        = float2Double (head ms')
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
+    trs'         = [V3 0 0 0, V3 0 0 0, V3 0 0 0]
 
   case cls of
-    Font -> return $
+    Font -> return $ updateOnce $
       Object.Sprite
       (Object'
        ds'
@@ -154,29 +182,63 @@ fromPreObject prj0 cls pObj0 = do
        programs'
        transforms'
        (head transforms')
+       --(identity :: M44 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
     _ ->
       case _ptype pObj0 of
-        "planet" -> return $
+        "planet" -> return $ updateOnce $
           Planet
-          (Object'
-           ds'
-           materials'
-           programs'
-           transforms'
-           (head transforms')
-           (sum ypr')
-           (V3 0 0 0 :: V3 Double)
-           time')
-          name'
-          velocity'
-          avelocity'
-          mass'
-          density'
-          solvers''
-        "sprite" -> return $
+          {
+            _base = 
+            ( Object'
+              {
+               _descriptors = ds'
+              ,_materials   = materials'
+              ,_programs    = programs'
+              ,_transforms  = transforms'
+              ,_transform0  = identity :: M44 Double --(head transforms')
+              ,_ypr0        = (sum ypr')
+              ,_ypr         = (V3 0 0 0 :: V3 Double)
+              ,_time        = time'
+              }
+            )
+          ,_nameP     = name'
+          ,_idxP      = idx'
+          ,_velocity  = velocity'
+          ,_avelocity = avelocity'
+          ,_mass      = mass'
+          ,_density   = density'
+          ,_solvers   = solvers''
+          ,_trs       = trs'
+          }
+        "rbd" -> return $ updateOnce $
+          RBD
+          {
+            _base = 
+            ( Object'
+              {
+               _descriptors = ds'
+              ,_materials   = materials'
+              ,_programs    = programs'
+              ,_transforms  = transforms'
+              ,_transform0  = (head transforms')
+              ,_ypr0        = (sum ypr')
+              ,_ypr         = (V3 0 0 0 :: V3 Double)
+              ,_time        = time'
+              }
+            )
+          ,_nameP     = name'
+          ,_idxP      = idx'          
+          ,_velocity  = velocity'
+          ,_avelocity = avelocity'
+          ,_mass      = mass'
+          ,_density   = density'
+          ,_solvers   = solvers''
+          ,_trs       = trs'
+          }
+        "sprite" -> return $ updateOnce $
           Sprite
           (Object'
            ds'
@@ -218,9 +280,21 @@ initObject' vgeo = do
       
   mats' <- mapM Material.read $ mts vgeo :: IO [Material]
   ds    <- mapM toDescriptor vaoArgs
-  progs <- mapM (\mat -> loadShaders
-                         [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-                         , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]) mats'
+  progs <-
+    mapM (\mat -> case _geomShader mat of
+             Just geomShader' ->
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo GeometryShader (FileSource geomShader')
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  ]
+             Nothing ->             
+               loadShaders
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+         ) mats'
+  
+  
   return $
     Object.Sprite
     {
@@ -243,8 +317,12 @@ toVGeo prj0 pObj0 = do
   let
     modelSet    = toListOf (models . traverse . Model.path) prj0 :: [String]
     modelPaths' = (modelSet!!) <$> view modelIDXs pObj0
-    vgeos       = readBGeo <$> modelPaths'
+    vgeos       = readBGeo <$> modelPaths' :: [IO VGeo]
+    --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"]
   sequence vgeos
+
+-- toVGeo' :: [V3 Double] -> [VGeo]
+-- toVGeo' vs = undefined
 
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
 toDescriptorSVGeo prj0 pObj0 = do
@@ -254,3 +332,64 @@ toDescriptorSVGeo prj0 pObj0 = do
     vao'   = fromSVGeo <$> svgeos :: VAO'
   ds' <- mapM toDescriptor vao'
   return (ds', svgeos) :: IO ([Descriptor], [SVGeo])
+
+toCurve :: Object -> IO Object
+toCurve objs = do
+  let
+    vs'    =
+      take 100 $ _trs objs   :: [V3 Double]
+    svgeo  = toSVGeo vs' Curve  :: SVGeo 
+    svao   = fromSVGeo svgeo
+  ds       <- toDescriptor svao
+  material <- Material.read $ _smp svgeo :: IO Material
+  program  <-
+    (\mat -> case _geomShader mat of
+        Just geomShader' ->
+          loadShaders
+             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+             , ShaderInfo GeometryShader (FileSource geomShader')
+             , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+             ]
+        Nothing ->             
+          loadShaders
+             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+    ) material
+  let
+    base' =
+      defaultObject'
+      & descriptors .~ [ds]
+      & materials   .~ [material]
+      & programs    .~ [program]
+
+    curveObj' =
+      Sprite base'
+  
+  return curveObj'
+
+toSVGeo :: [V3 Double] -> Primitive -> SVGeo
+toSVGeo vs0 Curve = svgeo
+  where
+    idxs  = snd <$> zip vs0 [0..]
+    as    = alphas vs0 :: [Float]
+    alphas vs' = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs')])
+    gamma = (** 0.75)
+    add   = (+ (-1.0/(int2Float $ length vs0)))
+    mult  = (* 5)
+    cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
+    ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
+    ts    = snd <$> zip vs0 (repeat  (0, 0, 0))
+    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs0
+    vao   = toVAO [idxs] as cds ns ts ps :: VAO
+    svgeo =
+      SVGeo
+      {
+        _sis = idxs
+      , _sst = 13
+      , _svs = concat . concat $ vao
+      , _smp = "mat/default/default"
+      , _sms = 1.0
+      , _svl = []
+      , _savl= []
+      , _sxf = []
+      }

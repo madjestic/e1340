@@ -4,21 +4,21 @@ module Grapher.GUI.GUI
   ( GUI (..)
   , introGUI
   , mainGUI
-  , optsGUI  
+--  , optsGUI  
   , fromGUI
-  , infoGUI
+--  , infoGUI
   , res
   , cursor
   , fromFormat
-  , optsB
-  , quitB
-  , xx
-  , backB
+  -- , optsB
+  -- , quitB
+  -- , xx
+  -- , backB
   ) where
 
 import Control.Lens
-import Data.Maybe (fromJust)
-import Graphics.Rendering.OpenGL
+-- import Data.Maybe (fromJust)
+-- import Graphics.Rendering.OpenGL
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Backend
@@ -29,39 +29,39 @@ data GUI
        _res             :: (Int, Int)
      , _cursor          :: Widget
      --   _fps      :: Widget
-     , _xx              :: Widget
-     , _a_space_oddysey :: Widget
-     , _startB          :: Widget
-     , _optsB           :: Widget
-     , _quitB           :: Widget -- button
+     -- , _xx              :: Widget
+     -- , _a_space_oddysey :: Widget
+     -- , _startB          :: Widget
+     -- , _optsB           :: Widget
+     -- , _quitB           :: Widget -- button
      }
-  |  OptsGUI
-     {
-       _res      :: (Int, Int)
-     , _cursor   :: Widget
-     , _backB    :: Widget -- button
-     --, _inpBack  :: Bool
-     }
+  -- |  OptsGUI
+  --    {
+  --      _res      :: (Int, Int)
+  --    , _cursor   :: Widget
+  --    , _backB    :: Widget -- button
+  --    --, _inpBack  :: Bool
+  --    }
   |  MainGUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
-     , _info   :: Widget
-     , _backB  :: Widget -- button
+     -- , _info   :: Widget
+     -- , _backB  :: Widget -- button
      , _cursor :: Widget
      }
-  |  InfoGUI
-     {
-       _res    :: (Int, Int)
-     , _fps    :: Widget
-     , _infos  :: [Widget]
-     , _cursor :: Widget
-     }
+  -- |  InfoGUI
+  --    {
+  --      _res    :: (Int, Int)
+  --    , _fps    :: Widget
+  --    , _infos  :: [Widget]
+  --    , _cursor :: Widget
+  --    }
   deriving Show
 $(makeLenses ''GUI)
 
 fromFormat :: Format -> (Double, Double)
-fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
+fromFormat (Format alignment_ x_ y_ _ _ _) =
   (\ (x0, y0) (x1,y1) -> (x0+x1, y0+y1)) (x_,y_) $
   case alignment_ of
     TL -> (-1.0, 0.5)
@@ -75,94 +75,94 @@ fromFormat fmt@(Format alignment_ x_ y_ _ _ _) =
     BR -> ( 1.0, 0.5)
 
 introGUI :: (Int, Int) -> GUI
-introGUI res =
+introGUI res0 =
   IntrGUI
   {
-    _res    = res
+    _res    = res0
   , _cursor = Cursor True "" (0.0, 0.0) defOpts
   --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
-  , _xx =
-    TextField True ["XXII"]
-    (Format TC (-0.16) (-0.2) 0.0 0.12 2.0) defOpts
-  , _a_space_oddysey =
-    TextField True ["a space odyssey"]
-    (Format TC (-0.2) (-0.25) 0.0 0.03 0.5) defOpts
+  -- , _xx =
+  --   TextField True ["XXII"]
+  --   (Format TC (-0.16) (-0.2) 0.0 0.12 2.0) defOpts
+  -- , _a_space_oddysey =
+  --   TextField True ["a space odyssey"]
+  --   (Format TC (-0.2) (-0.25) 0.0 0.03 0.5) defOpts
   --, _quitB  = Button True "exit" (BBox (0.5) (-0.5) (-0.5) (0.5)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _startB   = Button True "start"   (BBox (-100) (50) (100) (-50)) False (Format CC (-0.25) (0.0) 0.085 1.0)
   -- , _optionsB = Button True "options" (BBox (-100) (50) (100) (-50)) False (Format CC (-0.35) (0.0) 0.085 1.0)
-  , _startB   = Button True "NEW GAME" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
-    (Format CC (0.0) ( 0.0) 0.0 0.033 0.5) defOpts
-  , _optsB    = Button True "OPTIONS"  (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
-    (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
---  , _inpOpts  = False
-  , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
-    (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
+--   , _startB   = Button True "NEW GAME" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+--     (Format CC (0.0) ( 0.0) 0.0 0.033 0.5) defOpts
+--   , _optsB    = Button True "OPTIONS"  (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+--     (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
+-- --  , _inpOpts  = False
+--   , _quitB    = Button True "QUIT"    (BBox (-0.2) (0.1) (0.2) (-0.1)) False False
+--     (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
 --  , _inpQuit  = False
   }
 
-optsGUI :: (Int, Int) -> GUI
-optsGUI res =
-  OptsGUI
-  {
-    _res     = res
-  , _cursor  = Cursor True "" (0.0, 0.0) defOpts
-  , _backB   = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
---  , _inpBack = False
-  }
+-- optsGUI :: (Int, Int) -> GUI
+-- optsGUI res0 =
+--   OptsGUI
+--   {
+--     _res     = res0
+--   , _cursor  = Cursor True "" (0.0, 0.0) defOpts
+--   , _backB   = Button True "< BACK" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+-- --  , _inpBack = False
+--   }
 
 mainGUI :: (Int, Int) -> GUI
-mainGUI res =
+mainGUI res0 =
   MainGUI
   {
-    _res    = res
+    _res    = res0
   , _fps  = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0) defOpts
-  , _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0) defOpts
-  , _backB  = Button True "< Main" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+  --, _info   = TextField True ["you approach ebanat"] (Format BC 0.0 0.0 0.0 0.085 1.0) defOpts
+  --, _backB  = Button True "< Main" (BBox (-0.2) (0.1) (0.2) (-0.1)) False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
   , _cursor = Cursor True "" (0.0, 0.0) defOpts
   }
 
-infoGUI :: (Int, Int) -> GUI
-infoGUI res =
-  InfoGUI
-  {
-    _res   = res
-  , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
-  , _infos =
-    [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
-    , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
-    ]
-  , _cursor = Cursor True "" (0.0, 0.0) defOpts
-  }
+-- infoGUI :: (Int, Int) -> GUI
+-- infoGUI res0 =
+--   InfoGUI
+--   {
+--     _res   = res0
+--   , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
+--   , _infos =
+--     [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
+--     , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
+--     ]
+--   , _cursor = Cursor True "" (0.0, 0.0) defOpts
+--   }
   
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
-    --IntrGUI fps info startB optionsB quitB cursor ->
-    gui@(IntrGUI {}) ->
+    --IntrGUI fps' info startB optionsB quitB cursor' ->
+    IntrGUI {} ->
       [
         _cursor gui
-      --   fps
-      , _xx     gui
-      , _a_space_oddysey gui -- ^. _a_space_oddysey
-      , _startB gui
-      , _optsB gui
-      , _quitB gui
-      -- , cursor
+      --   fps'
+      -- , _xx     gui
+      -- , _a_space_oddysey gui -- ^. _a_space_oddysey
+      -- , _startB gui
+      -- , _optsB gui
+      -- , _quitB gui
+      -- , cursor'
       ]
-    OptsGUI res cursor backB ->
+    -- OptsGUI _ cursor' backB' ->
+    --   [
+    --     cursor'
+    --   , backB'
+    --   ]
+    MainGUI _ fps' cursor' ->
       [
-        cursor
-      , backB
+        fps'
+      -- , info'
+      -- , backB'
+      , cursor'
       ]
-    MainGUI res fps info backB cursor ->
-      [
-        fps
-      , info
-      , backB
-      , cursor
-      ]
-    InfoGUI res fps infos cursor ->
-      [
-        fps
-      , cursor      
-      ] ++ infos
+    -- InfoGUI _ fps' infos' cursor' ->
+    --   [
+    --     fps'
+    --   , cursor'      
+    --   ] ++ infos'

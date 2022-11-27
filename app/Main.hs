@@ -7,23 +7,21 @@ module Main where
 
 --import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
-import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
+import Control.Lens       ( toListOf, view, (^..), (^.))
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
 import Foreign.C          ( CInt )
-import FRP.Yampa as FRP   ( (>>>), (<<<), reactimate, Arrow((&&&)), Event(..), SF )
+import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
-    , setMouseLocationMode
     , time
     , glSwapWindow
     , Event(eventPayload)
     , EventPayload
-    , LocationMode(AbsoluteLocation, RelativeLocation)
     , Window )
 import SDL.Input.Mouse
-import SDL.Vect
+--import SDL.Vect
 
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Color4 (Color4)
@@ -31,7 +29,6 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , clearColor
                                  , ($=)
                                  , ClearBuffer (..)
-                                 , DataType (Double)
                                  , Capability (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
@@ -44,18 +41,18 @@ import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget
-import Graphics.RedViz.Camera
-import Graphics.RedViz.Controllable
-import Graphics.RedViz.Input.Mouse
+--import Graphics.RedViz.Camera
+--import Graphics.RedViz.Controllable
+--import Graphics.RedViz.Input.Mouse
 
 import Application as A
-import Application.Interface
+--import Application.Interface
 import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 import GUI
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 -- -- < Animate > ------------------------------------------------------------
 type WinInput = FRP.Event SDL.EventPayload
@@ -135,13 +132,13 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    playCam'    = app ^. playCam :: Camera
+    --playCam'    = app ^. playCam :: Camera
     --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case (app ^. App.gui . cursor) of
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
-    (resx', resy')  = app ^. options . App.res
+    (_, resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
@@ -176,11 +173,12 @@ renderWidget lastInteraction drs cmds wgt =
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
     Cursor {} -> return ()
+    _ -> return ()
 
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a l (x',y') _ ->
+    Cursor a _ _ _ ->
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 1.0)
@@ -213,7 +211,7 @@ initResources app0 =
       where
         introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
@@ -256,7 +254,7 @@ main = do
   putStrLn "\n Initializing GUI"
 
   let
-    res = mainApp' ^. options . App.res
+    res' = mainApp' ^. options . App.res
     initApp' =
       Application
       {
@@ -266,6 +264,7 @@ main = do
       , A._opts = optsApp'
       , A._info = infoApp'
       , A._counter = counter'
+      , A._hmap = []
       , A._quit = False
       }
 
@@ -274,5 +273,5 @@ main = do
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput res >>> mainLoop app &&& handleExit)
+    (parseWinInput res' >>> mainLoop app &&& handleExit)
   return ()

@@ -20,7 +20,7 @@ import Graphics.RedViz.Input
 import Graphics.RedViz.Input.FRP.Yampa.Update
 import Graphics.RedViz.Utils
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 clampBy :: Double -> Double -> Double
 clampBy d x = d'
@@ -41,29 +41,25 @@ updateCameraController cam0 =
           (kbrd',  kevs) <- updateKeyboard (view (controller.device.keyboard) cam0) -< (input, (view (controller.device.keyboard) cam))
 
           let
-            s'       = 1.0  :: Double -- | mouse sensitivity rvec
-            t'       = 2    :: Double -- | mouse idle threshold
+            --s'       = 1.0  :: Double -- | mouse sensitivity rvec
+            --t'       = 2    :: Double -- | mouse idle threshold
                                       -- | inactive radius
-            rad      = (0.25 *) $ fromIntegral $ snd $ cam0^.res :: Double 
+            --rad      = (0.25 *) $ fromIntegral $ snd $ cam0^.res :: Double 
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
 
             -- | compute rotation velocity = length (mouseP - originP) * scalar
             -- (mrx', mry') = mouse' ^. rpos
             (mx' , my')  = mouse' ^. pos
-            
-            --(mx' , my')  = mouse' ^. (DT.trace ("pos : " ++ show (mouse' ^. pos)) pos)
-            (cx  , cy)   = ( fromIntegral $ (fst $ cam0^.res) `div` 2
-                           , fromIntegral $ (snd $ cam0^.res) `div` 2 )
-            cpos'    = V3 (mx' - cx) (my' - cy) (0.0) -- centralized mouse position (relative to origin, screen center, 0,0,0)
-            cpos    = cpos' ^* (max (logBase 100 (norm cpos')) 0)
-            mdist   = abs $ norm (V3 (mx' - cx) (my' - cy) (0.0))
-            
-            rvec'' = cpos - (cpos^/(norm cpos + 0.00001)) ^* min (norm cpos) rad
-                   + cpos ^* max ((logBase 100 $ norm cpos) - 1.0) 0
-            mVec   = V3 1 1 1 ^* 10
-            rvec'  = max (-mVec) $ min rvec'' mVec
-            rvec   = rvec'^._yxz
+            (resx, resy) = cam0^.res
+            (cx, cy) = ( fromIntegral $ resx `div` 2
+                       , fromIntegral $ resy `div` 2 )
+            cpos     = V3 (mx' - cx) (-my' + cy) (0.0) -- centralized mouse position (relative to origin, screen center, 0,0,0)
+            x'       = (cpos^._x / fromIntegral (resx `div` 2))
+            y'       = (cpos^._y / fromIntegral (resy`div` 2))
+            f x = x * abs x**2
+            nscpos   = V3 (f x') (f y') 0.0            -- normalized screen centralized position
+            rvec     = (V3 1 (-1) 1 * nscpos)^._yxz ^* 100
             
             ypr'     = 
               (view (controller.ypr) cam +) $

@@ -2,9 +2,9 @@
 
 module Main where
 
-import Data.Text.Lazy.IO as I    hiding (putStrLn)
+--import Data.Text.Lazy.IO as I    hiding (putStrLn)
 import Data.ByteString   as BS   (writeFile)
-import Data.Aeson.Text           (encodeToLazyText)
+--import Data.Aeson.Text           (encodeToLazyText)
 import Data.Store                (encode)
 import Data.Time.Clock.Compat
 import Data.Time.LocalTime.Compat
@@ -13,7 +13,7 @@ import Options.Applicative
 
 import Graphics.RedViz.PGeo
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data GeoArgs =
   GeoArgs

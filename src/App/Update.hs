@@ -5,8 +5,8 @@ module App.Update where
 
 import Control.Lens hiding (Empty)
 import Data.Functor                          (($>))
-import Data.IntMap.Lazy         as IM hiding (keys)
-import Data.List.Index          as DLI       (indexed)
+--import Data.IntMap.Lazy         as IM hiding (keys)
+--import Data.List.Index          as DLI       (indexed)
 --import Data.Sort                             (sortOn)
 import FRP.Yampa
 import Linear.V3
@@ -25,10 +25,10 @@ import GUI
 import ObjectTree
 import Object as Obj-- (Empty)
 import Camera
-import Solvable
-import GUI
+-- import Solvable
+-- import GUI
 
-import Debug.Trace as DT (trace)
+-- import Debug.Trace as DT (trace)
 
 formatDebug' :: App -> String
 formatDebug' app0 =
@@ -74,7 +74,7 @@ updateIntroApp app0 =
    selected'    <- updateSelected   app0 -< (input, selectable')
 
    let
-     selectedText = objectNames <$> view selectable result :: [String]
+     --selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      
      result =
@@ -97,8 +97,8 @@ updateOptsApp app0 =
    gui'         <- updateGUI (app0 ^. gui)                                 -< input
     
    let
-     selectedText = objectNames <$> view selectable result :: [String]
-     objTree      = App._objects app'
+     -- selectedText = objectNames <$> view selectable result :: [String]
+     -- objTree      = App._objects app'
      
      result =
        app'
@@ -119,7 +119,7 @@ updateMainApp app0 =
    selected'    <- updateSelected   app0 -< (input, selectable')
 
    let
-     selectedText = objectNames <$> view selectable result :: [String]
+     --selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      
      result =

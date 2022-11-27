@@ -7,27 +7,27 @@ module Object.Update
 
 import Control.Lens    hiding (transform)
 import Control.Arrow
-import Data.List.Index as DLI (indexed)
-import Data.List (delete)
+--import Data.List.Index as DLI (indexed)
+--import Data.List (delete)
 import FRP.Yampa
 import Linear.Matrix   as LM
 import Linear.V3       as LV3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
 
-import Graphics.RedViz.Utils
+--import Graphics.RedViz.Utils
 import Graphics.RedViz.Object as Object
 
 import Object.Object as Obj
 import Solvable
 
 import Debug.Trace as DT (trace)
-import Graphics.Rendering.OpenGL (DataType(Double))
+--import Graphics.Rendering.OpenGL (DataType(Double))
 
 updateObjectsPre :: [Object] -> SF () [Object]
 updateObjectsPre objs0 =
   loopPre objs0 $
-  proc objs -> do
+  proc _ -> do
     objs1 <- updateObjects objs0 -< ()
     returnA -< (objs1, objs1)
 
@@ -106,8 +106,8 @@ solveDynamic objs0 obj0 slv =
 
     Spin -> obj1
       where
-        mtx0   = obj0 ^. base . transform0
-        ypr0 = V3 0 0 (-0.035)
+        mtx0  = obj0 ^. base . transform0
+        ypr0' = V3 0 0 (-0.035)
         
         mtx1 =
           mkTransformationMat
@@ -118,28 +118,28 @@ solveDynamic objs0 obj0 slv =
               rot0 = LM.identity :: M33 Double
               rot  = 
                 (LM.identity :: M33 Double)
-                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
-                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
-                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0')) -- yaw  
+                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
+                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
 
         mtx  = mtx0 !*! mtx1
         
         obj1 = obj0 & base . transform0 .~ mtx
 
-    Rotate  _ WorldSpace _ ypr0 _ -> obj1
+    Rotate  _ WorldSpace _ ypr0' _ -> obj1
       where
         mtx0   = obj0 ^. base . transform0
         rot0 = LM.identity :: M33 Double
         rot  = 
           (LM.identity :: M33 Double)
-          !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0)) -- yaw  
-          !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0)) -- pitch
-          !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0)) -- roll
+          !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0')) -- yaw  
+          !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
+          !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
     -- TODO: experiment with the center of rotation: analytic orbiting
-    Orbit cxyz qrot idx -> obj1
+    Orbit _ qrot _ -> obj1
       where
         --objs0' = filter orbits' objs0 :: [Object] -- Objects with Orbit Solver
         (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
@@ -155,7 +155,7 @@ solveDynamic objs0 obj0 slv =
     Gravity -> obj1
       where
         mtx0 = obj0 ^. base . transform0
-        av0  = _avelocity obj0
+        --av0  = _avelocity obj0
         vel0 = _velocity obj0
         vel1 = gvel obj0 (remove obj0 objs0)
         vel  = vel0 + vel1
@@ -166,7 +166,7 @@ solveDynamic objs0 obj0 slv =
           & base . transform0 .~ mtx
           & velocity .~ vel
 
-    Trace trs -> obj1
+    Trace _ -> obj1
       where
         tr0  = obj0 ^. (base . transform0 . translation) :: V3 Double
         obj1 = obj0 & Obj.trs .~ (tr0 : obj0 ^. Obj.trs)
@@ -177,7 +177,7 @@ accOrbits :: [Object] -> Maybe Object -> V3 Double
 accOrbits _ Nothing = V3 0 0 0
 accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj
   where
-    p0    = obj0 ^. base . transform0 . translation
+    --p0    = obj0 ^. base . transform0 . translation
     obj   = obj0 `orbits` objs0
     pivot = case obj of
       Just obj' ->  obj' ^. base . transform0 . translation
@@ -192,34 +192,34 @@ orbits obj0 objs = result
       then Just $ lookupObj objs (_idx (head slvs'))
       else Nothing
 
-orbits' :: Object -> Bool
-orbits' obj0 = undefined
-  where
-    slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
-    result = not . null $ slvs'
+-- orbits' :: Object -> Bool
+-- orbits' obj0 = undefined
+--   where
+--     slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
+--     result = not . null $ slvs'
 
-maybeOrbit1 :: [Object] -> Object -> Maybe (V3 Double, Integer)
-maybeOrbit1 [] _ = Nothing
-maybeOrbit1 objs0 obj0 = temp
-  where
-    temp = undefined
-    slvs'
-      = (\slv -> case slv of
-              Orbit {} -> Just $ (pv, idx)
-                where
-                  pv  = undefined -- maybeOrbit1 objs0 
-                  idx = _idx slv
-              _ -> Nothing
-        ) <$> obj0 ^. solvers
-    result =
-      if not . null $ slvs'
-      then head slvs'
-      else Nothing
+-- maybeOrbit1 :: [Object] -> Object -> Maybe (V3 Double, Integer)
+-- maybeOrbit1 [] _ = Nothing
+-- maybeOrbit1 objs0 obj0 = temp
+--   where
+--     temp = undefined
+--     slvs'
+--       = (\slv -> case slv of
+--               Orbit {} -> Just $ (pv, idx)
+--                 where
+--                   pv  = undefined -- maybeOrbit1 objs0 
+--                   idx = _idx slv
+--               _ -> Nothing
+--         ) <$> obj0 ^. solvers
+--     result =
+--       if not . null $ slvs'
+--       then head slvs'
+--       else Nothing
 
 lookupObj :: [Object] -> Integer -> Object
 lookupObj objs0 idx = obj
   where
-    obj = head $ filter (\obj -> _idxP obj == idx ) objs0
+    obj = head $ filter (\obj' -> _idxP obj' == idx ) objs0
 
 accumulateOrbitalPivots :: [Object] -> Object -> V3 Double
 accumulateOrbitalPivots [] _ = V3 0 0 0
@@ -245,17 +245,17 @@ accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs
             Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
             Nothing -> V3 0 0 0
 
-maybeOrbits' :: [Object] -> Object -> Maybe (V3 Double)
-maybeOrbits' objs0 obj0 = undefined
+-- maybeOrbits' :: [Object] -> Object -> Maybe (V3 Double)
+-- maybeOrbits' objs0 obj0 = undefined
 
-maybeOrbits'' :: Object -> Object -> Maybe (V3 Double, Object)
-maybeOrbits'' obj0 obj1 =
-  case maybeOrbit obj0 of
-    Just idx ->
-      if idx == _idxP obj1
-      then Nothing --Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
-      else Nothing
-    Nothing -> Nothing
+-- maybeOrbits'' :: Object -> Object -> Maybe (V3 Double, Object)
+-- maybeOrbits'' obj0 obj1 =
+--   case maybeOrbit obj0 of
+--     Just idx ->
+--       if idx == _idxP obj1
+--       then Nothing --Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
+--       else Nothing
+--     Nothing -> Nothing
     
 maybeOrbits :: Object -> Object -> Maybe (V3 Double)
 maybeOrbits obj0 obj1 =

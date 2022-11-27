@@ -4,16 +4,16 @@ module Grapher.GUI
   , updateGUI
   , introGUI
   , mainGUI
-  , optsGUI    
+--  , optsGUI    
   , fromGUI
-  , infoGUI
+--  , infoGUI
   , fromFormat
   , cursor
   , res
-  , optsB
-  , quitB
-  , xx
-  , backB
+  -- , optsB
+  -- , quitB
+  -- , xx
+  -- , backB
   ) where
 
 import Grapher.GUI.GUI

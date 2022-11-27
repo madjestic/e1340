@@ -13,17 +13,17 @@ module Solvable
   ) where
 
 import Control.Lens      hiding (Identity)
-import GHC.Float
+--import GHC.Float
 import Linear.Matrix     hiding (identity)
-import Linear.Matrix     as LM
+--import Linear.Matrix     as LM
 import Linear.V3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
-import FRP.Yampa         hiding (identity)
+--import FRP.Yampa         hiding (identity)
 
 import Graphics.RedViz.Utils
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data CoordSys =
     WorldSpace

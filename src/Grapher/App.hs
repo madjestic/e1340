@@ -20,7 +20,7 @@ module Grapher.App
   , updateOptsApp
   , intrApp
   , mainApp
-  , optsApp
+--  , optsApp
   , Options (..)
 --  , inpBack
   ) where

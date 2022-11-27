@@ -7,7 +7,7 @@ module Main where
 
 --import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
-import Control.Lens       ( toListOf, view, (^..), (^.), (&), (.~) )
+import Control.Lens       ( toListOf, view, (^..), (^.))
 import Control.Monad      ( when )
 import Data.List.Split    as DLS (chunksOf)
 import Data.Set           ( fromList, toList )
@@ -21,15 +21,15 @@ import Foreign.C          ( CInt )
 import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
-    , setMouseLocationMode
+--    , setMouseLocationMode
     , time
     , glSwapWindow
     , Event(eventPayload)
     , EventPayload
-    , LocationMode(AbsoluteLocation, RelativeLocation)
+--    , LocationMode(AbsoluteLocation, RelativeLocation)
     , Window )
 import SDL.Input.Mouse
-import SDL.Vect
+--import SDL.Vect
 
 import Graphics.Rendering.OpenGL 
 import Graphics.GLUtil.Textures  ( loadTexture
@@ -46,24 +46,24 @@ import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Widget
-import Graphics.RedViz.Camera
-import Graphics.RedViz.Controllable
-import Graphics.RedViz.Input.Mouse
+--import Graphics.RedViz.Camera
+--import Graphics.RedViz.Controllable
+--import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Texture  as Texture  (uuid, name, Texture)
 
 import Grapher.Application as Application
-import Grapher.Application.Interface
+--import Grapher.Application.Interface
 import Grapher.App                as App hiding (debug) 
 import Grapher.Object             as O
 import Grapher.ObjectTree         as OT
 import Grapher.GUI
 import Grapher.Graph
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
-debug = False
+debug = True
 #else
 debug = False
 #endif
@@ -146,13 +146,13 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    playCam'    = app ^. playCam :: Camera
+    --playCam'    = app ^. playCam :: Camera
     --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case (app ^. App.gui . cursor) of
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
-    (resx', resy')  = app ^. options . App.res
+    (_, resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
     --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
@@ -166,12 +166,8 @@ output lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  renderCursorM           crsr
+  -- renderCursorM           crsr
   
-  -- case app ^. objects . gui . fonts of
-  --   [] -> return ()
-  --   _  -> mapM_ renderWidgets wgts
-
   glSwapWindow window
 
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
@@ -187,11 +183,12 @@ renderWidget lastInteraction drs cmds wgt =
         dt <- (ct -) <$> readMVar lastInteraction
         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
     Cursor {} -> return ()
+    _ -> return ()
 
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a l (x',y') _ ->
+    Cursor a _ _ _ ->
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 1.0)
@@ -224,7 +221,7 @@ initResources app0 =
       where
         introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
@@ -277,7 +274,7 @@ initResources' app0 gs =
       where
         introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
@@ -291,14 +288,10 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  introProj <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+  introProj <- if debug then P.read ("./projects/test" :: FilePath)
                else          P.read (unsafeCoerce (args!!0)   :: FilePath)
-  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/test" :: FilePath)
                else          P.read (unsafeCoerce (args!!1)   :: FilePath)
-  -- optsProj  <- if debug then P.read ("./projects/options"     :: FilePath)
-  --              else          P.read (unsafeCoerce (args!!2)   :: FilePath)
-  -- pInfoProj <- if debug then P.read ("./projects/infoearth"   :: FilePath)
-  --              else          P.read (unsafeCoerce (args!!3)   :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -336,12 +329,12 @@ main = do
 
   let
     gr  = Graph sz' graph' mArr
-    res = intrApp' ^. options . App.res
+    res' = intrApp' ^. options . App.res
     
     initApp' =
       Application
       (intrApp' ^. App.gui)
-      intrApp' 
+      intrApp'
       mainApp' 
       -- optsApp' 
       -- infoApp' 
@@ -354,5 +347,5 @@ main = do
   putStrLn "Starting App."
   animate
     window
-    (parseWinInput res >>> mainLoop app &&& handleExit)
+    (parseWinInput res' >>> mainLoop app &&& handleExit)
   return ()

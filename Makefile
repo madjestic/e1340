@@ -260,6 +260,8 @@ options:
 grapher:
 	# cabal clean
 	# cabal build
+	./resources/convertGeo.sh graph
+	cabal build exe:Grapher
 	cabal run exe:genProject -- ./projects/graph 	
 	cabal run exe:genUUID -- -p ./projects/graph 	
 	cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph

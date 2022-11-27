@@ -16,14 +16,14 @@ import Data.Functor        (($>))
 import Control.Lens-- ((^.))
 
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
-import Graphics.RedViz.Widget
+--import Graphics.RedViz.Widget
 
 import Grapher.Application.Application as Appl
 import Grapher.App as App
 import Grapher.GUI
 
-import Debug.Trace    as DT
-import Data.Maybe (fromJust)
+-- import Debug.Trace    as DT
+-- import Data.Maybe (fromJust)
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
 mainLoop app0 =
@@ -34,6 +34,7 @@ mainLoop app0 =
               --OptsGUI {} -> appOpts  app0 -< (input, gameState)
               MainGUI {} -> appMain  app0 -< (input, gameState)
               --InfoGUI {} -> appInfo  app0 -< (input, gameState)
+              --_ -> appMain  app0 -< (input, gameState)
     returnA -< (app1, app1)
 
 -- switchApp :: Application -> Event () -> Event () -> GUI
@@ -71,7 +72,7 @@ appIntro app0  =
                           )
                
            cont arg =
-             proc (input', app') -> do
+             proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
 
@@ -118,10 +119,10 @@ appMain app0 =
                    fromSelected appl' app' =
                      case _selected app' of
                        [] -> appl' ^. main . App.gui
-                       --_  -> appl' ^. info . App.gui
+                       _  -> appl' ^. main . App.gui
 
            cont arg =
-             proc (input', app') -> do
+             proc (input', _) -> do
                result <- mainLoop arg -< input'
                returnA -< result
 

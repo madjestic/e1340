@@ -27,14 +27,14 @@ module App.App
 import Control.Lens hiding (Empty)
 import Foreign.C                     (CInt)
 import Linear.Matrix
-import Unsafe.Coerce
+--import Unsafe.Coerce
 import Graphics.Rendering.OpenGL     (Program)
                                       
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Descriptor
-import Graphics.RedViz.Input.Mouse
+--import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project as P
@@ -96,16 +96,16 @@ intrApp prj0 = do
                    
       , _options = Options
                    { _name = view P.name prj0
-                   , _res  = res
+                   , _res  = res'
                    , _test = False }
-      , _gui     = introGUI res 
+      , _gui     = introGUI res'
       , _objects = objTree
       , _playCam = pCam
       , _cameras = cams
       , _selectable = []
       , _selected   = [] }
       where
-        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+        res' = (view P.resx prj0, view P.resy prj0)
 
   return result
 
@@ -119,16 +119,16 @@ optsApp prj0 = do
       { _debug   = (0,0)
       , _options = Options
                    { _name = view P.name prj0
-                   , _res  = res
+                   , _res  = res'
                    , _test = False }
-      , _gui     = optsGUI res 
+      , _gui     = optsGUI res'
       , _objects = objTree
       , _playCam = pCam
       , _cameras = cams
       , _selectable = []
       , _selected   = [] }
       where
-        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+        res' = (view P.resx prj0, view P.resy prj0)
 
   return result
 
@@ -141,16 +141,16 @@ mainApp prj0 = do
       { _debug   = (0,0)
       , _options = Options
                    { _name = view P.name prj0
-                   , _res  = res
+                   , _res  = res'
                    , _test = False }
-      , _gui     = mainGUI res
+      , _gui     = mainGUI res'
       , _objects = objTree
       , _playCam = pCam
       , _cameras = cams
       , _selectable = []
       , _selected   = [] }
       where
-        res@(resx, resy) = (view P.resx prj0, view P.resy prj0)
+        res' = (view P.resx prj0, view P.resy prj0)
 
   return result
 
@@ -160,12 +160,12 @@ toDrawable app objs time0 = drs -- (drs, drs')
     mpos = _coords (app ^. App.App.gui . cursor)
     resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
     resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
-    res  = (toEnum resX, toEnum resY) :: (CInt, CInt)
+    res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
     cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time0 res cam) objs :: [Drawable]
+    drs  = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
 
 toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
-toDrawable' mpos time0 res cam obj = drs
+toDrawable' mpos time0 res0 cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
@@ -175,7 +175,7 @@ toDrawable' mpos time0 res cam obj = drs
     n      = length $ obj ^. base . descriptors :: Int
     mpos_  = replicate n mpos  :: [(Double, Double)]
     time_  = replicate n time0 :: [Double]
-    res_   = replicate n res   :: [(CInt, CInt)]
+    res_   = replicate n res0  :: [(CInt, CInt)]
     cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
     cam_a_ = replicate n $ _apt cam :: [Double]
     cam_f_ = replicate n $ _foc cam :: [Double]

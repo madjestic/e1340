@@ -10,7 +10,7 @@ import Graphics.RedViz.Project as Project
 
 import Projects.Test
 import Projects.SolarSystem
-import Projects.InfoEarth
+--import Projects.InfoEarth
 import Projects.Graph
 import Projects.Body3
 import Projects.PlanetSputnik

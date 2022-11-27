@@ -16,7 +16,7 @@ graph   idxs =
 
 gizmo   :: [Int] -> PreObject
 gizmo   idxs =
-  PreObject "gizmo" "planet" 0 nil idxs [] [] [] []
+  PreObject "gizmo" "rbd" 0 nil idxs [] [] [] []
 
 graphCam :: ProjectCamera
 graphCam =

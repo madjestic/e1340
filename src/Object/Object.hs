@@ -28,10 +28,10 @@ module Object.Object
   ) where
 
 import Control.Lens hiding (transform, pre)
-import Linear.Matrix as LM
+--import Linear.Matrix as LM
 import Linear (V3(..))
 
-import Graphics.RedViz.Material       as Material
+--import Graphics.RedViz.Material       as Material
 import Solvable
 import Graphics.RedViz.Object
 
