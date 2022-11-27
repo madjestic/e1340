@@ -13,13 +13,10 @@ module Solvable
   ) where
 
 import Control.Lens      hiding (Identity)
---import GHC.Float
 import Linear.Matrix     hiding (identity)
---import Linear.Matrix     as LM
 import Linear.V3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
---import FRP.Yampa         hiding (identity)
 
 import Graphics.RedViz.Utils
 
@@ -295,4 +292,3 @@ preRotate cs mtx0 ypr0 ypr1 = (mtx, ypr')
 --               tr  = view (_w._xyz) (transpose mtx0)
 --               --tr  = view (_w._xyz) (DT.trace ("rotate tr mtx0 : " ++ show mtx0) mtx0)
 --     returnA -< (mtx, ypr')
-    

@@ -19,7 +19,6 @@ module Object.Object
   , ypr
   , velocity
   , avelocity
-  --, force
   , mass
   , solvers
   , trs
@@ -28,10 +27,8 @@ module Object.Object
   ) where
 
 import Control.Lens hiding (transform, pre)
---import Linear.Matrix as LM
 import Linear (V3(..))
 
---import Graphics.RedViz.Material       as Material
 import Solvable
 import Graphics.RedViz.Object
 
@@ -55,9 +52,7 @@ data Object
      , _nameP       :: String
      , _idxP        :: Integer
      , _velocity    :: V3 Double
-     , _avelocity   :: V3 Double -- | Angular velocity
-     --, _impulse     :: V3 Double
-     --, _force       :: V3 Double
+     , _avelocity   :: V3 Double   -- | Angular velocity
      , _mass        :: Double
      , _density     :: Double
      , _solvers     :: [Solver]
@@ -79,12 +74,6 @@ data Object
      {
        _base        :: Object'
      }
-  -- |  Graph
-  --    {
-  --      _sz     :: Sz2
-  --    , _array  :: Array S Ix2 Word8
-  --    , _marray :: MArray RealWorld S Ix2 Word8
-  --    }
   deriving Show
 $(makeLenses ''Object)
 

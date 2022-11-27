@@ -13,7 +13,8 @@ module Application.Update
 import FRP.Yampa
 import SDL          hiding ((*^), Event, Mouse, Debug)
 import Data.Functor        (($>))
-import Control.Lens-- ((^.))
+import Control.Lens
+import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
@@ -23,7 +24,6 @@ import GUI
 import Graphics.RedViz.Widget
 
 --import Debug.Trace    as DT
-import Data.Maybe (fromJust)
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
 mainLoop app0 =

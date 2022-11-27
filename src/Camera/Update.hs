@@ -43,7 +43,7 @@ updateCameraController cam0 =
           let
             --s'       = 1.0  :: Double -- | mouse sensitivity rvec
             --t'       = 2    :: Double -- | mouse idle threshold
-                                      -- | inactive radius
+                                        -- | inactive radius
             --rad      = (0.25 *) $ fromIntegral $ snd $ cam0^.res :: Double 
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
@@ -155,7 +155,6 @@ updateCameraController cam0 =
 
     cont = updateCameraController
 
--- somehwere here is a problem with camera memorisation: 
 updateCamera :: Camera -> SF (AppInput, Camera) Camera
 updateCamera cam0 = 
   proc (input, _) -> do
@@ -170,7 +169,6 @@ updateCameras (cams0, cam0) =
     sf =
       proc (input, cam') -> do
         cams <- switchCameras cams0 -< ()
-        --cam  <- updateCamera  $ head cams0 -< (input, cam')
         cam  <- updateCamera  cam0 -< (input, cam')
 
         kev <- keyInput SDL.ScancodeC "Pressed" -< input -- switch camera

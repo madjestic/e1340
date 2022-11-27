@@ -14,7 +14,6 @@ module Grapher.App.App
   , Grapher.App.App.objects
   , intrApp
   , mainApp
---  , optsApp
   , playCam
   , Grapher.App.App.cameras
   , selectable
@@ -27,14 +26,12 @@ module Grapher.App.App
 import Control.Lens hiding (Empty)
 import Foreign.C                     (CInt)
 import Linear.Matrix
---import Unsafe.Coerce
 import Graphics.Rendering.OpenGL     (Program)
                                       
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Descriptor
---import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project as P
@@ -43,9 +40,8 @@ import Graphics.RedViz.Project.Utils
 import Grapher.Object hiding (Empty)                         
 import Grapher.ObjectTree as ObjectTree
 import Grapher.GUI
---import Grapher.Application.Interface as AI (Interface (..))
 
-import Debug.Trace as DT
+--import Debug.Trace as DT
 
 data App
   = App
@@ -83,15 +79,11 @@ fromProject prj0 = do
 
 intrApp :: Project -> IO App
 intrApp prj0 = do
-  (objTree, cams, pCam) <- Grapher.App.App.fromProject (DT.trace ("### prj0 : " ++ show prj0)prj0)
+  (objTree, cams, pCam) <- Grapher.App.App.fromProject prj0
   let
     result = 
       App
       { _debug   = (0,0)
-      -- , _ui      = IntrApp
-      --              {_inpQuit = False
-      --              ,_inpOpts = False}
-                   
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res'
@@ -107,30 +99,6 @@ intrApp prj0 = do
 
   return result
 
--- optsApp :: Project -> IO App
--- optsApp prj0 = do
---   (objTree, cams, pCam) <- Grapher.App.App.fromProject prj0
-  
---   let
---     result = 
---       App
---       { _debug   = (0,0)
---       --, _ui      = OptsApp {_inpBack = False}
---       , _options = Options
---                    { _name = view P.name prj0
---                    , _res  = res'
---                    , _test = False }
---       , _gui     = optsGUI res' 
---       , _objects = objTree
---       , _playCam = pCam
---       , _cameras = cams
---       , _selectable = []
---       , _selected   = [] }
---       where
---         res' = (view P.resx prj0, view P.resy prj0)
-
---   return result
-
 mainApp :: Project -> IO App
 mainApp prj0 = do
   (objTree, cams, pCam) <- Grapher.App.App.fromProject prj0
@@ -138,7 +106,6 @@ mainApp prj0 = do
     result =
       App
       { _debug   = (0,0)
-      --, _ui      = MainApp
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res'

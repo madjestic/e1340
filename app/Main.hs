@@ -5,7 +5,6 @@
 
 module Main where 
 
---import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.))
 import Control.Monad      ( when )
@@ -21,8 +20,6 @@ import SDL
     , EventPayload
     , Window )
 import SDL.Input.Mouse
---import SDL.Vect
-
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Color4 (Color4)
                                  , clear
@@ -41,12 +38,8 @@ import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget
---import Graphics.RedViz.Camera
---import Graphics.RedViz.Controllable
---import Graphics.RedViz.Input.Mouse
 
 import Application as A
---import Application.Interface
 import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
@@ -89,16 +82,8 @@ animate window sf =
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
-  -- ticks   <- SDL.ticks
-  -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-
 -- | render FPS current
   currentTime <- SDL.time
-  --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
-  -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
-
-  -- dt <- (currentTime -) <$> readMVar lastInteraction
-
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
     fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
@@ -106,11 +91,9 @@ output lastInteraction window application = do
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
     icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
-    --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-    --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Widget
 
@@ -132,15 +115,12 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    --playCam'    = app ^. playCam :: Camera
-    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case (app ^. App.gui . cursor) of
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
     (_, resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
-    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
@@ -154,10 +134,6 @@ output lastInteraction window application = do
   mapM_ renderWidgets     wgts
   renderCursorM           crsr
   
-  -- case app ^. objects . gui . fonts of
-  --   [] -> return ()
-  --   _  -> mapM_ renderWidgets wgts
-
   glSwapWindow window
 
 renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
@@ -241,8 +217,6 @@ main = do
           _ -> error "wrong mouse mode"
 
   _ <- setMouseLocationMode camMode'
-  -- _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
-  -- _ <- warpMouse WarpGlobal (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
   intrApp' <- intrApp introProj

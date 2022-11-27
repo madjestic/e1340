@@ -7,22 +7,18 @@ module Object.Update
 
 import Control.Lens    hiding (transform)
 import Control.Arrow
---import Data.List.Index as DLI (indexed)
---import Data.List (delete)
 import FRP.Yampa
 import Linear.Matrix   as LM
 import Linear.V3       as LV3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
 
---import Graphics.RedViz.Utils
 import Graphics.RedViz.Object as Object
 
 import Object.Object as Obj
 import Solvable
 
 import Debug.Trace as DT (trace)
---import Graphics.Rendering.OpenGL (DataType(Double))
 
 updateObjectsPre :: [Object] -> SF () [Object]
 updateObjectsPre objs0 =
@@ -141,7 +137,6 @@ solveDynamic objs0 obj0 slv =
     -- TODO: experiment with the center of rotation: analytic orbiting
     Orbit _ qrot _ -> obj1
       where
-        --objs0' = filter orbits' objs0 :: [Object] -- Objects with Orbit Solver
         (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
         mtx0 = obj0 ^. base . transform0
         tr0  = mtx0 ^. translation
@@ -177,7 +172,6 @@ accOrbits :: [Object] -> Maybe Object -> V3 Double
 accOrbits _ Nothing = V3 0 0 0
 accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj
   where
-    --p0    = obj0 ^. base . transform0 . translation
     obj   = obj0 `orbits` objs0
     pivot = case obj of
       Just obj' ->  obj' ^. base . transform0 . translation
@@ -192,30 +186,6 @@ orbits obj0 objs = result
       then Just $ lookupObj objs (_idx (head slvs'))
       else Nothing
 
--- orbits' :: Object -> Bool
--- orbits' obj0 = undefined
---   where
---     slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
---     result = not . null $ slvs'
-
--- maybeOrbit1 :: [Object] -> Object -> Maybe (V3 Double, Integer)
--- maybeOrbit1 [] _ = Nothing
--- maybeOrbit1 objs0 obj0 = temp
---   where
---     temp = undefined
---     slvs'
---       = (\slv -> case slv of
---               Orbit {} -> Just $ (pv, idx)
---                 where
---                   pv  = undefined -- maybeOrbit1 objs0 
---                   idx = _idx slv
---               _ -> Nothing
---         ) <$> obj0 ^. solvers
---     result =
---       if not . null $ slvs'
---       then head slvs'
---       else Nothing
-
 lookupObj :: [Object] -> Integer -> Object
 lookupObj objs0 idx = obj
   where
@@ -227,42 +197,28 @@ accumulateOrbitalPivots [obj1] obj0 =
   case obj0 `maybeOrbits` obj1 of
     Just pivot -> pivot + accumulateOrbitalPivots [] obj1
     Nothing -> V3 0 0 0
---accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots (delete obj0 objs) obj1
+
 accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs obj1
   where pivot' = 
-          --case obj0 `maybeOrbits` obj1 of
-          case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
-                                              "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
-                                              "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
-                                              "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
-                                              "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
-                                              "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
-                                              "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
-                                              "\n"
-                                             ) obj1) of
-          --case obj0 `maybeOrbits` (DT.trace ("show (obj1 ^. base . transform0 . translation)" ++ show (obj1 ^. base . transform0 . translation)) obj1) of
-            --Just pivot -> pivot
+          case obj0 `maybeOrbits` obj1 of
+          -- case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
+          --                                     "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
+          --                                     "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
+          --                                     "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
+          --                                     "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
+          --                                     "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
+          --                                     "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
+          --                                     "\n"
+          --                                    ) obj1) of
             Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
             Nothing -> V3 0 0 0
 
--- maybeOrbits' :: [Object] -> Object -> Maybe (V3 Double)
--- maybeOrbits' objs0 obj0 = undefined
-
--- maybeOrbits'' :: Object -> Object -> Maybe (V3 Double, Object)
--- maybeOrbits'' obj0 obj1 =
---   case maybeOrbit obj0 of
---     Just idx ->
---       if idx == _idxP obj1
---       then Nothing --Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
---       else Nothing
---     Nothing -> Nothing
-    
 maybeOrbits :: Object -> Object -> Maybe (V3 Double)
 maybeOrbits obj0 obj1 =
   case maybeOrbit obj0 of
     Just idx ->
       if idx == _idxP obj1
-      then Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
+      then Just (obj1 ^. base . transform0 . translation)
       else Nothing
     Nothing -> Nothing
 

@@ -14,7 +14,6 @@ import Foreign.C          ( CInt )
 import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
-    --, setMouseLocationMode
     , time
     , glSwapWindow
     , Event(eventPayload)
@@ -22,7 +21,6 @@ import SDL
     , Window )
 import SDL.Input.Mouse
 import SDL.Vect
---import System.IO.Unsafe
 
 import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Color4 (Color4)
@@ -33,6 +31,7 @@ import Graphics.Rendering.OpenGL ( PrimitiveMode(..)
                                  , Capability (..))
 import System.Environment        ( getArgs )
 import Unsafe.Coerce             ( unsafeCoerce )
+import System.IO.Unsafe
     
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
@@ -42,12 +41,8 @@ import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget as W
--- import Graphics.RedViz.Camera
--- import Graphics.RedViz.Controllable
--- import Graphics.RedViz.Input.Mouse
 
 import Application as A
---import Application.Interface
 import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
@@ -98,13 +93,8 @@ animate window sf =
 
 output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
 output fps lastInteraction window application = do
-  -- ticks   <- SDL.ticks
-  -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
 -- | render FPS current
   currentTime <- SDL.time
-  --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
-  --mloc -- TODO get mouse pos from AppInput, store it in App.gui?
-  --dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
@@ -121,11 +111,9 @@ output fps lastInteraction window application = do
     crsr    = _cursor $ app ^. App.gui  ::  Widget
     app  = fromApplication application
 
-  --curvObjs <- unsafeInterleaveIO $ mapM toCurve fgrObjs
-  --curvObjs <- unsafeInterleaveIO $ mapM toCurve (DT.trace ("suka") fgrObjs)
+  curvObjs <- unsafeInterleaveIO $ mapM toCurve fgrObjs
   let
-    --curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
-
+    curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     txs  = concat 
            (concatMap
              (\obj -> obj ^.. base . materials . traverse . textures)
@@ -145,15 +133,12 @@ output fps lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    --playCam'    = app ^. playCam :: Camera
-    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
     mouseCoords = case (app ^. App.gui . cursor) of
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
     (_, resy')  = app ^. options . App.res
     mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
-    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })      :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })      :: Drawable -> IO ()
@@ -162,7 +147,7 @@ output fps lastInteraction window application = do
     renderWidgets     = renderWidget    fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
     renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles    :: Widget   -> IO ()
     
-    --renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })          :: Drawable -> IO ()
+    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })          :: Drawable -> IO ()
 
   --mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
@@ -170,10 +155,6 @@ output fps lastInteraction window application = do
   mapM_ renderWidgets     wgts
   renderCursorM           crsr
   
-  -- case app ^. objects . gui . fonts of
-  --   [] -> return ()
-  --   _  -> mapM_ renderWidgets wgts
-
   glSwapWindow window
 
 
@@ -192,9 +173,6 @@ renderWidget fps lastInteraction drs cmds wgt =
         dts'<- swapMVar fps $ tail dts ++ [dt]
         let dt' = (sum dts')/(fromIntegral $ length dts')
         renderString cmds drs f $ "fps:" ++ show (round (1.0/dt') :: Integer)
-          -- where
-          --   fps' = 30   :: Double
-          --   msps = 1000 :: Double
             
     Cursor {} -> return ()
     _ -> return ()
@@ -246,8 +224,6 @@ main = do
   --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
   mainProj  <- if debug then P.read ("./projects/solar_system_mini" :: FilePath)
                else          P.read (unsafeCoerce (args!!0)     :: FilePath)
-  -- mainProj  <- if debug then P.read ("./projects/curve"     :: FilePath)
-  --              else          P.read (unsafeCoerce (args!!0) :: FilePath)  
   
   let
     title   = pack $ view P.name mainProj
@@ -267,7 +243,6 @@ main = do
 
   _ <- setMouseLocationMode camMode'
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
-  -- _ <- warpMouse WarpGlobal (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
   mainApp' <- mainApp mainProj

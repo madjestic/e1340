@@ -1,7 +1,6 @@
 module Object
   ( Object (..)
   , emptyObj
-  --, defaultObj
   , base
   , materials
   , programs
@@ -20,6 +19,3 @@ module Object
 
 import Object.Object
 import Object.Update
-
---import Debug.Trace    as DT
-

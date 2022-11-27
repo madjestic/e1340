@@ -3,10 +3,7 @@ module App
   , options
   , App.App.name
   , App.App.res
-  -- , App.App.resx
-  -- , App.App.resy
   , gui
---  , ui
   , App.App.objects
   , playCam
   , App.App.cameras
@@ -22,7 +19,6 @@ module App
   , mainApp
   , optsApp
   , Options (..)
---  , inpBack
   ) where
 
 import App.App

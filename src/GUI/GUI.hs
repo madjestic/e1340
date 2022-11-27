@@ -19,10 +19,8 @@ module GUI.GUI
   ) where
 
 import Control.Lens
---import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
---import Graphics.RedViz.Camera hiding (_res, res)
 import Graphics.RedViz.Backend
 
 data GUI
@@ -30,7 +28,6 @@ data GUI
      {
        _res             :: (Int, Int)
      , _cursor          :: Widget
-     --   _fps      :: Widget
      , _xx              :: Widget
      , _a_space_oddysey :: Widget
      , _strtB           :: Widget
@@ -47,7 +44,6 @@ data GUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
-     --, _orbit  :: Maybe Widget
      , _speed  :: Widget
      , _cursor :: Widget
      }
@@ -85,7 +81,6 @@ introGUI res0 =
   {
     _res    = res0
   , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
-  --   _fps    = FPS True (Format TC 0.0 (0.0) 0.025 0.25)
   , _xx =
     TextField True ["PARAYA"] 
     (Format TC (-0.19) (-0.2) 0.0 0.08 1.1) defOpts
@@ -115,7 +110,6 @@ mainGUI res0 =
   {
     _res    = res0
   , _fps    = FPS True (Format TC (-0.1) (-0.1) (0.0) 0.03 0.5) defOpts
-  --, _orbit  = Just $ Orbit defOpts'
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.2 0.1 0.0 0.03 0.5) defOpts
   , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts  
   }

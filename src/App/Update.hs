@@ -1,13 +1,9 @@
 {-# LANGUAGE Arrows #-}
-{-# LANGUAGE LambdaCase #-}
 
 module App.Update where
 
 import Control.Lens hiding (Empty)
 import Data.Functor                          (($>))
---import Data.IntMap.Lazy         as IM hiding (keys)
---import Data.List.Index          as DLI       (indexed)
---import Data.Sort                             (sortOn)
 import FRP.Yampa
 import Linear.V3
 import Linear.Matrix
@@ -20,13 +16,10 @@ import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Widget (text)
 
 import App.App as App
---import Application.Interface
 import GUI
 import ObjectTree
-import Object as Obj-- (Empty)
+import Object as Obj
 import Camera
--- import Solvable
--- import GUI
 
 -- import Debug.Trace as DT (trace)
 

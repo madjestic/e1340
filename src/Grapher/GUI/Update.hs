@@ -8,17 +8,13 @@ module Grapher.GUI.Update
 import Control.Lens hiding (Empty)
 import Data.Functor                          (($>))
 import FRP.Yampa
--- import Foreign.C                             (CInt)
--- import Data.Maybe (fromJust)
 
 import Graphics.RedViz.Widget
---import Graphics.RedViz.Input (AppInput)
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import Grapher.GUI.GUI
---import Debug
 
 -- import Debug.Trace    as DT
 
@@ -37,54 +33,20 @@ updateGUI gui0 =
     returnA -< gui
 
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
-updateGUI' gui0@(IntrGUI {}) =
+updateGUI' (IntrGUI {}) =
   proc (input, gui) -> do
     cursor' <- updateCursor        -< (input, _cursor gui)
-    -- optsB'  <- updateButton (_res gui0) (_optsB gui0) -< (input, cursor', _optsB gui)
-    -- quitB'  <- updateButton (_res gui0) (_quitB gui0) -< (input, cursor', _quitB gui)
     let
       result =
         case gui of
           IntrGUI {} -> 
             gui
             {
-            --   _optsB  = optsB'
-            -- , _quitB  = quitB'
               _cursor = cursor'
             }
           _ -> gui
         
     returnA -< result
-
--- updateGUI' (OptsGUI res0 _ backB0) =
---   proc (input, gui) -> do
---     let OptsGUI res' cursor_ backB_ = gui
---     cursor' <- updateCursor            -< (input, cursor_)
---     backB'  <- updateButton res0 backB0 -< (input, cursor', backB_)
---     let
---       result =
---         gui
---         { _backB  = backB'
---         , _cursor = cursor'
---         }
-        
---     returnA -< result
-
--- updateGUI' gui0@(OptsGUI {}) =
---   proc (input, gui) -> do
---     cursor' <- updateCursor                           -< (input, _cursor gui)
---     backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
---     let
---       result =
---         case gui of
---           OptsGUI {} ->
---             gui
---             { _backB  = backB'
---             , _cursor = cursor'
---             }
---           _ -> gui
-        
---     returnA -< result
 
 updateGUI' gui = proc _ -> do returnA -< gui
 

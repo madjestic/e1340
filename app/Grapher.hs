@@ -5,7 +5,6 @@
 
 module Main where 
 
---import Control.Concurrent ( swapMVar, newMVar, readMVar, MVar, putMVar, takeMVar )
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
 import Control.Lens       ( toListOf, view, (^..), (^.))
 import Control.Monad      ( when )
@@ -21,15 +20,12 @@ import Foreign.C          ( CInt )
 import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
---    , setMouseLocationMode
     , time
     , glSwapWindow
     , Event(eventPayload)
     , EventPayload
---    , LocationMode(AbsoluteLocation, RelativeLocation)
     , Window )
 import SDL.Input.Mouse
---import SDL.Vect
 
 import Graphics.Rendering.OpenGL 
 import Graphics.GLUtil.Textures  ( loadTexture
@@ -46,13 +42,9 @@ import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Widget
---import Graphics.RedViz.Camera
---import Graphics.RedViz.Controllable
---import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Texture  as Texture  (uuid, name, Texture)
 
 import Grapher.Application as Application
---import Grapher.Application.Interface
 import Grapher.App                as App hiding (debug) 
 import Grapher.Object             as O
 import Grapher.ObjectTree         as OT
@@ -103,15 +95,8 @@ animate window sf =
 
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
-  -- ticks   <- SDL.ticks
-  -- let currentTime = fromInteger (unsafeCoerce ticks :: Integer) :: Float
-
 -- | render FPS current
   currentTime <- SDL.time
-  --mmloc  <- SDL.Input.Mouse.getModalMouseLocation
-  -- mloc -- TODO get mouse pos from AppInput, store it in App.gui?
-
-  -- dt <- (currentTime -) <$> readMVar lastInteraction
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
@@ -119,14 +104,14 @@ output lastInteraction window application = do
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-    icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
+    --icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
     --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
-    crsr    = _cursor $ app ^. App.gui  ::  Widget
+    --crsr    = _cursor $ app ^. App.gui  ::  Widget
 
     app  = fromApplication application
     txs  = concat . concat
@@ -146,22 +131,12 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    --playCam'    = app ^. playCam :: Camera
-    --mouseCoords = app ^. playCam . controller . device . mouse . pos :: (Double, Double)
-    mouseCoords = case (app ^. App.gui . cursor) of
-      crs'@(Cursor {}) -> _coords crs'
-      _ -> (0,0)
-
-    (_, resy')  = app ^. options . App.res
-    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
-    --mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) (DT.trace ("DEBUG :: mouseCoords : " ++ show mouseCoords) mouseCoords) (resy'/1,resy'/1)
- 
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+    --renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
@@ -227,13 +202,12 @@ initResources app0 =
 
 genTexObject :: Graph -> IO TextureObject
 genTexObject g = do
-  let --mArr = view marray g
-      arr'  = view array g
-      arr'' = AM.toByteString arr'
-      Sz2 resx' resy' = view sz g
-      --txInfo = texInfo 512 512 TexRGBA arr'
-      txInfo = texInfo resx' resy' TexRGBA arr''
-  t    <- loadTexture txInfo -- :: IO TextureObject
+  let
+    arr'  = view array g
+    arr'' = AM.toByteString arr'
+    Sz2 resx' resy' = view sz g
+    txInfo = texInfo resx' resy' TexRGBA arr''
+  t  <- loadTexture txInfo -- :: IO TextureObject
   --uuid <- nextUUID
   texture2DWrap            $= (Repeated, ClampToEdge)
   textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
@@ -314,8 +288,6 @@ main = do
   putStrLn "\n Initializing Apps"
   intrApp' <- intrApp introProj
   mainApp' <- mainApp mainProj
-  -- optsApp' <- optsApp optsProj
-  -- infoApp' <- mainApp pInfoProj
   counter' <- newMVar 0 :: IO (MVar Int)
   putStrLn "\n Initializing GUI"
 
@@ -336,8 +308,6 @@ main = do
       (intrApp' ^. App.gui)
       intrApp'
       mainApp' 
-      -- optsApp' 
-      -- infoApp' 
       []
       counter'
 

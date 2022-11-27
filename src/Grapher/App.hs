@@ -3,10 +3,7 @@ module Grapher.App
   , options
   , name
   , res
-  -- , Grapher.App.App.resx
-  -- , Grapher.App.App.resy
   , gui
---  , ui
   , objects
   , playCam
   , Grapher.App.App.cameras
@@ -20,9 +17,7 @@ module Grapher.App
   , updateOptsApp
   , intrApp
   , mainApp
---  , optsApp
   , Options (..)
---  , inpBack
   ) where
 
 import Grapher.App.App

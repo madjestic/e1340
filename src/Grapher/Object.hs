@@ -1,7 +1,6 @@
 module Grapher.Object
   ( Object (..)
   , emptyObj
-  --, defaultObj
   , base
   , materials
   , programs

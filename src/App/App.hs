@@ -27,14 +27,12 @@ module App.App
 import Control.Lens hiding (Empty)
 import Foreign.C                     (CInt)
 import Linear.Matrix
---import Unsafe.Coerce
 import Graphics.Rendering.OpenGL     (Program)
                                       
 import Graphics.RedViz.Camera
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Drawable
 import Graphics.RedViz.Descriptor
---import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project as P
@@ -44,7 +42,6 @@ import Object hiding (Empty)
 import ObjectTree
 import GUI
 import Graphics.RedViz.Object (transform0)
---import Application.Interface as AI (Interface (..))
 
 -- import Debug.Trace as DT
 
@@ -77,7 +74,6 @@ fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
 fromProject prj0 = do 
   objs <- ObjectTree.fromProject prj0
   let
-    --cams = fromProjectCamera <$> view P.cameras prj0
     cams = (fromProjectCamera prj0) <$> view P.cameras prj0
     pCam = head cams
 
@@ -90,10 +86,6 @@ intrApp prj0 = do
     result = 
       App
       { _debug   = (0,0)
-      -- , _ui      = IntrApp
-      --              {_inpQuit = False
-      --              ,_inpOpts = False}
-                   
       , _options = Options
                    { _name = view P.name prj0
                    , _res  = res'

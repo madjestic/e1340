@@ -8,20 +8,11 @@ module GUI.Update
 import Control.Lens hiding (Empty)
 import Data.Functor                          (($>))
 import FRP.Yampa
--- import Foreign.C                             (CInt)
--- import Data.Maybe (fromJust)
--- import Linear.V3
--- import Linear.Matrix
--- import Linear.Vector
---import Control.Lens hiding (Empty)
 
 import Graphics.RedViz.Widget
---import Graphics.RedViz.Input (AppInput)
 import Graphics.RedViz.Input.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
--- import Graphics.RedViz.Camera hiding (_res)
--- import Graphics.RedViz.Controllable
 
 import GUI.GUI
 

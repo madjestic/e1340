@@ -21,7 +21,6 @@ import Control.Concurrent.MVar
 import Graphics.Rendering.OpenGL as GL    (GLuint)
 
 import App (App(..))
---import Application.Interface
 import GUI
 
 --import Debug.Trace as DT
@@ -29,7 +28,6 @@ import GUI
 data Application
   = Application
   {
-    --_interface :: Interface
     _gui     :: GUI
   , _quit    :: Bool
   , _intr    :: App
@@ -42,7 +40,7 @@ data Application
 $(makeLenses ''Application)
 
 instance Show (MVar a) where
-  show t = show t
+  show = show
 
 fromApplication :: Application -> App
 fromApplication app =

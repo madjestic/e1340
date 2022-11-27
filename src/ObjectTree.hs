@@ -28,8 +28,6 @@ import Graphics.RedViz.Material as Material
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
                             , fromVGeo
-                            -- , fromPGeo
-                            -- , readPGeo
                             , fromSVGeo
                             , VGeo(..)
                             , SVGeo(..)
@@ -318,11 +316,8 @@ toVGeo prj0 pObj0 = do
     modelSet    = toListOf (models . traverse . Model.path) prj0 :: [String]
     modelPaths' = (modelSet!!) <$> view modelIDXs pObj0
     vgeos       = readBGeo <$> modelPaths' :: [IO VGeo]
-    --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"]
+    --vgeos       = readPGeo' <$> modelPaths'  :: [IO VGeo] --["models/box.pgeo"] -- TODO : figure out why this fails
   sequence vgeos
-
--- toVGeo' :: [V3 Double] -> [VGeo]
--- toVGeo' vs = undefined
 
 toDescriptorSVGeo :: Project -> PreObject -> IO ([Descriptor], [SVGeo])
 toDescriptorSVGeo prj0 pObj0 = do
