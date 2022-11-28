@@ -149,7 +149,7 @@ output fps lastInteraction window application = do
     
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })          :: Drawable -> IO ()
 
-  --mapM_ renderAsCurves    curvDrs
+  mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts

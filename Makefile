@@ -161,11 +161,31 @@ solar_system_mini:
 	./resources/convertGeo.sh star_0
 	./resources/convertGeo.sh planet_0
 	./resources/convertGeo.sh moon_0_0
+	./resources/convertGeo.sh moon_0_1
 	cabal build exe:genProject
 	#  
 	cabal run exe:genProject -- ./projects/solar_system_mini
 	cabal run exe:genUUID -- -p ./projects/solar_system_mini
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solar_system_mini
+
+solar_system_extended:
+	# cabal clean
+	# cabal build exe:ProjectViewer
+
+	./resources/convertGeo.sh star_0
+	./resources/convertGeo.sh planet_0
+	./resources/convertGeo.sh moon_0_0
+	./resources/convertGeo.sh planet_1
+	./resources/convertGeo.sh moon_1_0
+	./resources/convertGeo.sh planet_2
+	./resources/convertGeo.sh moon_2_0
+	./resources/convertGeo.sh moon_2_1
+
+	cabal build exe:genProject
+	#  
+	cabal run exe:genProject -- ./projects/solar_system_extended
+	cabal run exe:genUUID -- -p ./projects/solar_system_extended
+	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solar_system_extended
 
 newtest:
 	cabal build exe:e1340

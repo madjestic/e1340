@@ -332,7 +332,7 @@ toCurve :: Object -> IO Object
 toCurve objs = do
   let
     vs'    =
-      take 100 $ _trs objs   :: [V3 Double]
+      take 500 $ _trs objs   :: [V3 Double]
     svgeo  = toSVGeo vs' Curve  :: SVGeo 
     svao   = fromSVGeo svgeo
   ds       <- toDescriptor svao

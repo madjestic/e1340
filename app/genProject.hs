@@ -15,6 +15,7 @@ import Projects.Graph
 import Projects.Body3
 import Projects.PlanetSputnik
 import Projects.SolarSystemMini
+import Projects.SolarSystemExtended
 import Projects.Curve
 
 -- import Debug.Trace as DT
@@ -35,6 +36,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
   "solarsystem"   -> Project.write Projects.SolarSystem.project     filePath
   "solar_system_mini" -> Project.write Projects.SolarSystemMini.project     filePath
+  "solar_system_extended" -> Project.write Projects.SolarSystemExtended.project     filePath
 --  "infoearth"     -> Project.write Projects.InfoEarth.project       filePath
   "test"          -> Project.write Projects.Test.project            filePath
   "test2"         -> Project.write Projects.Test.test2              filePath

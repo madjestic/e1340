@@ -433,6 +433,7 @@ executable genProject
               , Projects.Body3
               , Projects.PlanetSputnik
               , Projects.SolarSystemMini
+              , Projects.SolarSystemExtended
               , Projects.Curve
 
   default-language:
