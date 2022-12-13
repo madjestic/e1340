@@ -164,8 +164,7 @@ solveDynamic objs0 obj0 slv =
 spin :: V3 Double -> V3 Double -> V3 Double -> Double -> V3 Double
 spin pos0 pos1 axis angle = result
   where
-    rot =
-      (LM.identity :: M33 Double) !*! fromQuaternion (axisAngle axis angle)
+    rot    = (LM.identity :: M33 Double) !*! fromQuaternion (axisAngle axis angle)
     result = (pos1 - pos0) *! rot + pos0
 
 lookupObj :: [Object] -> Integer -> Object
