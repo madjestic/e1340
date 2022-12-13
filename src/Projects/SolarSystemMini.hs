@@ -20,7 +20,9 @@ project =
   [ (Model   "models/star_0.bgeo")
   , (Model   "models/planet_0.bgeo")
   , (Model   "models/moon_0_0.bgeo")
-  , (Model   "models/moon_0_1.bgeo")  
+  , (Model   "models/moon_0_0_0.bgeo")
+  , (Model   "models/moon_0_0_0_0.bgeo")
+  , (Model   "models/planet_1.bgeo")
   ]
   [
     PreObject
@@ -39,7 +41,7 @@ project =
     [1] [] []
     ["orbit", "trace"]
     [[0,0,0
-     ,0,0,1,0.005
+     ,0,0,1,0.001
      ,0], []]
   , PreObject
     "moon_0_0"
@@ -49,18 +51,38 @@ project =
     [2] [] []
     ["orbit", "trace"]
     [[0,0,0
-     ,0,0,1,0.05
+     ,0,0,1,0.01
      ,1], []]
   , PreObject
-    "moon_0_0"
+    "moon_0_0_0"
     "rbd"
     3
     nil
     [3] [] []
     ["orbit", "trace"]
     [[0,0,0
-     ,0,0,1,0.05
+     ,0,0,1,0.1
      ,2], []]
+  , PreObject
+    "moon_0_0_0_0"
+    "rbd"
+    4
+    nil
+    [4] [] []
+    ["orbit", "trace"]
+    [[0,0,0
+     ,0,0,1,0.75
+     ,3], []]
+  , PreObject
+    "moon_0_0_0_0"
+    "rbd"
+    5
+    nil
+    [5] [] []
+    ["orbit", "trace"]
+    [[0,0,0
+     ,0,0,1,0.01
+     ,0], []]
   ]
   []
   gui

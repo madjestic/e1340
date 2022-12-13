@@ -87,11 +87,6 @@ solveStatic obj0 slv =
 
 solveDynamic :: [Object] -> Object -> Solver -> Object
 solveDynamic objs0 obj0 slv =
-  -- case (DT.trace ("obj name : " ++ show (obj0 ^. nameP) ++ "\n" ++
-  --                 "slv      : " ++ show (slv)           ++ "\n" ++
-  --                 "tr0      : " ++ show (obj0 ^. (base . transform0 . translation)) ++ "\n" ++
-  --                 "trace    : " ++ show (obj0 ^. trs)   ++ "\n"
-  --                ) slv) of
   case slv of
     Translate Dynamic WorldSpace txyz _ -> obj1
       where
@@ -134,18 +129,16 @@ solveDynamic objs0 obj0 slv =
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
-    -- TODO: experiment with the center of rotation: analytic orbiting
-    Orbit _ qrot _ -> obj1
+    Orbit pivot qrot idx -> obj1
       where
-        (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)
-        mtx0 = obj0 ^. base . transform0
-        tr0  = mtx0 ^. translation
-        rot  = 
-          (LM.identity :: M33 Double)
-          !*! fromQuaternion (axisAngle vec angle) -- yaw
-        acc  = accOrbits objs0 (Just obj0)
-        mtx  = mtx0 & translation .~ ((tr0 - acc) *! rot + acc)
-        obj1 = obj0 & base . transform0 .~ mtx
+        pos0  = obj0 ^. (base . transform0 . translation)
+        pos1  = lookupObj objs0 idx ^. (base . transform0 . translation)
+        axis  = qrot ^._xyz
+        angle = qrot ^._w
+        tr    = spin pos1 pos0 axis angle
+        mtx0  = obj0 ^. base . transform0
+        mtx   = mtx0 & translation .~ tr
+        obj1  = obj0 & base . transform0 .~ mtx
 
     Gravity -> obj1
       where
@@ -164,79 +157,22 @@ solveDynamic objs0 obj0 slv =
     Trace _ -> obj1
       where
         tr0  = obj0 ^. (base . transform0 . translation) :: V3 Double
-        obj1 = obj0 & Obj.trs .~ (tr0 : obj0 ^. Obj.trs)
+        obj1 = obj0 & Obj.trs .~ take 100 (tr0 : obj0 ^. Obj.trs)
 
     _ -> obj0
 
-accOrbits :: [Object] -> Maybe Object -> V3 Double
-accOrbits _ Nothing = V3 0 0 0
-accOrbits objs0 (Just obj0) = pivot + accOrbits objs0 obj
+spin :: V3 Double -> V3 Double -> V3 Double -> Double -> V3 Double
+spin pos0 pos1 axis angle = result
   where
-    obj   = obj0 `orbits` objs0
-    pivot = case obj of
-      Just obj' ->  obj' ^. base . transform0 . translation
-      _ -> V3 0 0 0
-
-orbits :: Object -> [Object] -> Maybe Object
-orbits obj0 objs = result
-  where
-    slvs'  = filter (\case Orbit {} -> True; _ -> False) $ obj0 ^. solvers
-    result =
-      if not . null $ slvs'
-      then Just $ lookupObj objs (_idx (head slvs'))
-      else Nothing
+    rot =
+      (LM.identity :: M33 Double) !*! fromQuaternion (axisAngle axis angle)
+    result = (pos1 - pos0) *! rot + pos0
 
 lookupObj :: [Object] -> Integer -> Object
 lookupObj objs0 idx = obj
   where
     obj = head $ filter (\obj' -> _idxP obj' == idx ) objs0
 
-accumulateOrbitalPivots :: [Object] -> Object -> V3 Double
-accumulateOrbitalPivots [] _ = V3 0 0 0
-accumulateOrbitalPivots [obj1] obj0 =
-  case obj0 `maybeOrbits` obj1 of
-    Just pivot -> pivot + accumulateOrbitalPivots [] obj1
-    Nothing -> V3 0 0 0
-
-accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs obj1
-  where pivot' = 
-          case obj0 `maybeOrbits` obj1 of
-          -- case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
-          --                                     "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
-          --                                     "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
-          --                                     "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
-          --                                     "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
-          --                                     "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
-          --                                     "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
-          --                                     "\n"
-          --                                    ) obj1) of
-            Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
-            Nothing -> V3 0 0 0
-
-maybeOrbits :: Object -> Object -> Maybe (V3 Double)
-maybeOrbits obj0 obj1 =
-  case maybeOrbit obj0 of
-    Just idx ->
-      if idx == _idxP obj1
-      then Just (obj1 ^. base . transform0 . translation)
-      else Nothing
-    Nothing -> Nothing
-
--- | an object orbits something : index => 0
--- | or Nothing
-maybeOrbit :: Object -> Maybe Integer
-maybeOrbit obj0 = result
-  where
-    slvs'
-      = (\slv -> case slv of
-              Orbit {} -> Just $ _idx slv
-              _ -> Nothing
-        ) <$> obj0 ^. solvers
-    result =
-      if not . null $ slvs'
-      then head slvs'
-      else Nothing
-            
 g :: Double
 g = 6.673**(-11.0) :: Double
 
