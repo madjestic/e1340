@@ -1,0 +1,12 @@
+{
+    "name": "fontbmpext",
+    "fragShader": "./mat/fontbmpext/src/shader.frag",
+    "vertShader": "./mat/fontbmpext/src/shader.vert",
+    "textures": [
+        {
+            "name": "fonts_ext",
+            "uuid": "206214ce-d4c9-4890-8a83-af6717c57e10",
+            "path": "./textures/fonts_ext.png"
+        }
+    ]
+}

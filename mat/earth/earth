@@ -1,0 +1,22 @@
+{
+    "name": "earth",
+    "fragShader": "./mat/earth/src/shader.frag",
+    "vertShader": "./mat/earth/src/shader.vert",
+    "textures": [
+        {
+            "name": "earth_daymap_4096",
+            "uuid": "2662fa0a-9bff-43ef-926b-999c6576cf9d",
+            "path": "./textures/earth_daymap_512.jpg"
+        },
+        {
+            "name": "earth_nightmap_4096",
+            "uuid": "29b38b6d-a579-43dd-8892-950a273efd9f",
+            "path": "./textures/earth_nightmap_512.jpg"
+        },
+        {
+            "name": "earth_clouds_4096",
+            "uuid": "47b81943-d50d-4634-9416-c7878afd69c0",
+            "path": "./textures/earth_clouds_512.jpg"
+        }
+    ]
+}   

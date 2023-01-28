@@ -1,0 +1,7 @@
+{
+    "name": "constant",
+    "fragShader": "./mat/constant/src/shader.frag",
+    "vertShader": "./mat/constant/src/shader.vert",
+    "geomShader": null,
+    "textures": []
+}

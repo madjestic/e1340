@@ -1,0 +1,481 @@
+{
+    "name": "Solar System Extended",
+    "resx": 1280,
+    "resy": 800,
+    "camMode": "AbsoluteLocation",
+    "models": [
+        {
+            "path": "models/star_0.bgeo"
+        },
+        {
+            "path": "models/planet_0.bgeo"
+        },
+        {
+            "path": "models/moon_0_0.bgeo"
+        },
+        {
+            "path": "models/planet_1.bgeo"
+        },
+        {
+            "path": "models/moon_1_0.bgeo"
+        },
+        {
+            "path": "models/planet_2.bgeo"
+        },
+        {
+            "path": "models/moon_2_0.bgeo"
+        },
+        {
+            "path": "models/moon_2_1.bgeo"
+        }
+    ],
+    "objects": [
+        {
+            "pname": "star_0",
+            "modelIDXs": [
+                0
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 0,
+            "ptype": "rbd",
+            "uuid": "8f7d31a4-b91e-48c8-9231-fadb03130fc5"
+        },
+        {
+            "pname": "planet_0",
+            "modelIDXs": [
+                1
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    5.0e-3,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 1,
+            "ptype": "rbd",
+            "uuid": "4244994c-d28f-469e-87e1-b23263c2b5d8"
+        },
+        {
+            "pname": "moon_0_0",
+            "modelIDXs": [
+                2
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    5.0e-2,
+                    1
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 2,
+            "ptype": "rbd",
+            "uuid": "4c3a3405-fecc-4487-9fff-002ec3caaae2"
+        },
+        {
+            "pname": "planet_1",
+            "modelIDXs": [
+                3
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1.5e-3,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 3,
+            "ptype": "rbd",
+            "uuid": "6c755cb2-c8a5-4e78-a3e2-f4903926d7ff"
+        },
+        {
+            "pname": "moon_1_0",
+            "modelIDXs": [
+                4
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    2.5e-2,
+                    3
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 4,
+            "ptype": "rbd",
+            "uuid": "dd766fa2-4e53-42ab-ac91-9a46bf7f51e0"
+        },
+        {
+            "pname": "planet_2",
+            "modelIDXs": [
+                5
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    5.0e-4,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 5,
+            "ptype": "rbd",
+            "uuid": "d7b970d1-29b7-449d-a49d-df4e6d1016ae"
+        },
+        {
+            "pname": "moon_2_0",
+            "modelIDXs": [
+                6
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1.5e-2,
+                    5
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 6,
+            "ptype": "rbd",
+            "uuid": "b674adf0-102a-403c-847c-241eebfbdadf"
+        }
+    ],
+    "background": [],
+    "cameras": [
+        {
+            "pApt": 50,
+            "pFoc": 100,
+            "pTransform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                -30,
+                0,
+                0,
+                0,
+                1
+            ],
+            "pMouseS": 1,
+            "pKeyboardRS": 5,
+            "pKeyboardTS": 1.0e-6,
+            "pcname": "PlayerCamera"
+        }
+    ],
+    "gui": {
+        "fonts": [
+            {
+                "path": "models/fnt_0.bgeo"
+            },
+            {
+                "path": "models/fnt_1.bgeo"
+            },
+            {
+                "path": "models/fnt_2.bgeo"
+            },
+            {
+                "path": "models/fnt_3.bgeo"
+            },
+            {
+                "path": "models/fnt_4.bgeo"
+            },
+            {
+                "path": "models/fnt_5.bgeo"
+            },
+            {
+                "path": "models/fnt_6.bgeo"
+            },
+            {
+                "path": "models/fnt_7.bgeo"
+            },
+            {
+                "path": "models/fnt_8.bgeo"
+            },
+            {
+                "path": "models/fnt_9.bgeo"
+            },
+            {
+                "path": "models/fnt_a.bgeo"
+            },
+            {
+                "path": "models/fnt_b.bgeo"
+            },
+            {
+                "path": "models/fnt_c.bgeo"
+            },
+            {
+                "path": "models/fnt_d.bgeo"
+            },
+            {
+                "path": "models/fnt_e.bgeo"
+            },
+            {
+                "path": "models/fnt_f.bgeo"
+            },
+            {
+                "path": "models/fnt_g.bgeo"
+            },
+            {
+                "path": "models/fnt_h.bgeo"
+            },
+            {
+                "path": "models/fnt_i.bgeo"
+            },
+            {
+                "path": "models/fnt_j.bgeo"
+            },
+            {
+                "path": "models/fnt_k.bgeo"
+            },
+            {
+                "path": "models/fnt_l.bgeo"
+            },
+            {
+                "path": "models/fnt_m.bgeo"
+            },
+            {
+                "path": "models/fnt_n.bgeo"
+            },
+            {
+                "path": "models/fnt_o.bgeo"
+            },
+            {
+                "path": "models/fnt_p.bgeo"
+            },
+            {
+                "path": "models/fnt_q.bgeo"
+            },
+            {
+                "path": "models/fnt_r.bgeo"
+            },
+            {
+                "path": "models/fnt_s.bgeo"
+            },
+            {
+                "path": "models/fnt_t.bgeo"
+            },
+            {
+                "path": "models/fnt_u.bgeo"
+            },
+            {
+                "path": "models/fnt_v.bgeo"
+            },
+            {
+                "path": "models/fnt_w.bgeo"
+            },
+            {
+                "path": "models/fnt_x.bgeo"
+            },
+            {
+                "path": "models/fnt_y.bgeo"
+            },
+            {
+                "path": "models/fnt_z.bgeo"
+            },
+            {
+                "path": "models/fnt_plus.bgeo"
+            },
+            {
+                "path": "models/fnt_minus.bgeo"
+            },
+            {
+                "path": "models/fnt_equal.bgeo"
+            },
+            {
+                "path": "models/fnt_GT.bgeo"
+            },
+            {
+                "path": "models/fnt_comma.bgeo"
+            },
+            {
+                "path": "models/fnt_dot.bgeo"
+            },
+            {
+                "path": "models/fnt_question.bgeo"
+            },
+            {
+                "path": "models/fnt_exclam.bgeo"
+            },
+            {
+                "path": "models/fnt_space.bgeo"
+            },
+            {
+                "path": "models/fnt_asterics.bgeo"
+            },
+            {
+                "path": "models/fnt_slash.bgeo"
+            },
+            {
+                "path": "models/fnt_semicolon.bgeo"
+            },
+            {
+                "path": "models/fnt_quote.bgeo"
+            },
+            {
+                "path": "models/fnt_A.bgeo"
+            },
+            {
+                "path": "models/fnt_B.bgeo"
+            },
+            {
+                "path": "models/fnt_C.bgeo"
+            },
+            {
+                "path": "models/fnt_D.bgeo"
+            },
+            {
+                "path": "models/fnt_E.bgeo"
+            },
+            {
+                "path": "models/fnt_F.bgeo"
+            },
+            {
+                "path": "models/fnt_G.bgeo"
+            },
+            {
+                "path": "models/fnt_H.bgeo"
+            },
+            {
+                "path": "models/fnt_I.bgeo"
+            },
+            {
+                "path": "models/fnt_J.bgeo"
+            },
+            {
+                "path": "models/fnt_K.bgeo"
+            },
+            {
+                "path": "models/fnt_L.bgeo"
+            },
+            {
+                "path": "models/fnt_M.bgeo"
+            },
+            {
+                "path": "models/fnt_N.bgeo"
+            },
+            {
+                "path": "models/fnt_O.bgeo"
+            },
+            {
+                "path": "models/fnt_P.bgeo"
+            },
+            {
+                "path": "models/fnt_Q.bgeo"
+            },
+            {
+                "path": "models/fnt_R.bgeo"
+            },
+            {
+                "path": "models/fnt_S.bgeo"
+            },
+            {
+                "path": "models/fnt_T.bgeo"
+            },
+            {
+                "path": "models/fnt_U.bgeo"
+            },
+            {
+                "path": "models/fnt_V.bgeo"
+            },
+            {
+                "path": "models/fnt_W.bgeo"
+            },
+            {
+                "path": "models/fnt_X.bgeo"
+            },
+            {
+                "path": "models/fnt_Y.bgeo"
+            },
+            {
+                "path": "models/fnt_Z.bgeo"
+            },
+            {
+                "path": "models/fnt_LT.bgeo"
+            }
+        ],
+        "icons": [
+            {
+                "path": "models/fnt_crosshair.bgeo"
+            }
+        ]
+    }
+}

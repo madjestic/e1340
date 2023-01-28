@@ -168,7 +168,8 @@ solar_system_mini:
 	#  
 	cabal run exe:genProject -- ./projects/solar_system_mini
 	cabal run exe:genUUID -- -p ./projects/solar_system_mini
-	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solar_system_mini
+	cabal run +RTS -sstderr -N -RTS ProjectViewer ./projects/solar_system_mini
+	#cabal run TS 8 ProjectViewer ./projects/solar_system_mini
 
 solar_system_extended:
 	# cabal clean
@@ -187,7 +188,8 @@ solar_system_extended:
 	#  
 	cabal run exe:genProject -- ./projects/solar_system_extended
 	cabal run exe:genUUID -- -p ./projects/solar_system_extended
-	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solar_system_extended
+	cabal run +RTS -sstderr -N -RTS ProjectViewer ./projects/solar_system_extended
+	#cabal run ProjectViewer ./projects/solar_system_extended
 
 newtest:
 	cabal build exe:e1340

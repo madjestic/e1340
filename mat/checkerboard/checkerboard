@@ -1,0 +1,12 @@
+{
+    "name": "checkerboard",
+    "fragShader": "./mat/checkerboard/src/shader.frag",
+    "vertShader": "./mat/checkerboard/src/shader.vert",
+    "textures": [
+        {
+            "name": "checkerboard",
+            "uuid": "7216c90b-cdf9-40e3-afad-079727d3e464",
+            "path": "./textures/checkerboard.png"
+        }
+    ]
+}

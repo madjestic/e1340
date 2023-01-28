@@ -1,0 +1,13 @@
+{
+    "name": "curve",
+    "fragShader": "./mat/curve/src/shader.frag",
+    "vertShader": "./mat/curve/src/shader.vert",
+    "geomShader": "./mat/curve/src/house.gs",
+    "textures": [
+        {
+            "name": "checkerboard",
+            "path": "./textures/checkerboard.png",
+            "uuid": "7216c90b-cdf9-40e3-afad-079727d3e464"
+        }
+    ]
+}

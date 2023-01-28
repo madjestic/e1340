@@ -1,5 +1,5 @@
 {-# LANGUAGE Arrows #-}
-{-# LANGUAGE OverloadedRecordDot #-}
+--{-# LANGUAGE OverloadedRecordDot #-}
 
 module Application.Update
   (

@@ -13,8 +13,10 @@ module ObjectTree
   , ObjectTree.fonts
   , ObjectTree.icons
   , toCurve
+  , toCurve'
   ) where
 
+import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, forkIO)
 import Control.Lens hiding (transform, pre)
 import Linear.Matrix
 import Linear (V3(..), V4(..))
@@ -50,7 +52,7 @@ import Object
 import Solvable hiding (_ypr, _trs)
 import Object.Update (updateOnce)
 
---import Debug.Trace as DT
+import Debug.Trace as DT
 
 data ObjectTree =
   ObjectTree
@@ -328,12 +330,17 @@ toDescriptorSVGeo prj0 pObj0 = do
   ds' <- mapM toDescriptor vao'
   return (ds', svgeos) :: IO ([Descriptor], [SVGeo])
 
+every :: Int -> [a] -> [a]
+every n xs = case drop (n-1) xs of
+              y : ys -> y : every n ys
+              _ -> []
+
+-- TODO : move to another thread:
 toCurve :: Object -> IO Object
-toCurve objs = do
+toCurve obj = do
   let
-    vs'    =
-      take 500 $ _trs objs   :: [V3 Double]
-    svgeo  = toSVGeo vs' Curve  :: SVGeo 
+    vs'    = _trs obj   :: [V3 Double]
+    svgeo  = toSVGeo Curve vs' :: SVGeo 
     svao   = fromSVGeo svgeo
   ds       <- toDescriptor svao
   material <- Material.read $ _smp svgeo :: IO Material
@@ -362,14 +369,50 @@ toCurve objs = do
   
   return curveObj'
 
-toSVGeo :: [V3 Double] -> Primitive -> SVGeo
-toSVGeo vs0 Curve = svgeo
+toCurve' :: [Object] -> IO Object
+toCurve' objs = do
+  let
+    vs'    = concatMap (view trs) objs   :: [V3 Double]
+    svgeo  = toSVGeo Curve vs'   :: SVGeo 
+    svao   = fromSVGeo svgeo
+  ds       <- toDescriptor svao
+  material <- Material.read $ _smp svgeo :: IO Material
+  program  <-
+    (\mat -> case _geomShader mat of
+        Just geomShader' ->
+          loadShaders
+             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+             , ShaderInfo GeometryShader (FileSource geomShader')
+             , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+             ]
+        Nothing ->             
+          loadShaders
+             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+    ) material
+  let
+    base' =
+      defaultObject'
+      & descriptors .~ [ds]
+      & materials   .~ [material]
+      & programs    .~ [program]
+
+    curveObj' =
+      Sprite base'
+  
+  return curveObj'
+
+toSVGeo :: Primitive -> [V3 Double] -> SVGeo
+toSVGeo Curve vs0' = svgeo
   where
+    --vs0   = every 3 vs0'
+    vs0   = vs0'
     idxs  = snd <$> zip vs0 [0..]
     as    = alphas vs0 :: [Float]
-    alphas vs' = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs')])
+    --alphas vs' = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs')])
+    alphas vs' = replicate (length vs0) 1.0
     gamma = (** 0.75)
-    add   = (+ (-1.0/(int2Float $ length vs0)))
+    add   = (+ (-1.0/(int2Float $ length vs0 + 1)))
     mult  = (* 5)
     cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
     ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
@@ -387,4 +430,4 @@ toSVGeo vs0 Curve = svgeo
       , _svl = []
       , _savl= []
       , _sxf = []
-      }
+      }      

@@ -22,13 +22,13 @@ import Graphics.RedViz.Utils
 
 --import Debug.Trace    as DT
 
-clampBy :: Double -> Double -> Double
-clampBy d x = d'
-  where
-    d' = case signum x of
-           (-1) -> clamp (x, 0) $ x + d
-           1    -> clamp (0, x) $ x - d
-           _    -> x
+-- clampBy :: Double -> Double -> Double
+-- clampBy d x = d'
+--   where
+--     d' = case signum x of
+--            (-1) -> clamp (x, 0) $ x + d
+--            1    -> clamp (0, x) $ x - d
+--            _    -> x
 
 updateCameraController :: Camera -> SF (AppInput, Camera) Camera
 updateCameraController cam0 =

@@ -2,7 +2,7 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedRecordDot #-}
+--{-# LANGUAGE OverloadedRecordDot #-}
 
 module App.App
   ( App     (..)

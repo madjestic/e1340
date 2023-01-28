@@ -5,7 +5,7 @@
 
 module Main where 
 
-import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
+import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, forkIO)
 import Control.Lens       ( toListOf, view, (^..), (^.))
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
@@ -111,8 +111,11 @@ output fps lastInteraction window application = do
     crsr    = _cursor $ app ^. App.gui  ::  Widget
     app  = fromApplication application
 
-  curvObjs <- unsafeInterleaveIO $ mapM toCurve fgrObjs
+  
+  --curvObjs <- unsafeInterleaveIO $ mapM toCurve fgrObjs
+  curvObj <- unsafeInterleaveIO $ toCurve' fgrObjs; let curvObjs = [curvObj]
   let
+    --curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     txs  = concat 
            (concatMap
@@ -147,7 +150,7 @@ output fps lastInteraction window application = do
     renderWidgets     = renderWidget    fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
     renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles    :: Widget   -> IO ()
     
-    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })          :: Drawable -> IO ()
+    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })      :: Drawable -> IO ()
 
   mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
@@ -156,7 +159,6 @@ output fps lastInteraction window application = do
   renderCursorM           crsr
   
   glSwapWindow window
-
 
 renderWidget :: MVar [Double] -> MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderWidget fps lastInteraction drs cmds wgt =
