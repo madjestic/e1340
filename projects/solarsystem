@@ -1,17 +1,32 @@
 {
-    "name": "Solar System",
+    "name": "Solar System Extended",
     "resx": 1280,
     "resy": 800,
-    "camMode": "RelativeLocation",
+    "camMode": "AbsoluteLocation",
     "models": [
         {
             "path": "models/sun.bgeo"
         },
         {
+            "path": "models/mercury.bgeo"
+        },
+        {
+            "path": "models/venus.bgeo"
+        },
+        {
             "path": "models/earth.bgeo"
         },
         {
-            "path": "models/gizmo.bgeo"
+            "path": "models/moon.bgeo"
+        },
+        {
+            "path": "models/mars.bgeo"
+        },
+        {
+            "path": "models/phobos.bgeo"
+        },
+        {
+            "path": "models/deimos.bgeo"
         }
     ],
     "objects": [
@@ -25,16 +40,17 @@
             "presolvers": [],
             "presolverAttrs": [],
             "pidx": 0,
-            "ptype": "planet",
-            "uuid": "f7e1553e-b31e-4e72-bc44-3b9e5e72ec12"
+            "ptype": "rbd",
+            "uuid": "36bf50e5-21ab-4c9f-9dc6-e0d6a1014205"
         },
         {
-            "pname": "earth",
+            "pname": "mercury",
             "modelIDXs": [
                 1
             ],
             "solvers": [
-                "rotate'"
+                "orbit",
+                "trace"
             ],
             "solverAttrs": [
                 [
@@ -42,39 +58,186 @@
                     0,
                     0,
                     0,
-                    -1.0e-2,
+                    0,
+                    1,
+                    5.0e-3,
                     0
-                ]
+                ],
+                []
             ],
-            "presolvers": [
-                "prerotate"
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 1,
+            "ptype": "rbd",
+            "uuid": "4e3a103d-5bfa-4fec-bbcf-ff06e203dcd8"
+        },
+        {
+            "pname": "venus",
+            "modelIDXs": [
+                2
             ],
-            "presolverAttrs": [
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
                 [
                     0,
                     0,
                     0,
                     0,
                     0,
-                    0.5
-                ]
+                    1,
+                    2.5e-3,
+                    0
+                ],
+                []
             ],
-            "pidx": 0,
-            "ptype": "planet",
-            "uuid": "f80e50af-1c5e-4472-aa49-c9fb99b9fac8"
-        },
-        {
-            "pname": "gizmo",
-            "modelIDXs": [
-                2
-            ],
-            "solvers": [],
-            "solverAttrs": [],
             "presolvers": [],
             "presolverAttrs": [],
-            "pidx": 0,
-            "ptype": "planet",
-            "uuid": "8505d1f3-1bda-4169-9e94-949a14908500"
+            "pidx": 2,
+            "ptype": "rbd",
+            "uuid": "32b2d70b-1b45-4bf8-a098-6a856f3c5d6b"
+        },
+        {
+            "pname": "earth",
+            "modelIDXs": [
+                3
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    1.25e-3,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 3,
+            "ptype": "rbd",
+            "uuid": "5875f5fe-87fe-4fe6-a1e2-fd166145ae51"
+        },
+        {
+            "pname": "moon",
+            "modelIDXs": [
+                4
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    6.25e-2,
+                    3
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 4,
+            "ptype": "rbd",
+            "uuid": "8181d563-8e4d-4ff4-812d-ff454662b192"
+        },
+        {
+            "pname": "mars",
+            "modelIDXs": [
+                5
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    6.25e-4,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 5,
+            "ptype": "rbd",
+            "uuid": "c9560a43-d430-4948-8bcf-7a5a747c3c66"
+        },
+        {
+            "pname": "phobos",
+            "modelIDXs": [
+                6
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    6.25e-2,
+                    5
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 6,
+            "ptype": "rbd",
+            "uuid": "60f4ed9f-4698-4cf8-bdf5-0fc9580b7afe"
+        },
+        {
+            "pname": "deimos",
+            "modelIDXs": [
+                7
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    3.25e-2,
+                    5
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 7,
+            "ptype": "rbd",
+            "uuid": "8310eead-b847-48f2-8d2f-d468e6b8c44f"
         }
     ],
     "background": [],
@@ -94,7 +257,7 @@
                 0,
                 0,
                 1,
-                -150063170000,
+                -30,
                 0,
                 0,
                 0,
@@ -102,138 +265,8 @@
             ],
             "pMouseS": 1,
             "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "earth Camera"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                6.2280238e-2,
-                0,
-                -0.9970607,
-                -401500600,
-                0,
-                1,
-                0,
-                0,
-                0.9970607,
-                0,
-                6.2280238e-2,
-                -150001910000,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "moon Camera"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -58025116000,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "mercury Camera"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -108060410000,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "venus Camera"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -228033170000,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "mars Camera"
-        },
-        {
-            "pApt": 50,
-            "pFoc": 100,
-            "pTransform": [
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                0,
-                0,
-                0,
-                0,
-                1,
-                -778696460000,
-                0,
-                0,
-                0,
-                1
-            ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1,
-            "pcname": "jupiter Camera"
+            "pKeyboardTS": 1.0e-6,
+            "pcname": "PlayerCamera"
         }
     ],
     "gui": {

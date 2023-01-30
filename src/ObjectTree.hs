@@ -373,7 +373,9 @@ toCurve' :: [Object] -> IO Object
 toCurve' objs = do
   let
     vs'    = concatMap (view trs) objs   :: [V3 Double]
-    svgeo  = toSVGeo Curve vs'   :: SVGeo 
+    vs''   = drop 1 $ view trs <$> objs   :: [[V3 Double]]
+    --svgeo  = toSVGeo Curve vs'   :: SVGeo
+    svgeo  = toSVGeo' Curve vs''   :: SVGeo 
     svao   = fromSVGeo svgeo
   ds       <- toDescriptor svao
   material <- Material.read $ _smp svgeo :: IO Material
@@ -430,4 +432,46 @@ toSVGeo Curve vs0' = svgeo
       , _svl = []
       , _savl= []
       , _sxf = []
+      }
+
+-- alpha :: [[V3 Double]] -> [Double]
+-- alpha = concatMap alpha'
+
+isTrue :: Bool -> Float
+isTrue b = if b then 1.0 else 0.0
+  -- case b of
+  --   True -> 1.0
+  --   _    -> 0.0
+
+alphas :: [V3 Double] -> [Float]
+alphas vs = as
+  where
+    xs    = (\(_,y) -> y/numpt) <$> zip vs [0..]          :: [Float]
+    as    = (\x -> (isTrue $ x > 0.1) * (1.0 - x)) <$> xs :: [Float]
+    numpt = fromIntegral $ length vs
+
+toSVGeo' :: Primitive -> [[V3 Double]] -> SVGeo
+toSVGeo' Curve vss = svgeo
+  where
+    --vs0   = every 3 vs0'
+    vs0   = concat vss
+    idxs  = snd <$> zip vs0 [0..]
+    as    = concatMap alphas vss :: [Float] -- TODO: add alphas based on separate curves
+    cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
+    ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
+    ts    = snd <$> zip vs0 (repeat  (0, 0, 0))
+    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs0
+    vao   = toVAO [idxs] as cds ns ts ps :: VAO
+    svgeo =
+      SVGeo
+      {
+        _sis = idxs
+      , _sst = 13
+      , _svs = concat . concat $ vao
+      , _smp = "mat/default/default"
+      , _sms = 1.0
+      , _svl = []
+      , _savl= []
+      , _sxf = []
       }      
+      

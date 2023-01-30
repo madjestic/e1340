@@ -10,187 +10,64 @@ gui =
   defaultFonts
   defaultIcons
 
-sun     :: [Int] -> PreObject
-sun     idxs =
-  PreObject "sun"     "planet" 0 nil idxs [] [] [] []
-mercury :: [Int] -> PreObject
-mercury idxs =
-  PreObject "mercury" "planet" 0 nil idxs [] [] [] []
-venus   :: [Int] -> PreObject
-venus   idxs =
-  PreObject "venus"   "planet" 0 nil idxs [] [] [] []
-earth   :: [Int] -> PreObject
-earth   idxs =
-  PreObject "earth"   "planet" 0 nil idxs
-  ["prerotate"]
-  [[0,0,0,0,0,0.5]]
-  -- ["translate'"
-  -- ,"rotate'"]
-  -- [[10000,0,0]
-  -- ,[0,0,0,0,0.01,0]]
-  ["rotate'"]
-  [[0,0,0,0,-0.01,0]]
-  -- ["translate"]
-  -- [[0,10000,0]]
-
-moon   :: [Int] -> PreObject
-moon   idxs =
-  PreObject "moon"    "planet" 0 nil idxs [] [] [] []
-mars    :: [Int] -> PreObject
-mars    idxs =
-  PreObject "mars"    "planet" 0 nil idxs [] [] [] []
-jupiter :: [Int] -> PreObject
-jupiter idxs =
-  PreObject "jupiter" "planet" 0 nil idxs [] [] [] []
-
-gizmo   :: [Int] -> PreObject
-gizmo   idxs =
-  PreObject "gizmo" "planet" 0 nil idxs [] [] [] []
-
-stars :: [Int] -> PreObject
-stars idxs =
-  PreObject "stars" "planet" 0 nil idxs [] [] [] []
-
-earthCam :: ProjectCamera
-earthCam =
-  ProjectCamera
-   "earth Camera"
-   50.0
-   100.0
-   [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-150063170000,
-    0, 0, 0, 1]
-   1.0
-   5.0
-   1.0  
-
-moonCam :: ProjectCamera
-moonCam =
-  ProjectCamera
-   "moon Camera"
-   50.0
-   100.0
-   [
-     6.2280238e-2, 0, -0.9970607    , -401500600
-   , 0           , 1,  0            ,  0        
-   , 0.9970607   , 0,  6.2280238e-2 , -150001910000
-   , 0           , 0,  0            ,  1
-   ]
-   1.0
-   5.0
-   1.0
-
-marsCam :: ProjectCamera
-marsCam =
-  ProjectCamera
-   "mars Camera"
-   50.0
-   100.0
-   [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-228033170000,
-    0, 0, 0, 1]
-   1.0
-   5.0
-   1.0
-
-venusCam :: ProjectCamera
-venusCam =
-  ProjectCamera
-   "venus Camera"
-   50.0
-   100.0
-   [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-108060410000,
-    0, 0, 0, 1]
-   1.0
-   5.0
-   1.0
-
-mercuryCam :: ProjectCamera
-mercuryCam =
-  ProjectCamera
-   "mercury Camera"
-   50.0
-   100.0
-   [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-58025116000,
-    0, 0, 0, 1]
-   1.0
-   5.0
-   1.0
-
-jupiterCam :: ProjectCamera
-jupiterCam =
-  ProjectCamera
-   "jupiter Camera"
-   50.0
-   100.0
-   [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1,-778696460000,
-    0, 0, 0, 1]
-   1.0
-   5.0
-   1.0  
-
 project :: Project
 project =
   Project
-  "Solar System"
+  "Solar System Extended"
   1280
   800
-  -- 640
-  -- 400
-  -- "AbsoluteLocation"
-  "RelativeLocation"
-  [
-  --   Model "models/stars.bgeo"
-  -- , Model "models/star_sector_01.bgeo"
-  -- , Model "models/star_sector_02.bgeo"
-  -- , Model "models/star_sector_03.bgeo"
-  -- , Model "models/star_sector_04.bgeo"
-  -- , Model "models/star_sector_05.bgeo"
-  -- , Model "models/star_sector_06.bgeo"
-  -- , Model "models/star_sector_07.bgeo"
-  -- , Model "models/star_sector_08.bgeo"
-  -- , Model "models/star_sector_09.bgeo"
-    Model "models/sun.bgeo"
-  -- , Model "models/mercury.bgeo"
-  -- , Model "models/venus.bgeo"
-  , Model "models/earth.bgeo"
-  -- , Model "models/moon.bgeo"
-  -- , Model "models/mars.bgeo"
-  -- , Model "models/jupiter.bgeo"
-  , Model "models/gizmo.bgeo"
-  ]
-  -- [
-  --   sun     [10]
-  -- , mercury [11]
-  -- , venus   [12]
-  -- , earth   [13]
-  -- , moon    [14]
-  -- , mars    [15]
-  -- , jupiter [16]
-  -- , gizmo   [17]
-  -- ]
-  [
-    sun     [0]
-  , earth   [1]
-  , gizmo   [2]
+  "AbsoluteLocation"
+  [ (Model   "models/sun.bgeo")
+  , (Model   "models/mercury.bgeo")
+  , (Model   "models/venus.bgeo")
+  , (Model   "models/earth.bgeo")
+  , (Model   "models/moon.bgeo")
+  , (Model   "models/mars.bgeo")
+  , (Model   "models/phobos.bgeo")
+  , (Model   "models/deimos.bgeo")
   ]
   [
-    -- stars [0..9]
+    PreObject "sun"     "rbd"
+    0 nil [0] [] [] [] []
+  , PreObject "mercury" "rbd"
+    1 nil [1] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.005,0], []]
+  , PreObject "venus"   "rbd"
+    2 nil [2] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0025,0], []]
+  , PreObject "earth" "rbd"
+    3 nil [3] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.00125,0], []]
+  , PreObject "moon" "rbd"
+    4 nil [4] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0625,3], []]
+  , PreObject "mars" "rbd"
+    5 nil [5] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.000625,0], []]
+  , PreObject "phobos" "rbd"
+    6 nil [6] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0625,5], []]
+  , PreObject "deimos" "rbd"
+    7 nil [7] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0325,5], []]
   ]
+  []
   gui
-  [
-    earthCam
-  , moonCam
-  , mercuryCam
-  , venusCam
-  , marsCam
-  , jupiterCam
+  [(ProjectCamera
+    "PlayerCamera"
+    50.0
+    100.0
+    [1, 0, 0, 0,
+     0, 1, 0, 0,
+     0, 0, 1,-30,
+     0, 0, 0, 1])
+    1.0
+    5.0
+    0.000001
   ]
+
+emptyGUI :: GUI'
+emptyGUI =
+  GUI'
+  []
+  []

@@ -28,7 +28,7 @@ library
   --ghc-options: -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   --ghc-options: -threaded -O2
   build-depends:
-                base                
+                base
               , aeson               
               , aeson-pretty
               --, bearriver
@@ -181,7 +181,7 @@ executable e1340
   --cpp-options:   -DDEBUG
   --cpp-options:   -DDEBUGMAIN
   build-depends:
-                 base                
+                 base
                , aeson               
                , aeson-pretty        
                --, bearriver

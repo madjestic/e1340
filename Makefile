@@ -197,20 +197,20 @@ newtest:
 	cabal run exe:genUUID -- -p ./projects/newtest
 	cabal run +RTS -sstderr -RTS e1340 ./projects/newtest ./projects/newtest
 
-solarsystem:
-	./resources/convertGeo.sh sun
-	./resources/convertGeo.sh earth
-	cabal build exe:e1340
-	cabal build
-	cabal run exe:genProject -- ./projects/solarsystem
-	cabal run exe:genUUID -- -p ./projects/solarsystem
-	cabal run exe:genProject -- ./projects/options 	
-	cabal run exe:genUUID -- -p ./projects/options 	
-	cabal run exe:genProject -- ./projects/infoearth
-	cabal run exe:genUUID -- -p ./projects/infoearth
+# solarsystem:
+# 	./resources/convertGeo.sh sun
+# 	./resources/convertGeo.sh earth
+# 	cabal build exe:e1340
+# 	cabal build
+# 	cabal run exe:genProject -- ./projects/solarsystem
+# 	cabal run exe:genUUID -- -p ./projects/solarsystem
+# 	cabal run exe:genProject -- ./projects/options 	
+# 	cabal run exe:genUUID -- -p ./projects/options 	
+# 	cabal run exe:genProject -- ./projects/infoearth
+# 	cabal run exe:genUUID -- -p ./projects/infoearth
 
-	#cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
-	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solarsystem
+# 	#cabal run +RTS -sstderr -RTS e1340 ./projects/solarsystem ./projects/solarsystem ./projects/options ./projects/infoearth
+# 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/solarsystem
 
 testred:
 	cabal build exe:e1340
@@ -311,3 +311,23 @@ curve:
 	cabal run exe:genProject -- ./projects/curve
 	cabal run exe:genUUID -- -p ./projects/curve
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/curve	
+
+solarsystem:
+	# cabal clean
+	# cabal build exe:ProjectViewer
+
+	./resources/convertGeo.sh sun
+	./resources/convertGeo.sh mercury
+	./resources/convertGeo.sh venus
+	./resources/convertGeo.sh earth
+	./resources/convertGeo.sh moon
+	./resources/convertGeo.sh mars
+	./resources/convertGeo.sh phobos
+	./resources/convertGeo.sh deimos
+	./resources/convertGeo.sh jupiter
+	cabal build exe:genProject
+	#  
+	cabal run exe:genProject -- ./projects/solarsystem
+	cabal run exe:genUUID -- -p ./projects/solarsystem
+	cabal run +RTS -sstderr -N -RTS ProjectViewer ./projects/solarsystem
+	#cabal run TS 8 ProjectViewer ./projects/solar_system_mini

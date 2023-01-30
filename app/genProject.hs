@@ -34,6 +34,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "testblue"      -> Project.write Projects.Test.projectTestBlue    filePath 
   "testchecker"   -> Project.write Projects.Test.projectTestChecker filePath
   "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
+  --"solarsystem"   -> Project.write Projects.SolarSystem.project     filePath
   "solarsystem"   -> Project.write Projects.SolarSystem.project     filePath
   "solar_system_mini" -> Project.write Projects.SolarSystemMini.project     filePath
   "solar_system_extended" -> Project.write Projects.SolarSystemExtended.project     filePath
