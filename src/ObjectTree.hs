@@ -13,7 +13,6 @@ module ObjectTree
   , ObjectTree.fonts
   , ObjectTree.icons
   , toCurve
-  , toCurve'
   ) where
 
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, forkIO)
@@ -171,7 +170,7 @@ fromPreObject prj0 cls pObj0 = do
     mass'        = float2Double (head ms')
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
-    trs'         = [V3 0 0 0, V3 0 0 0, V3 0 0 0]
+    trs'         = replicate 500 $ V3 0 0 0 -- TODO: change with repeat
 
   case cls of
     Font -> return $ updateOnce $
@@ -335,47 +334,12 @@ every n xs = case drop (n-1) xs of
               y : ys -> y : every n ys
               _ -> []
 
--- TODO : move to another thread:
-toCurve :: Object -> IO Object
-toCurve obj = do
-  let
-    vs'    = _trs obj   :: [V3 Double]
-    svgeo  = toSVGeo Curve vs' :: SVGeo 
-    svao   = fromSVGeo svgeo
-  ds       <- toDescriptor svao
-  material <- Material.read $ _smp svgeo :: IO Material
-  program  <-
-    (\mat -> case _geomShader mat of
-        Just geomShader' ->
-          loadShaders
-             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-             , ShaderInfo GeometryShader (FileSource geomShader')
-             , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
-             ]
-        Nothing ->             
-          loadShaders
-             [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-             , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
-    ) material
-  let
-    base' =
-      defaultObject'
-      & descriptors .~ [ds]
-      & materials   .~ [material]
-      & programs    .~ [program]
-
-    curveObj' =
-      Sprite base'
-  
-  return curveObj'
-
-toCurve' :: [Object] -> IO Object
-toCurve' objs = do
+toCurve :: [Object] -> IO Object
+toCurve objs = do
   let
     vs'    = concatMap (view trs) objs   :: [V3 Double]
-    vs''   = drop 1 $ view trs <$> objs   :: [[V3 Double]]
-    --svgeo  = toSVGeo Curve vs'   :: SVGeo
-    svgeo  = toSVGeo' Curve vs''   :: SVGeo 
+    vs''   = drop 0 $ fmap (every 10) $ view trs <$> objs   :: [[V3 Double]]
+    svgeo  = toSVGeo Curve vs''   :: SVGeo 
     svao   = fromSVGeo svgeo
   ds       <- toDescriptor svao
   material <- Material.read $ _smp svgeo :: IO Material
@@ -403,60 +367,24 @@ toCurve' objs = do
       Sprite base'
   
   return curveObj'
-
-toSVGeo :: Primitive -> [V3 Double] -> SVGeo
-toSVGeo Curve vs0' = svgeo
-  where
-    --vs0   = every 3 vs0'
-    vs0   = vs0'
-    idxs  = snd <$> zip vs0 [0..]
-    as    = alphas vs0 :: [Float]
-    --alphas vs' = mult . add . gamma . uncurry (/) <$> zip (repeat 1) (int2Float<$>[1..(length vs')])
-    alphas vs' = replicate (length vs0) 1.0
-    gamma = (** 0.75)
-    add   = (+ (-1.0/(int2Float $ length vs0 + 1)))
-    mult  = (* 5)
-    cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
-    ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
-    ts    = snd <$> zip vs0 (repeat  (0, 0, 0))
-    ps    = (\(V3 x y z) -> (x,y,z)) <$> vs0
-    vao   = toVAO [idxs] as cds ns ts ps :: VAO
-    svgeo =
-      SVGeo
-      {
-        _sis = idxs
-      , _sst = 13
-      , _svs = concat . concat $ vao
-      , _smp = "mat/default/default"
-      , _sms = 1.0
-      , _svl = []
-      , _savl= []
-      , _sxf = []
-      }
-
--- alpha :: [[V3 Double]] -> [Double]
--- alpha = concatMap alpha'
 
 isTrue :: Bool -> Float
 isTrue b = if b then 1.0 else 0.0
-  -- case b of
-  --   True -> 1.0
-  --   _    -> 0.0
 
 alphas :: [V3 Double] -> [Float]
 alphas vs = as
   where
-    xs    = (\(_,y) -> y/numpt) <$> zip vs [0..]          :: [Float]
+    xs    = (\(_,y) -> y/numpt) <$> zip vs [1..]          :: [Float]
     as    = (\x -> (isTrue $ x > 0.1) * (1.0 - x)) <$> xs :: [Float]
     numpt = fromIntegral $ length vs
 
-toSVGeo' :: Primitive -> [[V3 Double]] -> SVGeo
-toSVGeo' Curve vss = svgeo
+toSVGeo :: Primitive -> [[V3 Double]] -> SVGeo
+toSVGeo Curve vss = svgeo
   where
     --vs0   = every 3 vs0'
     vs0   = concat vss
     idxs  = snd <$> zip vs0 [0..]
-    as    = concatMap alphas vss :: [Float] -- TODO: add alphas based on separate curves
+    as    = concatMap alphas vss :: [Float]
     cds   = snd <$> zip vs0 (repeat  (1, 1, 1))
     ns    = snd <$> zip vs0 (repeat  (0, 0, 1))
     ts    = snd <$> zip vs0 (repeat  (0, 0, 0))

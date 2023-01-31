@@ -3,6 +3,7 @@ module Projects.SolarSystem where
 import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
+import Projects.InfoEarth (jupiter)
 
 gui :: GUI'
 gui =
@@ -25,6 +26,11 @@ project =
   , (Model   "models/mars.bgeo")
   , (Model   "models/phobos.bgeo")
   , (Model   "models/deimos.bgeo")
+  , (Model   "models/jupiter.bgeo")
+  , (Model   "models/europa.bgeo")
+  , (Model   "models/ganymede.bgeo")
+  , (Model   "models/io.bgeo")
+  , (Model   "models/callisto.bgeo")
   ]
   [
     PreObject "sun"     "rbd"
@@ -50,6 +56,21 @@ project =
   , PreObject "deimos" "rbd"
     7 nil [7] [] [] ["orbit", "trace"]
     [[0,0,0,0,0,1,0.0325,5], []]
+  , PreObject "jupiter" "rbd"
+    8 nil [8] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.000625,0], []]
+  , PreObject "europa"  "rbd"
+    9 nil [9] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0925,8], []]
+  , PreObject "ganymede"  "rbd"
+    10 nil [10] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.125,8], []]
+  , PreObject "io"  "rbd"
+    11 nil [11] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.0425,8], []]
+  , PreObject "callisto"  "rbd"
+    12 nil [12] [] [] ["orbit", "trace"]
+    [[0,0,0,0,0,1,0.05,8], []]
   ]
   []
   gui

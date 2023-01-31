@@ -27,6 +27,21 @@
         },
         {
             "path": "models/deimos.bgeo"
+        },
+        {
+            "path": "models/jupiter.bgeo"
+        },
+        {
+            "path": "models/europa.bgeo"
+        },
+        {
+            "path": "models/ganymede.bgeo"
+        },
+        {
+            "path": "models/io.bgeo"
+        },
+        {
+            "path": "models/callisto.bgeo"
         }
     ],
     "objects": [
@@ -41,7 +56,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "36bf50e5-21ab-4c9f-9dc6-e0d6a1014205"
+            "uuid": "899deb65-5a30-4129-a1a4-76c550e7b610"
         },
         {
             "pname": "mercury",
@@ -69,7 +84,7 @@
             "presolverAttrs": [],
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "4e3a103d-5bfa-4fec-bbcf-ff06e203dcd8"
+            "uuid": "67278871-28b3-45b2-9978-d76d1aab427b"
         },
         {
             "pname": "venus",
@@ -97,7 +112,7 @@
             "presolverAttrs": [],
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "32b2d70b-1b45-4bf8-a098-6a856f3c5d6b"
+            "uuid": "e780ef6b-ec39-40ca-8843-af395aa5ff91"
         },
         {
             "pname": "earth",
@@ -125,7 +140,7 @@
             "presolverAttrs": [],
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "5875f5fe-87fe-4fe6-a1e2-fd166145ae51"
+            "uuid": "9ad7e65f-024e-43f0-b298-cfa4ee367a95"
         },
         {
             "pname": "moon",
@@ -153,7 +168,7 @@
             "presolverAttrs": [],
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "8181d563-8e4d-4ff4-812d-ff454662b192"
+            "uuid": "210f1dac-7f0b-49b8-8783-018432ec112a"
         },
         {
             "pname": "mars",
@@ -181,7 +196,7 @@
             "presolverAttrs": [],
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "c9560a43-d430-4948-8bcf-7a5a747c3c66"
+            "uuid": "a4169637-888c-43ff-b4c4-db2c8ad0493f"
         },
         {
             "pname": "phobos",
@@ -209,7 +224,7 @@
             "presolverAttrs": [],
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "60f4ed9f-4698-4cf8-bdf5-0fc9580b7afe"
+            "uuid": "636904d8-36b7-46bc-a077-1cc8d5623c06"
         },
         {
             "pname": "deimos",
@@ -237,7 +252,147 @@
             "presolverAttrs": [],
             "pidx": 7,
             "ptype": "rbd",
-            "uuid": "8310eead-b847-48f2-8d2f-d468e6b8c44f"
+            "uuid": "15a4881e-094c-4a29-a395-1faff42871f0"
+        },
+        {
+            "pname": "jupiter",
+            "modelIDXs": [
+                8
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    6.25e-4,
+                    0
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 8,
+            "ptype": "rbd",
+            "uuid": "c8d7be7b-51de-4b12-84e7-a2bb9248f584"
+        },
+        {
+            "pname": "europa",
+            "modelIDXs": [
+                9
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    9.25e-2,
+                    8
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 9,
+            "ptype": "rbd",
+            "uuid": "0ce47edf-82c1-4d8e-9fa5-b060411e8987"
+        },
+        {
+            "pname": "ganymede",
+            "modelIDXs": [
+                10
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0.125,
+                    8
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 10,
+            "ptype": "rbd",
+            "uuid": "b0668fce-eb6c-465c-8df5-3c1090c654b5"
+        },
+        {
+            "pname": "io",
+            "modelIDXs": [
+                11
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    4.25e-2,
+                    8
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 11,
+            "ptype": "rbd",
+            "uuid": "a17c33d7-24af-4cde-9ffc-876dda6494dd"
+        },
+        {
+            "pname": "callisto",
+            "modelIDXs": [
+                12
+            ],
+            "solvers": [
+                "orbit",
+                "trace"
+            ],
+            "solverAttrs": [
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    5.0e-2,
+                    8
+                ],
+                []
+            ],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "pidx": 12,
+            "ptype": "rbd",
+            "uuid": "0c34fe86-8966-42aa-a5b7-fc874d7eca24"
         }
     ],
     "background": [],

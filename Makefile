@@ -325,6 +325,11 @@ solarsystem:
 	./resources/convertGeo.sh phobos
 	./resources/convertGeo.sh deimos
 	./resources/convertGeo.sh jupiter
+	./resources/convertGeo.sh europa
+	./resources/convertGeo.sh ganymede
+	./resources/convertGeo.sh io
+	./resources/convertGeo.sh callisto
+
 	cabal build exe:genProject
 	#  
 	cabal run exe:genProject -- ./projects/solarsystem

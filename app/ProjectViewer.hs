@@ -111,11 +111,8 @@ output fps lastInteraction window application = do
     crsr    = _cursor $ app ^. App.gui  ::  Widget
     app  = fromApplication application
 
-  
-  --curvObjs <- unsafeInterleaveIO $ mapM toCurve fgrObjs
-  curvObj <- unsafeInterleaveIO $ toCurve' fgrObjs; let curvObjs = [curvObj]
+  curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
   let
-    --curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
     txs  = concat 
            (concatMap
