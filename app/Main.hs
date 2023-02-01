@@ -6,7 +6,7 @@
 module Main where 
 
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar )
-import Control.Lens       ( toListOf, view, (^..), (^.))
+import Control.Lens       ( toListOf, view, (^..), (^.), Bifunctor (bimap))
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
@@ -44,6 +44,7 @@ import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 import GUI
+import GHC.Float (int2Double)
 
 --import Debug.Trace    as DT
 
@@ -119,8 +120,8 @@ output lastInteraction window application = do
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
-    (_, resy')  = app ^. options . App.res
-    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
+    (_, resy')        = app ^. options . App.res
+    mouseCoords'      = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()

@@ -42,6 +42,7 @@ import Object hiding (Empty)
 import ObjectTree
 import GUI
 import Graphics.RedViz.Object (transform0)
+import GHC.Float (int2Double)
 
 -- import Debug.Trace as DT
 

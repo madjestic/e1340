@@ -6,7 +6,7 @@
 module Main where 
 
 import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, forkIO)
-import Control.Lens       ( toListOf, view, (^..), (^.))
+import Control.Lens       ( toListOf, view, (^..), (^.), bimap)
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
 import Data.Text          ( pack)
@@ -47,6 +47,7 @@ import App hiding (debug)
 import Object             as O
 import ObjectTree         as OT
 import GUI
+import GHC.Float (int2Double)
 
 --import Debug.Trace    as DT
 

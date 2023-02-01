@@ -40,6 +40,7 @@ import Graphics.RedViz.Project.Utils
 import Grapher.Object hiding (Empty)                         
 import Grapher.ObjectTree as ObjectTree
 import Grapher.GUI
+--import GHC.Float (int2Double)
 
 --import Debug.Trace as DT
 

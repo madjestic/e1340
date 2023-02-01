@@ -291,7 +291,8 @@ executable ProjectViewer
                , simple-affine-space 
                , sort                
                , vector              
-               , uuid                
+               , uuid
+               , dear-imgui
 
   other-modules:
                 Paths_e1340

@@ -15,6 +15,7 @@ import Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import GUI.GUI
+import GHC.Float (int2Double)
 
 --import Debug.Trace    as DT
 
@@ -200,6 +201,6 @@ updateCursor =
     --(mouse', mevs) <- updateMouse -< input
     (mouse', _) <- updateMouse -< input
     let
-      coords' = mouse' ^. pos
+      coords' = bimap int2Double int2Double $ mouse' ^. pos
       result' = (Cursor activeC lableC coords' opts)
     returnA -< result'

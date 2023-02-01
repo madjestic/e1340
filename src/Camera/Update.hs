@@ -19,6 +19,7 @@ import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Input
 import Graphics.RedViz.Input.FRP.Yampa.Update
 import Graphics.RedViz.Utils
+import GHC.Float (int2Double)
 
 --import Debug.Trace    as DT
 
@@ -50,19 +51,19 @@ updateCameraController cam0 =
 
             -- | compute rotation velocity = length (mouseP - originP) * scalar
             -- (mrx', mry') = mouse' ^. rpos
-            (mx' , my')  = mouse' ^. pos
+            (mx' , my')  = bimap int2Double int2Double $ mouse' ^. pos
             (resx, resy) = cam0^.res
             (cx, cy) = ( fromIntegral $ resx `div` 2
                        , fromIntegral $ resy `div` 2 )
             cpos     = V3 (mx' - cx) (-my' + cy) (0.0) -- centralized mouse position (relative to origin, screen center, 0,0,0)
             x'       = (cpos^._x / fromIntegral (resx `div` 2))
-            y'       = (cpos^._y / fromIntegral (resy`div` 2))
-            f x = x * abs x**2
-            nscpos   = V3 (f x') (f y') 0.0            -- normalized screen centralized position
-            rvec     = (V3 1 (-1) 1 * nscpos)^._yxz ^* 100
+            y'       = (cpos^._y / fromIntegral (resy`div` 2)) 
+            f x      = x * abs x**2
+            nscpos   = V3 (f x') (f y') 0.0                     :: V3 Double -- normalized screen centralized position
+            rvec     = (V3 1 (-1) 1 * nscpos)^._yxz ^* 100      :: V3 Double
             
-            ypr'     = 
-              (view (controller.ypr) cam +) $
+            ypr'     =
+              ((view (controller.ypr) cam +) :: V3 Double -> V3 Double) $
               (0.00001 * (view mouseS cam) * rvec +) $
               sum $
               (0.0000001 * scalar * view keyboardRS cam *) <$> -- <- make it keyboard controllabe: speed up/down            
