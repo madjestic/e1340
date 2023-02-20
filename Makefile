@@ -316,19 +316,22 @@ solarsystem:
 	# cabal clean
 	# cabal build exe:ProjectViewer
 
-	./resources/convertGeo.sh sun
-	./resources/convertGeo.sh mercury
-	./resources/convertGeo.sh venus
+	./resources/convertGeo.sh fnt_crosshair
+	./resources/convertGeo.sh gizmo
+
+	#./resources/convertGeo.sh sun
+	#./resources/convertGeo.sh mercury
+	#./resources/convertGeo.sh venus
 	./resources/convertGeo.sh earth
 	./resources/convertGeo.sh moon
-	./resources/convertGeo.sh mars
-	./resources/convertGeo.sh phobos
-	./resources/convertGeo.sh deimos
-	./resources/convertGeo.sh jupiter
-	./resources/convertGeo.sh europa
-	./resources/convertGeo.sh ganymede
-	./resources/convertGeo.sh io
-	./resources/convertGeo.sh callisto
+	# ./resources/convertGeo.sh mars
+	# ./resources/convertGeo.sh phobos
+	# ./resources/convertGeo.sh deimos
+	# ./resources/convertGeo.sh jupiter
+	# ./resources/convertGeo.sh europa
+	# ./resources/convertGeo.sh ganymede
+	# ./resources/convertGeo.sh io
+	# ./resources/convertGeo.sh callisto
 
 	cabal build exe:genProject
 	#  

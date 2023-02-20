@@ -81,7 +81,6 @@ animate window sf =
             currentTime     <- SDL.time                          
             dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
             mEvent <- SDL.pollEvent
-            
             return (dt, Event . SDL.eventPayload <$> mEvent)
             
         renderOutput fps _ (app, shouldExit) =
@@ -183,7 +182,7 @@ renderCursor (x,y) drs cmds wgt =
     Cursor a _ _ _ ->
       when a $ do
       let
-        f = (Format TL (x) (-y) (0.0) 0.0 1.0)
+        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
       renderIcon cmds drs f "cursor"
     _ -> return ()
 

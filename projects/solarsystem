@@ -56,7 +56,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "83dab9e9-4b4a-4fa0-b450-8e48673facad"
+            "uuid": "c39156b0-a7e2-4603-85e5-e0d668127cbf"
         },
         {
             "pname": "mercury",
@@ -75,7 +75,7 @@
                     0,
                     0,
                     1,
-                    5.0e-3,
+                    -4.417,
                     0
                 ],
                 []
@@ -84,7 +84,7 @@
             "presolverAttrs": [],
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "211da5ca-24b8-4077-921d-85e3148a005c"
+            "uuid": "c37fe12b-4aae-4848-8164-0dd72a810dae"
         },
         {
             "pname": "venus",
@@ -103,7 +103,7 @@
                     0,
                     0,
                     1,
-                    2.5e-3,
+                    -1.426,
                     0
                 ],
                 []
@@ -112,7 +112,7 @@
             "presolverAttrs": [],
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "f13922d9-adef-4332-b7f8-5ea435c45e2c"
+            "uuid": "5b24dfc1-924f-4ead-930d-599ed6264603"
         },
         {
             "pname": "earth",
@@ -131,7 +131,7 @@
                     0,
                     0,
                     1,
-                    1.25e-3,
+                    -1,
                     0
                 ],
                 []
@@ -140,7 +140,7 @@
             "presolverAttrs": [],
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "69dcb84a-2d0e-4020-b3d0-e42d9f37cb50"
+            "uuid": "d75b9d29-36d5-4dee-8f3f-261c5ad693af"
         },
         {
             "pname": "moon",
@@ -159,7 +159,7 @@
                     0,
                     0,
                     1,
-                    6.25e-2,
+                    -13.036,
                     3
                 ],
                 []
@@ -168,7 +168,7 @@
             "presolverAttrs": [],
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "8e46c761-4f5b-41d5-bb6b-b5c6466ce172"
+            "uuid": "ed0cdf5e-02b6-4c76-8daa-6ae0bcb74db7"
         },
         {
             "pname": "mars",
@@ -187,7 +187,7 @@
                     0,
                     0,
                     1,
-                    6.25e-4,
+                    -0.531,
                     0
                 ],
                 []
@@ -196,7 +196,7 @@
             "presolverAttrs": [],
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "b592f380-ebba-4e50-9325-de5372aba54b"
+            "uuid": "3eadb042-d91d-409c-be63-7866e362e6fc"
         },
         {
             "pname": "phobos",
@@ -215,7 +215,7 @@
                     0,
                     0,
                     1,
-                    6.25e-2,
+                    -1190.22,
                     5
                 ],
                 []
@@ -224,7 +224,7 @@
             "presolverAttrs": [],
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "4df2c811-e833-4dff-a22b-70bdfca06e67"
+            "uuid": "d5c9a54b-986a-4bab-81a1-e76fb290f629"
         },
         {
             "pname": "deimos",
@@ -243,7 +243,7 @@
                     0,
                     0,
                     1,
-                    3.25e-2,
+                    -292,
                     5
                 ],
                 []
@@ -252,7 +252,7 @@
             "presolverAttrs": [],
             "pidx": 7,
             "ptype": "rbd",
-            "uuid": "63c21fb6-15ae-4d4c-a4c4-05c1c96153ce"
+            "uuid": "59ebd14a-0551-4779-b140-fd8cd423106e"
         },
         {
             "pname": "jupiter",
@@ -271,7 +271,7 @@
                     0,
                     0,
                     1,
-                    6.25e-4,
+                    -8.42e-2,
                     0
                 ],
                 []
@@ -280,7 +280,7 @@
             "presolverAttrs": [],
             "pidx": 8,
             "ptype": "rbd",
-            "uuid": "a54d8f56-1184-4e39-8541-9c7751617223"
+            "uuid": "6b65e5e4-590c-495f-9181-dd61e6096581"
         },
         {
             "pname": "europa",
@@ -299,7 +299,7 @@
                     0,
                     0,
                     1,
-                    9.25e-2,
+                    -104.2,
                     8
                 ],
                 []
@@ -308,7 +308,7 @@
             "presolverAttrs": [],
             "pidx": 9,
             "ptype": "rbd",
-            "uuid": "7375082f-ca09-4fa2-aeac-fcedb0d89a91"
+            "uuid": "41308402-25b7-435b-8f52-304591f84d55"
         },
         {
             "pname": "ganymede",
@@ -327,7 +327,7 @@
                     0,
                     0,
                     1,
-                    0.125,
+                    -51.02,
                     8
                 ],
                 []
@@ -336,7 +336,7 @@
             "presolverAttrs": [],
             "pidx": 10,
             "ptype": "rbd",
-            "uuid": "32184042-f2b0-4136-98c5-4fca603e56d4"
+            "uuid": "2ee837e5-398f-4c60-8964-a174f71e23e4"
         },
         {
             "pname": "io",
@@ -355,7 +355,7 @@
                     0,
                     0,
                     1,
-                    4.25e-2,
+                    -206.33,
                     8
                 ],
                 []
@@ -364,7 +364,7 @@
             "presolverAttrs": [],
             "pidx": 11,
             "ptype": "rbd",
-            "uuid": "80c91e45-bb5a-4250-a917-56460b3a65ce"
+            "uuid": "58f3a680-5bb0-4e43-818d-e19ba6fc64fc"
         },
         {
             "pname": "callisto",
@@ -383,7 +383,7 @@
                     0,
                     0,
                     1,
-                    5.0e-2,
+                    -21.871,
                     8
                 ],
                 []
@@ -392,7 +392,7 @@
             "presolverAttrs": [],
             "pidx": 12,
             "ptype": "rbd",
-            "uuid": "9c65af31-a098-4dc6-80fb-8eb8514435a0"
+            "uuid": "0e49788d-df56-45c6-84b0-c3b91b33f5d7"
         }
     ],
     "background": [],
@@ -412,7 +412,7 @@
                 0,
                 0,
                 1,
-                -30,
+                -30000000,
                 0,
                 0,
                 0,
@@ -658,6 +658,9 @@
         "icons": [
             {
                 "path": "models/fnt_crosshair.bgeo"
+            },
+            {
+                "path": "models/gizmo.bgeo"
             }
         ]
     }
