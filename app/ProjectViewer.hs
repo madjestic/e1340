@@ -109,6 +109,8 @@ output fps lastInteraction window application = do
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Widget
+    gizmo   = _gizmo  $ app ^. App.gui  ::  Widget
+    icns    = [crsr, gizmo]
     app  = fromApplication application
 
   curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
@@ -144,8 +146,9 @@ output fps lastInteraction window application = do
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })      :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles          
                                               , depthMsk      = Disabled  })      :: Drawable -> IO ()
-    renderWidgets     = renderWidget    fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles    :: Widget   -> IO ()
+    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons    :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles       :: Widget   -> IO ()
+    renderIconsM      = renderIcons' mouseCoords' icnsDrs renderAsTriangles       :: Widget   -> IO ()
     
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })      :: Drawable -> IO ()
 
@@ -153,7 +156,8 @@ output fps lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  renderCursorM           crsr
+  --renderCursorM           crsr
+  mapM_ renderIconsM      icns
   
   glSwapWindow window
 
@@ -183,7 +187,22 @@ renderCursor (x,y) drs cmds wgt =
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 0.2)
-      renderIcon cmds drs f "cursor"
+      renderIcon cmds drs f 0 --"cursor"
+    _ -> return ()
+
+renderIcons' :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderIcons' (x,y) drs cmds wgt =
+  case wgt of
+    Cursor a _ _ _ ->
+      when a $ do
+      let
+        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
+      renderIcon cmds drs f 0 --"cursor"
+    Icon a _ idx ->
+      when a $ do
+      let
+        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
+      renderIcon cmds drs f idx --"icon"
     _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------

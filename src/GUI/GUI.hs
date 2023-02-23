@@ -46,6 +46,7 @@ data GUI
      , _fps    :: Widget
      , _speed  :: Widget
      , _cursor :: Widget
+     , _gizmo  :: Widget
      }
   |  InfoGUI
      {
@@ -109,9 +110,10 @@ mainGUI res0 =
   MainGUI
   {
     _res    = res0
-  , _fps    = FPS True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
+  , _fps    = FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.6 0.1 0.0 0.015 0.2) defOpts
-  , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts  
+  , _cursor = Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
+  , _gizmo  = Icon      True "" 1
   }
 
 infoGUI :: (Int, Int) -> GUI

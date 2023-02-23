@@ -9,6 +9,8 @@ module Solvable
   , CoordSys (..)
   , Animation (..)
   , preTransformer
+  , preTranslate
+  , preRotate
   , toSolver
   ) where
 
@@ -64,6 +66,7 @@ data Solver =
      {
        _pivot :: V3 Double
      , _qrot  :: V4 Double
+     , _ang0  :: Double       -- initial angle-position on orbit
      , _idx   :: Integer
      }
   |  Scale
@@ -103,8 +106,8 @@ toSolver (solver, parms) =
     "rotateconst"   -> Rotate       Static  WorldSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
 --    "rotateconst"   -> RotateConst  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "gravity"       -> Gravity
-    "spin"          -> Spin
-    "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (round $ last parms)
+    --"spin"          -> Spin
+    "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (parms!!7)  (round $ last parms)
     "trace"         -> Trace        []
     "identity"      -> Identity
     _               -> Identity
@@ -114,10 +117,18 @@ preTransformer solver (mtx0, ypr0) = (mtx, ypr')
   where
     --(mtx, ypr) = case solver of
     (mtx, ypr') = case solver of
-      PreTranslate cs offset -> preTranslate cs mtx0 ypr0 offset
-      PreRotate    cs _ ypr1 -> preRotate cs mtx0 ypr0 ypr1
-      Identity               -> Solvable.identity' mtx0
-      _                      -> (mtx0, ypr0)
+      PreTranslate cs offset   -> preTranslate cs mtx0 ypr0 offset
+      PreRotate    cs _ ypr1   -> preRotate cs mtx0 ypr0 ypr1
+      -- Orbit pivot qrot ang idx -> undefined
+      Identity                 -> Solvable.identity' mtx0
+      _                        -> (mtx0, ypr0)
+
+-- preSpin :: V3 Double -> V3 Double -> V3 Double -> Double -> (M44 Double, V3 Double)
+-- preSpin pos0 pos1 axis angle = result
+--    where
+--      result = undefined
+--     rot    = (LM.identity :: M33 Double) !*! fromQuaternion (axisAngle axis angle)
+--     result = (pos1 - pos0) *! rot + pos0
 
 identity :: M44 Double -> M44 Double
 identity mtx0 = mtx
@@ -186,109 +197,3 @@ preRotate cs mtx0 ypr0 ypr1 = (mtx, ypr')
                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr'')) -- pitch
                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr'')) -- roll
               tr  = view (_w._xyz) mtx0
-
--- translate' :: CoordSys -> M44 Double -> V3 Double -> V3 Double -> (M44 Double, V3 Double)
--- translate' cs mtx0 ypr0 vel0 = (mtx, ypr0)
---   where
---       rot =
---         view _m33 mtx0
---         !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
---         !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
---         !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
-      
---       vel =
---         case cs of
---           WorldSpace  -> vel0
---           ObjectSpace -> vel0 *! rot
-
---       tr = mtx0 ^. translation + vel
-
---       mtx =
---         mkTransformationMat
---         (view _m33 mtx0)
---         tr
-
--- -- entry point from src/Object/Update.hs
--- translate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double) (M44 Double)
--- translate cs mtx0 ypr0 =
---   proc vel -> do
---     let
---       rot =
---         view _m33 mtx0
---         !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr0)) -- yaw
---         !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr0)) -- pitch
---         !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr0)) -- roll
-      
---       vel' =
---         case cs of
---           WorldSpace  -> vel
---           ObjectSpace -> vel *! rot
-
---     tr' <- (mtx0 ^. translation +) ^<< integral -< vel'
---     let mtx =
---           mkTransformationMat
---             (view _m33 mtx0)
---             tr'
-
---     returnA -< mtx
-
--- -- entry point from src/Object/Update.hs
--- rotate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double, V3 Double) (M44 Double, V3 Double)
--- rotate cs mtx0 ypr0 =
---   proc (avel, pv0) -> do
---     --ypr' <- (ypr0' +) ^<< integral -< avel
---     ypr' <- case cs of
---       WorldSpace  -> (V3 0 0 0 +) ^<< integral -< avel
---       ObjectSpace -> (ypr0 +)     ^<< integral -< avel
-
---     let mtx =
---           mkTransformationMat
---             rot
---             tr
---             where
---               rot =
---                 view _m33 mtx0
---                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
---                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
---                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
---               -- rot =
---               --   (LM.identity :: M33 Double)
---               --   !*! fromQuaternion (axisAngle (view _x (LM.identity :: M33 Double)) (view _x ypr')) -- yaw
---               --   !*! fromQuaternion (axisAngle (view _y (LM.identity :: M33 Double)) (view _y ypr')) -- pitch
---               --   !*! fromQuaternion (axisAngle (view _z (LM.identity :: M33 Double)) (view _z ypr')) -- roll
-              
---               --tr  = view (_w._xyz) (transpose mtx0)
---               tr = V3 0 0 0 --(-10000000)
---               --tr  = view (_w._xyz) (DT.trace ("rotate tr mtx0 : " ++ show mtx0) mtx0)
---     returnA -< (mtx !*! mtx0, ypr')
-    --returnA -< ((DT.trace ("rotate mtx : " ++ show mtx) mtx), (DT.trace ("rotate ypr' : " ++ show ypr') ypr'))
-    --returnA -< (mtx0, ypr0)
-
--- Object Space Rotation works:
--- rotate :: CoordSys -> M44 Double -> V3 Double -> SF (V3 Double, V3 Double) (M44 Double, V3 Double)
--- rotate cs mtx0 ypr0 =
---   proc (avel, pv0) -> do
---     --ypr' <- (ypr0' +) ^<< integral -< avel
---     ypr' <- case cs of
---       WorldSpace  -> (V3 0 0 0 +) ^<< integral -< avel
---       ObjectSpace -> (ypr0 +)     ^<< integral -< avel
-
---     let mtx =
---           mkTransformationMat
---             rot
---             tr
---             where
---               rot =
---                 view _m33 mtx0
---                 !*! fromQuaternion (axisAngle (view _x (view _m33 mtx0)) (view _x ypr')) -- yaw
---                 !*! fromQuaternion (axisAngle (view _y (view _m33 mtx0)) (view _y ypr')) -- pitch
---                 !*! fromQuaternion (axisAngle (view _z (view _m33 mtx0)) (view _z ypr')) -- roll
---               -- rot =
---               --   (LM.identity :: M33 Double)
---               --   !*! fromQuaternion (axisAngle (view _x (LM.identity :: M33 Double)) (view _x ypr')) -- yaw
---               --   !*! fromQuaternion (axisAngle (view _y (LM.identity :: M33 Double)) (view _y ypr')) -- pitch
---               --   !*! fromQuaternion (axisAngle (view _z (LM.identity :: M33 Double)) (view _z ypr')) -- roll
-              
---               tr  = view (_w._xyz) (transpose mtx0)
---               --tr  = view (_w._xyz) (DT.trace ("rotate tr mtx0 : " ++ show mtx0) mtx0)
---     returnA -< (mtx, ypr')

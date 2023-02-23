@@ -56,7 +56,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "c39156b0-a7e2-4603-85e5-e0d668127cbf"
+            "uuid": "321c8b27-68a7-469a-a33e-5ef142ea1502"
         },
         {
             "pname": "mercury",
@@ -84,7 +84,7 @@
             "presolverAttrs": [],
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "c37fe12b-4aae-4848-8164-0dd72a810dae"
+            "uuid": "00d621a4-1c82-4a7a-8efa-6709f84e6425"
         },
         {
             "pname": "venus",
@@ -112,7 +112,7 @@
             "presolverAttrs": [],
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "5b24dfc1-924f-4ead-930d-599ed6264603"
+            "uuid": "6682084b-1e08-43f0-a264-d092c87223d3"
         },
         {
             "pname": "earth",
@@ -132,6 +132,7 @@
                     0,
                     1,
                     -1,
+                    0.5,
                     0
                 ],
                 []
@@ -140,7 +141,7 @@
             "presolverAttrs": [],
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "d75b9d29-36d5-4dee-8f3f-261c5ad693af"
+            "uuid": "04b49591-58e5-42dd-a1b8-18b910da3bde"
         },
         {
             "pname": "moon",
@@ -168,7 +169,7 @@
             "presolverAttrs": [],
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "ed0cdf5e-02b6-4c76-8daa-6ae0bcb74db7"
+            "uuid": "a1c157d5-3001-4e25-b6df-4ce4cce5793b"
         },
         {
             "pname": "mars",
@@ -196,7 +197,7 @@
             "presolverAttrs": [],
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "3eadb042-d91d-409c-be63-7866e362e6fc"
+            "uuid": "34d6aeb6-2015-498b-af46-3742c36283fd"
         },
         {
             "pname": "phobos",
@@ -224,7 +225,7 @@
             "presolverAttrs": [],
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "d5c9a54b-986a-4bab-81a1-e76fb290f629"
+            "uuid": "4a987da5-d313-486b-b57f-e42293e9674a"
         },
         {
             "pname": "deimos",
@@ -252,7 +253,7 @@
             "presolverAttrs": [],
             "pidx": 7,
             "ptype": "rbd",
-            "uuid": "59ebd14a-0551-4779-b140-fd8cd423106e"
+            "uuid": "347df695-3278-41aa-b461-51fa97ac5f24"
         },
         {
             "pname": "jupiter",
@@ -280,7 +281,7 @@
             "presolverAttrs": [],
             "pidx": 8,
             "ptype": "rbd",
-            "uuid": "6b65e5e4-590c-495f-9181-dd61e6096581"
+            "uuid": "78b92f13-625a-40a0-86cd-819cd7782fca"
         },
         {
             "pname": "europa",
@@ -308,7 +309,7 @@
             "presolverAttrs": [],
             "pidx": 9,
             "ptype": "rbd",
-            "uuid": "41308402-25b7-435b-8f52-304591f84d55"
+            "uuid": "ee51a8e7-f9e8-4be3-9c45-b09f952fa774"
         },
         {
             "pname": "ganymede",
@@ -336,7 +337,7 @@
             "presolverAttrs": [],
             "pidx": 10,
             "ptype": "rbd",
-            "uuid": "2ee837e5-398f-4c60-8964-a174f71e23e4"
+            "uuid": "68ac7c15-6abf-402d-8bf4-990e32df2f8e"
         },
         {
             "pname": "io",
@@ -364,7 +365,7 @@
             "presolverAttrs": [],
             "pidx": 11,
             "ptype": "rbd",
-            "uuid": "58f3a680-5bb0-4e43-818d-e19ba6fc64fc"
+            "uuid": "ff7654be-0832-4463-bb69-b9db7907839f"
         },
         {
             "pname": "callisto",
@@ -392,7 +393,7 @@
             "presolverAttrs": [],
             "pidx": 12,
             "ptype": "rbd",
-            "uuid": "0e49788d-df56-45c6-84b0-c3b91b33f5d7"
+            "uuid": "787d5e51-efda-4abe-a7f2-00fb6de31ffe"
         }
     ],
     "background": [],

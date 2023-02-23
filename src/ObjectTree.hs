@@ -92,10 +92,10 @@ modelPaths cls project = modelList
     modelSet  = toListOf (models . traverse . Model.path) project :: [String]
     modelList =
       case cls of
-        Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
-        Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
-        Font       -> project ^.. Project.gui . Project.fonts . traverse . path
-        Icon       -> project ^.. Project.gui . Project.icons . traverse . path
+        Foreground      -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
+        Background      -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
+        Font            -> project ^.. Project.gui . Project.fonts . traverse . path
+        ObjectTree.Icon -> project ^.. Project.gui . Project.icons . traverse . path
 
 show' :: M44 Double -> String
 show' (V4 x y z w) =
@@ -161,7 +161,9 @@ fromPreObject prj0 cls pObj0 = do
             foldPretransformers (mtx0, _ypr0) []     = (mtx0, _ypr0)
             foldPretransformers (mtx0, _ypr0) [s]    = preTransformer s (foldPretransformers (mtx0, _ypr0) [])
             foldPretransformers (mtx0, _ypr0) (s:ss) = preTransformer s (foldPretransformers (mtx0, _ypr0) ss)
-  
+
+    --(transform1, _)   = preRotate WorldSpace (identity :: M44 Double) (V3 0 0 0) (V3 1 2 3) --identity :: M44 Double
+    (transform1, _)   = preTranslate WorldSpace (identity :: M44 Double) (V3 0 0 0) (V3 1000000 0 0) --identity :: M44 Double
     vels         = toListOf (traverse . svl) svgeos' :: [[Float]]
     velocity'    = toV3 (fmap float2Double (head vels)) :: V3 Double  -- TODO: replace with something more sophisticated, like a sum or average?
     avels        = toListOf (traverse . savl) svgeos' :: [[Float]]
@@ -181,7 +183,7 @@ fromPreObject prj0 cls pObj0 = do
        programs'
        transforms'
        (head transforms')
-       --(identity :: M44 Double)
+       (identity :: M44 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -198,6 +200,7 @@ fromPreObject prj0 cls pObj0 = do
               ,_programs    = programs'
               ,_transforms  = transforms'
               ,_transform0  = identity :: M44 Double --(head transforms')
+              ,_transform1  = identity :: M44 Double --(head transforms')
               ,_ypr0        = (sum ypr')
               ,_ypr         = (V3 0 0 0 :: V3 Double)
               ,_time        = time'
@@ -223,6 +226,7 @@ fromPreObject prj0 cls pObj0 = do
               ,_programs    = programs'
               ,_transforms  = transforms'
               ,_transform0  = (head transforms')
+              ,_transform1  = (DT.trace ("transform1 : " ++ show transform1)transform1) --(identity::M44 Double)              
               ,_ypr0        = (sum ypr')
               ,_ypr         = (V3 0 0 0 :: V3 Double)
               ,_time        = time'
@@ -245,6 +249,7 @@ fromPreObject prj0 cls pObj0 = do
            programs'
            transforms'
            (head transforms')
+           (identity::M44 Double)
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -263,7 +268,7 @@ initFontObjects prj0 = do
 
 initIconObjects :: Project -> IO [Object]
 initIconObjects prj0 = do
-  icnVGeos  <- mapM readBGeo $ modelPaths Icon prj0 :: IO [VGeo]
+  icnVGeos  <- mapM readBGeo $ modelPaths ObjectTree.Icon prj0 :: IO [VGeo]
                                
   if not (null icnVGeos)
     then
@@ -305,6 +310,7 @@ initObject' vgeo = do
         , _programs    = progs
         , _transforms  = preTransforms
         , _transform0  = (identity::M44 Double)
+        , _transform1  = (identity::M44 Double)
         , Obj._ypr     = V3 0 0 0 :: V3 Double
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1

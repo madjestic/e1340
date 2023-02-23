@@ -94,7 +94,7 @@ modelPaths cls project = modelList
         Foreground -> (modelSet!!) <$> (concat $ toListOf ( objects . traverse . modelIDXs ) project)
         Background -> (modelSet!!) <$> (concat $ toListOf ( Project.background . traverse . modelIDXs ) project)
         Font       -> project ^.. Project.gui . Project.fonts . traverse . path
-        Icon       -> project ^.. Project.gui . Project.icons . traverse . path
+        Grapher.ObjectTree.Icon -> project ^.. Project.gui . Project.icons . traverse . path
 
 show' :: M44 Double -> String
 show' (V4 x y z w) =
@@ -180,7 +180,7 @@ fromPreObject prj0 cls pObj0 = do
        programs'
        transforms'
        (head transforms')
-       --(identity :: M44 Double)
+       (identity :: M44 Double)
        (sum ypr')
        (V3 0 0 0 :: V3 Double)
        time')
@@ -197,6 +197,7 @@ fromPreObject prj0 cls pObj0 = do
               ,_programs    = programs'
               ,_transforms  = transforms'
               ,_transform0  = identity :: M44 Double --(head transforms')
+              ,_transform1  = identity :: M44 Double --(head transforms')
               ,_ypr0        = (sum ypr')
               ,_ypr         = (V3 0 0 0 :: V3 Double)
               ,_time        = time'
@@ -222,6 +223,7 @@ fromPreObject prj0 cls pObj0 = do
               ,_programs    = programs'
               ,_transforms  = transforms'
               ,_transform0  = (head transforms')
+              ,_transform1  = identity :: M44 Double
               ,_ypr0        = (sum ypr')
               ,_ypr         = (V3 0 0 0 :: V3 Double)
               ,_time        = time'
@@ -244,6 +246,7 @@ fromPreObject prj0 cls pObj0 = do
            programs'
            transforms'
            (head transforms')
+           (identity :: M44 Double)
            (sum ypr')
            (V3 0 0 0 :: V3 Double)
            time')
@@ -262,7 +265,7 @@ initFontObjects prj0 = do
 
 initIconObjects :: Project -> IO [Object]
 initIconObjects prj0 = do
-  icnVGeos  <- mapM readBGeo $ modelPaths Icon prj0 :: IO [VGeo]
+  icnVGeos  <- mapM readBGeo $ modelPaths Grapher.ObjectTree.Icon prj0 :: IO [VGeo]
                                
   if not (null icnVGeos)
     then
@@ -304,6 +307,7 @@ initObject' vgeo = do
         , _programs    = progs
         , _transforms  = preTransforms
         , _transform0  = (identity::M44 Double)
+        , _transform1  = (identity::M44 Double)
         , Obj._ypr     = V3 0 0 0 :: V3 Double
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1

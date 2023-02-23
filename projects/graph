@@ -23,7 +23,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "sprite",
-            "uuid": "45faab9d-e6e6-44c2-9043-302593faa628"
+            "uuid": "63b08687-bba3-47b1-b358-91aed9ff67e9"
         },
         {
             "pname": "gizmo",
@@ -36,7 +36,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "3b47986a-39bc-423b-aad2-af29640c2ad2"
+            "uuid": "cef17cd8-1959-403d-a89b-563f80716854"
         }
     ],
     "background": [],
@@ -302,6 +302,9 @@
         "icons": [
             {
                 "path": "models/fnt_crosshair.bgeo"
+            },
+            {
+                "path": "models/gizmo.bgeo"
             }
         ]
     }

@@ -139,7 +139,7 @@ solveDynamic objs0 obj0 slv =
         obj1 = obj0 & base . transform0 .~ mtx
 
     -- TODO: experiment with the center of rotation: analytic orbiting
-    Orbit _ qrot _ -> obj1
+    Orbit _ qrot _ _ -> obj1
       where
         --objs0' = filter orbits' objs0 :: [Object] -- Objects with Orbit Solver
         (vec, angle) = (\q -> (q^._xyz, q^._w)) qrot -- V4 -> (V3,Double)

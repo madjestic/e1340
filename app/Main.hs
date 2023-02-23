@@ -159,7 +159,7 @@ renderCursor (x,y) drs cmds wgt =
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 1.0)
-      renderIcon cmds drs f "cursor"
+      renderIcon cmds drs f 0 --"cursor"
     _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------

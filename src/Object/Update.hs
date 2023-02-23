@@ -3,6 +3,7 @@
 module Object.Update
   ( updateObjectsPre
   , updateOnce
+--  , updateOnce'
   ) where
 
 import Control.Lens    hiding (transform)
@@ -70,12 +71,18 @@ updateOnce :: Object -> Object
 updateOnce obj0 = obj1
   where
     slvs = obj0 ^. solvers :: [Solver]
-    obj1 = foldl solveStatic obj0 slvs
+    obj1 = foldl (solveStatic []) obj0 slvs
+
+-- updateOnce' :: [Object] -> Object -> Object
+-- updateOnce' objs0 obj0 = obj1
+--   where
+--     slvs = obj0 ^. solvers :: [Solver]
+--     obj1 = foldl (solveStatic' objs0) obj0 slvs
 
 type Solvable = (M44 Double, V3 Double)
 
-solveStatic :: Object -> Solver -> Object
-solveStatic obj0 slv =
+solveStatic :: [Object] -> Object -> Solver -> Object
+solveStatic objs0 obj0 slv =
   case slv of
     Translate Static WorldSpace txyz _ -> obj1
       where
@@ -83,7 +90,31 @@ solveStatic obj0 slv =
         mtx1 = (LM.identity :: M44 Double) & translation .~ txyz
         mtx  = mtx0 !*! mtx1
         obj1 = obj0 & base . transform0 .~ mtx
+    -- _ -> obj1
+    --   where
+    --     mtx0 = obj0 ^. base . transform0
+    --     --mtx1 = obj0 ^. base . transform1
+    --     --(mtx1, _) = preTranslate WorldSpace mtx0 (V3 0 0 0) (V3 1000000 0 0)
+    --     --mtx1 = LM.identity::M44 Double
+    --     (mtx1, _) = preTranslate WorldSpace mtx0 (V3 0 0 0) (V3 1000000 0 0)
+    --     mtx  = mtx0 !*! mtx1
+    --     obj1 = obj0 & base . transform0 .~ mtx
     _ -> obj0
+
+-- solveStatic' :: [Object] -> Object -> Solver -> Object
+-- solveStatic' objs0 obj0 slv =
+--   case slv of
+--     Orbit pivot qrot ang0 idx -> obj1
+--       where
+--         pos0  = obj0 ^. (base . transform0 . translation)
+--         pos1  = lookupObj objs0 idx ^. (base . transform0 . translation)
+--         axis  = qrot ^._xyz
+--         angle = ang0 --qrot ^._w * 0.001
+--         tr    = spin pos1 pos0 axis angle
+--         mtx0  = obj0 ^. base . transform0
+--         mtx   = mtx0 & translation .~ tr
+--         obj1  = obj0 & base . transform1 .~ mtx        
+--     _ -> obj0
 
 solveDynamic :: [Object] -> Object -> Solver -> Object
 solveDynamic objs0 obj0 slv =
@@ -129,7 +160,7 @@ solveDynamic objs0 obj0 slv =
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
-    Orbit pivot qrot idx -> obj1
+    Orbit pivot qrot ang idx -> obj1
       where
         pos0  = obj0 ^. (base . transform0 . translation)
         pos1  = lookupObj objs0 idx ^. (base . transform0 . translation)
