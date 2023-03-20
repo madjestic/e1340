@@ -57,6 +57,7 @@ data GUI
      }
   deriving Show
 $(makeLenses ''GUI)
+--deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''GUI
 
 fromFormat :: Format -> (Double, Double)
 fromFormat (Format alignment_ x_ y_ _ _ _) =
@@ -111,7 +112,7 @@ mainGUI res0 =
   {
     _res    = res0
   , _fps    = FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
-  , _speed  = TextField True ["speed : 0.777"] (Format BC 0.6 0.1 0.0 0.015 0.2) defOpts
+  , _speed  = TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
   , _cursor = Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _gizmo  = Icon      True "" 1
   }

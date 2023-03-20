@@ -18,6 +18,7 @@ module App
   , intrApp
   , mainApp
   , optsApp
+  , infoApp
   , Options (..)
   ) where
 

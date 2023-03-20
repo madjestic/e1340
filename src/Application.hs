@@ -6,9 +6,11 @@ module Application
   , appIntro
   , appMain
   , appOpts
-  , counter
+--  , counter
   , gui
   , quit
+  , defaultPreApplication
+  , write
   ) where
 
 import Application.Application

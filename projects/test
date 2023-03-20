@@ -37,7 +37,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "517bb38a-4b3b-4b1c-b27f-9575b8f174e8"
+            "uuid": "f74ffda0-bb08-4172-935d-dbac69367633"
         }
     ],
     "background": [],
@@ -303,6 +303,9 @@
         "icons": [
             {
                 "path": "models/fnt_crosshair.bgeo"
+            },
+            {
+                "path": "models/gizmo.bgeo"
             }
         ]
     }

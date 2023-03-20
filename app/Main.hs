@@ -224,7 +224,7 @@ main = do
   mainApp' <- mainApp mainProj
   optsApp' <- optsApp optsProj
   infoApp' <- mainApp pInfoProj
-  counter' <- newMVar 0 :: IO (MVar Int)
+  --counter' <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
 
@@ -238,7 +238,7 @@ main = do
       , A._main = mainApp'
       , A._opts = optsApp'
       , A._info = infoApp'
-      , A._counter = counter'
+      --, A._counter = counter'
       , A._hmap = []
       , A._quit = False
       }

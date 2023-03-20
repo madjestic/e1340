@@ -15,6 +15,7 @@ module App.App
   , intrApp
   , mainApp
   , optsApp
+  , infoApp
   , playCam
   , App.App.cameras
   , selectable
@@ -127,6 +128,28 @@ optsApp prj0 = do
 
 mainApp :: Project -> IO App
 mainApp prj0 = do
+  (objTree, cams, pCam) <- App.App.fromProject prj0
+  let
+    result =
+      App
+      { _debug   = (0,0)
+      , _options = Options
+                   { _name = view P.name prj0
+                   , _res  = res'
+                   , _test = False }
+      , _gui     = mainGUI res'
+      , _objects = objTree
+      , _playCam = pCam
+      , _cameras = cams
+      , _selectable = []
+      , _selected   = [] }
+      where
+        res' = (view P.resx prj0, view P.resy prj0)
+
+  return result
+
+infoApp :: Project -> IO App
+infoApp prj0 = do
   (objTree, cams, pCam) <- App.App.fromProject prj0
   let
     result =

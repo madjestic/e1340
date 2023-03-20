@@ -41,7 +41,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "8f7d31a4-b91e-48c8-9231-fadb03130fc5"
+            "uuid": "af6c47ca-9e70-4207-b643-4302d86dd29c"
         },
         {
             "pname": "planet_0",
@@ -69,7 +69,7 @@
             "presolverAttrs": [],
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "4244994c-d28f-469e-87e1-b23263c2b5d8"
+            "uuid": "f9792369-ad97-4aa7-b889-f00d281cd5af"
         },
         {
             "pname": "moon_0_0",
@@ -97,7 +97,7 @@
             "presolverAttrs": [],
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "4c3a3405-fecc-4487-9fff-002ec3caaae2"
+            "uuid": "78a0827d-374d-4341-a91e-b6e5814c5d8f"
         },
         {
             "pname": "planet_1",
@@ -125,7 +125,7 @@
             "presolverAttrs": [],
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "6c755cb2-c8a5-4e78-a3e2-f4903926d7ff"
+            "uuid": "9ccb1bad-e711-4ed1-b36a-9e1e630c8969"
         },
         {
             "pname": "moon_1_0",
@@ -153,7 +153,7 @@
             "presolverAttrs": [],
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "dd766fa2-4e53-42ab-ac91-9a46bf7f51e0"
+            "uuid": "092ae919-dcec-4aa0-a6d8-46ace25efab0"
         },
         {
             "pname": "planet_2",
@@ -181,7 +181,7 @@
             "presolverAttrs": [],
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "d7b970d1-29b7-449d-a49d-df4e6d1016ae"
+            "uuid": "7e53bdcd-2ef0-411f-998c-52d0f3c44622"
         },
         {
             "pname": "moon_2_0",
@@ -209,7 +209,7 @@
             "presolverAttrs": [],
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "b674adf0-102a-403c-847c-241eebfbdadf"
+            "uuid": "69a47933-a09e-4514-98be-522b5ee9019e"
         }
     ],
     "background": [],
@@ -475,6 +475,9 @@
         "icons": [
             {
                 "path": "models/fnt_crosshair.bgeo"
+            },
+            {
+                "path": "models/gizmo.bgeo"
             }
         ]
     }

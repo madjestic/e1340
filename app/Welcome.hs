@@ -8,6 +8,7 @@ module Main ( main ) where
 
 import Control.Exception
 import Control.Monad.IO.Class
+import Control.Monad (when)
 import Control.Monad.Managed
 import DearImGui
 import DearImGui.OpenGL3
@@ -24,6 +25,7 @@ import SDL
 import Graphics.RedViz.LoadShaders
 import qualified DearImGui.FontAtlas as FontAtlas
 import Control.Arrow (ArrowLoop(loop))
+import Data.IORef (newIORef, writeIORef, readIORef)
 
 data Descriptor =
      Descriptor VertexArrayObject NumArrayIndices
@@ -120,13 +122,43 @@ initResources vs idx z0 =
 
     return $ Descriptor triangles (fromIntegral numIndices)
 
-data FontSet a
-  = FontSet
+data FontSet a = FontSet
   { droidFont :: a
   , defaultFont :: a
   , notoFont :: a
   }
   deriving (Functor, Foldable, Traversable)
+
+fontSet :: FontSet FontSource
+fontSet = FontSet
+  { -- The first mentioned font is loaded first
+    -- and set as a global default.
+    droidFont =
+      FontAtlas.FromTTF
+        "./fonts/DroidSans.ttf"
+        30
+        Nothing
+        FontAtlas.Cyrillic
+
+    -- You also may use a default hardcoded font for
+    -- some purposes (i.e. as fallback)
+  , defaultFont =
+      FontAtlas.DefaultFont
+
+    -- To optimize atlas size, use ranges builder and
+    -- provide source localization data.
+  , notoFont =
+      FontAtlas.FromTTF
+        "./fonts/NotoSansJP-Regular.otf"
+        20
+        Nothing
+        ( FontAtlas.RangesBuilder $ mconcat
+            [ FontAtlas.addRanges FontAtlas.Latin
+            , FontAtlas.addText "私をクリックしてください"
+            , FontAtlas.addText "こんにちは"
+            ]
+        )
+  }
 
 main :: IO ()
 main = do
@@ -156,134 +188,21 @@ main = do
     -- Initialize ImGui's OpenGL backend
     _ <- managed_ $ bracket_ openGL3Init openGL3Shutdown
 
-    -- fontSet <- FontAtlas.rebuild FontSet
-    --   { -- The first mentioned font is loaded first
-    --     -- and set as a global default.
-    --     droidFont =
-    --       FontAtlas.FromTTF
-    --         "./fonts/DroidSans.ttf"
-    --         30
-    --         Nothing
-    --         FontAtlas.Cyrillic
-
-    --     -- You also may use a default hardcoded font for
-    --     -- some purposes (i.e. as fallback)
-    --   , defaultFont =
-    --       FontAtlas.DefaultFont
-
-    --     -- To optimize atlas size, use ranges builder and
-    --     -- provide source localization data.
-    --   , notoFont =
-    --       FontAtlas.FromTTF
-    --         "./fonts/NotoSansJP-Regular.otf"
-    --         20
-    --         Nothing
-    --         ( FontAtlas.RangesBuilder $ mconcat
-    --             [ FontAtlas.addRanges FontAtlas.Latin
-    --             , FontAtlas.addText "私をクリックしてください"
-    --             , FontAtlas.addText "こんにちは"
-    --             ]
-    --         )
-    --   }
-
+    fontSet' <- FontAtlas.rebuild fontSet
 
     liftIO $ do
-      mainLoop window do
-        -- Build the GUI
-        let FontSet{..} = fontSet
-        withFullscreen do
-          -- Add a text widget
-          withFont defaultFont do
-            text "Paraya Pre-Alpha"
+      mainLoop window fontSet' initUI
 
-          -- text "Привет, ImGui!"
-         
-          -- Add a button widget, and call 'putStrLn' when it's clicked
-          -- spacing
-          newLine
-          button "New Game" >>= \case
-            False -> return ()
-            True  -> putStrLn "New Game!"
-          button "Options" >>= \case
-            False -> return ()
-            True  -> putStrLn "Options!"
-          button "Quit" >>= \case
-            False -> return ()
-            True  -> quit
-
-defaultFont' = FontAtlas.DefaultFont
---fontSet :: FontSet Font
-fontSet =
- FontSet
-  { -- The first mentioned font is loaded first
-    -- and set as a global default.
-    droidFont =
-      FontAtlas.FromTTF
-        "./fonts/DroidSans.ttf"
-        30
-        Nothing
-        FontAtlas.Cyrillic
-    -- You also may use a default hardcoded font for
-    -- some purposes (i.e. as fallback)
-  , defaultFont = defaultFont'
-    -- To optimize atlas size, use ranges builder and
-    -- provide source localization data.
-  , notoFont =
-      FontAtlas.FromTTF
-        "./fonts/NotoSansJP-Regular.otf"
-        20
-        Nothing
-        ( FontAtlas.RangesBuilder $
-            mconcat
-              [ FontAtlas.addRanges FontAtlas.Latin,
-                FontAtlas.addText "私をクリックしてください",
-                FontAtlas.addText "こんにちは"
-              ]
-        )
-  }
-
--- mainFrameAction :: IO ()
--- mainFrameAction = do
---   do
---     -- Build the GUI
---     let FontSet{..} = fontSet'
---     withFullscreen do
---       -- Add a text widget
---       withFont defaultFont do
---         text "Paraya Pre-Alpha"
-
---       -- Add a button widget, and call 'putStrLn' when it's clicked
---       -- spacing
---       newLine
---       button "New Game" >>= \case
---         False -> return ()
---         True  -> putStrLn "New Game!"
---       button "Options" >>= \case
---         False -> return ()
---         True  -> putStrLn "Options!"
---       button "Quit" >>= \case
---         False -> return ()
---         True  -> quit
-          
-draw :: IO ()
-draw = do
-  let p0 = (0,0) :: (Double, Double)
-      z0 = 0     :: Double
-  (Descriptor triangles numIndices) <- initResources (verts p0) indices z0
-  
-  bindVertexArrayObject $= Just triangles
-  drawElements Triangles numIndices GL.UnsignedInt nullPtr
-
-mainLoop :: Window -> IO () -> IO ()
-mainLoop window frameAction = loop
+mainLoop :: Window -> FontSet Font -> UI -> IO ()
+mainLoop window fs = loop
   where
-    loop = unlessQuit do
+    loop ui0 = unlessQuit do
       -- Tell ImGui we're starting a new frame
       openGL3NewFrame
       sdl2NewFrame
       newFrame
 
-      frameAction
+      ui1 <- uiFrameAction fs ui0
               
       GL.clearColor $= Color4 0 0 0 1
       GL.clear [ColorBuffer]
@@ -296,8 +215,7 @@ mainLoop window frameAction = loop
       SDL.glSwapWindow window
       SDL.delay 100
        
-      --mainLoop window
-      loop
+      loop ui1
        
       where
         -- Process the event loop
@@ -314,3 +232,61 @@ mainLoop window frameAction = loop
        
         isQuit event =
           SDL.eventPayload event == SDL.QuitEvent
+
+uiFrameAction :: FontSet Font -> UI -> IO UI
+uiFrameAction fs ui = do
+  switch' <- newIORef $ switch ui
+  let FontSet{..} = fs
+  withFullscreen do
+    withFont droidFont do
+      case switch ui of
+        Main    -> do
+          newLine
+          button "New Game" >>= \case
+            False -> return ()
+            True  -> putStrLn "New Game!"
+          button "Options" >>= \case
+            False -> return ()
+            True  -> writeIORef switch' Options
+          button "Quit" >>= \case
+            False -> return ()
+            True  -> quit
+          
+        Options -> do
+          text "Paraya Pre-Alpha"
+          newLine
+          button "Back" >>= \case
+            False -> return ()
+            True  -> writeIORef switch' Main
+          
+  action' <- readIORef switch'
+  return ui { switch = action' }
+
+data UIContext = Main | Options
+  
+data UI
+  = UI
+  {
+    switch     :: UIContext
+  -- , btnNewGame :: IO Bool
+  -- , btnOptions :: IO Bool
+  -- , btnQuit    :: IO Bool
+  }
+
+initUI :: UI
+initUI = UI
+  {
+    switch = Main
+  --   btnNewGame = button "New Game"
+  -- , btnOptions = button "Options"
+  -- , btnQuit    = button "Quit"
+  }
+
+draw :: IO ()
+draw = do
+  let p0 = (0,0) :: (Double, Double)
+      z0 = 0     :: Double
+  (Descriptor triangles numIndices) <- initResources (verts p0) indices z0
+  
+  bindVertexArrayObject $= Just triangles
+  drawElements Triangles numIndices GL.UnsignedInt nullPtr

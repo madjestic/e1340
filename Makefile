@@ -316,8 +316,8 @@ solarsystem:
 	# cabal clean
 	# cabal build exe:ProjectViewer
 
-	./resources/convertGeo.sh fnt_crosshair
-	./resources/convertGeo.sh gizmo
+	# ./resources/convertGeo.sh fnt_crosshair
+	# ./resources/convertGeo.sh gizmo
 
 	#./resources/convertGeo.sh sun
 	#./resources/convertGeo.sh mercury
@@ -333,8 +333,7 @@ solarsystem:
 	# ./resources/convertGeo.sh io
 	# ./resources/convertGeo.sh callisto
 
-	cabal build exe:genProject
-	#  
+	# cabal build exe:genProject
 	cabal run exe:genProject -- ./projects/solarsystem
 	cabal run exe:genUUID -- -p ./projects/solarsystem
 	cabal run +RTS -sstderr -N -RTS ProjectViewer ./projects/solarsystem

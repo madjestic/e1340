@@ -28,7 +28,7 @@ data Application
   , _intr    :: App
   , _main    :: App
   , _hmap    :: [(UUID, GLuint)] -- a placeholder for the future hmap, for now it's a map from a long texture unit index to a short version.
-  , _counter :: MVar Int
+--  , _counter :: MVar Int
   } 
 $(makeLenses ''Application)
 

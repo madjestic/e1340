@@ -288,7 +288,7 @@ main = do
   putStrLn "\n Initializing Apps"
   intrApp' <- intrApp introProj
   mainApp' <- mainApp mainProj
-  counter' <- newMVar 0 :: IO (MVar Int)
+  --counter' <- newMVar 0 :: IO (MVar Int)
   putStrLn "\n Initializing GUI"
 
   let
@@ -309,7 +309,7 @@ main = do
       intrApp'
       mainApp' 
       []
-      counter'
+      --counter'
 
   --app <- initResources initApp'
   app <- initResources' initApp' [gr]

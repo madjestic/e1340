@@ -139,18 +139,18 @@ output fps lastInteraction window application = do
       crs'@(Cursor {}) -> _coords crs'
       _ -> (0,0)
 
-    (_, resy')  = app ^. options . App.res
-    mouseCoords' = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
+    (_, resy)  = app ^. options . App.res
+    mouseCoords' = (\ (x,y) resy -> (x/resy, y/resy)) mouseCoords (fromIntegral resy)
  
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })      :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })      :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles          
-                                              , depthMsk      = Disabled  })      :: Drawable -> IO ()
-    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons    :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles       :: Widget   -> IO ()
-    renderIconsM      = renderIcons' mouseCoords' icnsDrs renderAsTriangles       :: Widget   -> IO ()
+    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
+    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
+    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles       
+                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
+    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Widget   -> IO ()
+    renderIconsM      = renderIcons' mouseCoords' icnsDrs renderAsTriangles    :: Widget   -> IO ()
     
-    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })      :: Drawable -> IO ()
+    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })   :: Drawable -> IO ()
 
   mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
@@ -240,8 +240,8 @@ main = do
 
   args      <- getArgs
   --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
-  mainProj  <- if debug then P.read ("./projects/solar_system_mini" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)     :: FilePath)
+  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
   
   let
     title   = pack $ view P.name mainProj
@@ -263,27 +263,27 @@ main = do
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
-  mainApp' <- mainApp mainProj
-  counter' <- newMVar 0 :: IO (MVar Int)
+  mainApp <- mainApp mainProj
+  --counter <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
 
   let
-    res' = mainApp' ^. options . App.res
-    initApp' =
+    res' = mainApp ^. options . App.res
+    initApplication =
       Application
       {
-        A._gui  = mainApp' ^. App.gui
-      , A._intr = mainApp'
-      , A._opts = mainApp'
-      , A._info = mainApp'
-      , A._main = mainApp'
+        A._gui  = mainApp ^. App.gui
+      , A._intr = mainApp
+      , A._opts = mainApp
+      , A._info = mainApp
+      , A._main = mainApp
       , A._hmap = []
-      , A._counter = counter'
+      --, A._counter = counter
       , A._quit = False
       }
 
-  app <- initResources initApp'
+  app <- initResources initApplication
   
   putStrLn "Starting App."
   animate

@@ -100,7 +100,7 @@ updateOptsApp app0 =
 roundTo :: Int -> Double -> Double
 roundTo m' n = (fromIntegral . round $ n * m)/m
   where
-    m = 10.0 * fromIntegral m'
+    m = 10 ** fromIntegral m'
 
 updateMainApp :: App -> SF (AppInput, App) App
 updateMainApp app0 =
@@ -123,7 +123,7 @@ updateMainApp app0 =
        { 
          App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui = gui' & speed . text .~ [show . roundTo 5 . abs . norm $ (cam ^. controller . vel)]
+       , _gui = gui' & speed . text .~ [show . roundTo 3 . abs . norm $ (cam ^. controller . vel)]
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'

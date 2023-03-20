@@ -354,6 +354,30 @@ executable ProjectViewer
   default-language:
                 Haskell2010
 
+executable Welcome
+  main-is:      Welcome.hs
+  hs-source-dirs:
+                app
+              , src
+
+  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:    -threaded -O2
+  --cpp-options:   -DDEBUG
+  build-depends:
+                base
+              , managed
+              , dear-imgui
+              , OpenGL
+              , sdl2
+              , bytestring
+                
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.LoadShaders
+
+  default-language:
+                Haskell2010
+
 executable genMaterial
   main-is:      genMaterial.hs
   hs-source-dirs:
@@ -436,6 +460,86 @@ executable genProject
               , Projects.SolarSystemMini
               , Projects.SolarSystemExtended
               , Projects.Curve
+
+  default-language:
+                Haskell2010
+
+executable genApplication
+  main-is:      genApplication.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base
+              , OpenGL
+              , sdl2
+              , linear
+              , Yampa
+              , lens
+              , bytestring
+              , aeson
+              , aeson-pretty
+              , uuid
+              , text
+              , sort
+              , random
+              , simple-affine-space
+              , vector
+              , locators
+              , ilist
+              , containers
+              , massiv
+              , store
+              , GLUtil
+              , split
+              
+  other-modules:
+                Paths_e1340
+                App
+                App.App
+                App.Update
+                Application.Application
+                Camera
+                Camera.Update
+                GUI
+                GUI.GUI
+                GUI.Update
+                Graphics.RedViz.Backend
+                Graphics.RedViz.Camera
+                Graphics.RedViz.Controllable
+                Graphics.RedViz.Descriptor
+                Graphics.RedViz.Drawable
+                Graphics.RedViz.FromVector
+                Graphics.RedViz.Input
+                Graphics.RedViz.Input.FRP.Yampa
+                Graphics.RedViz.Input.FRP.Yampa.AppInput
+                Graphics.RedViz.Input.FRP.Yampa.Update
+                Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+                Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+                Graphics.RedViz.Input.Keyboard
+                Graphics.RedViz.Input.Mouse
+                Graphics.RedViz.LoadShaders
+                Graphics.RedViz.Material
+                Graphics.RedViz.Object
+                Graphics.RedViz.PGeo
+                Graphics.RedViz.Primitives
+                Graphics.RedViz.Project
+                Graphics.RedViz.Project.Model
+                Graphics.RedViz.Project.Project
+                Graphics.RedViz.Project.Utils
+                Graphics.RedViz.Rendering
+                Graphics.RedViz.Texture
+                Graphics.RedViz.Utils
+                Graphics.RedViz.VAO
+                Graphics.RedViz.Widget
+                Object
+                Object.Object
+                Object.Update
+                ObjectTree
+                Solvable
 
   default-language:
                 Haskell2010
