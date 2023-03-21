@@ -12,8 +12,10 @@ module Application.Application
   --, counter
   , Application.Application.gui
   , quit
+  , PreApplication (..)
   , defaultPreApplication
   , write
+  , Application.Application.read
   ) where
 
 import Control.Lens                     (view, makeLenses)

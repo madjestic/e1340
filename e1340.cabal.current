@@ -361,7 +361,7 @@ executable Welcome
               , src
 
   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
-  ghc-options:    -threaded -O2
+  ghc-options:    -threaded -O2 -Wno-missing-home-modules
   --cpp-options:   -DDEBUG
   build-depends:
                 base
@@ -370,6 +370,24 @@ executable Welcome
               , OpenGL
               , sdl2
               , bytestring
+              , Yampa
+              , linear
+              , lens
+              , aeson
+              , uuid
+              , text
+              , sort
+              , aeson-pretty
+              , random
+              , simple-affine-space
+              , vector
+              , locators
+              , ilist
+              , containers
+              , massiv
+              , store
+              , GLUtil
+              , split
                 
   other-modules:
                 Paths_e1340

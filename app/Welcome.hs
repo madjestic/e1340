@@ -1,8 +1,10 @@
-{-# language RecordWildCards #-}
-{-# language BlockArguments #-}
-{-# language LambdaCase #-}
-{-# language OverloadedStrings #-}
-{-# language DeriveTraversable #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE TemplateHaskell #-}
+--{-# LANGUAGE LambdaCase #-}
 
 module Main ( main ) where
 
@@ -17,15 +19,16 @@ import DearImGui.SDL.OpenGL
 import DearImGui.FontAtlas as FontAtlas
 import Foreign.Ptr           (Ptr, nullPtr, plusPtr)
 import Foreign.Marshal.Array (withArray)
---import Graphics.GL
 import Graphics.Rendering.OpenGL as GL
 import Foreign.Storable      (sizeOf)
 import SDL
+import Control.Lens          (view, makeLenses, toListOf, view, (^..), (^.), bimap)
 
 import Graphics.RedViz.LoadShaders
 import qualified DearImGui.FontAtlas as FontAtlas
 import Control.Arrow (ArrowLoop(loop))
 import Data.IORef (newIORef, writeIORef, readIORef)
+import Application.Application as Application (PreApplication (..), read, Application (Application))
 
 data Descriptor =
      Descriptor VertexArrayObject NumArrayIndices
@@ -160,6 +163,71 @@ fontSet = FontSet
         )
   }
 
+data UIContext = Main | Options
+  deriving Show
+
+data UIOptions
+  =  UIOptions
+  {
+    _resx  :: Int
+  , _resy  :: Int
+  , _trace :: Bool
+  } deriving Show
+$(makeLenses ''UIOptions)  
+  
+data UI
+  =  UI
+  {
+    _switch     :: UIContext
+  , _options    :: UIOptions
+  } deriving Show
+$(makeLenses ''UI)
+
+initUI :: UI
+initUI = UI
+  {
+    _switch  = Main
+  , _options = 
+    UIOptions
+    {
+      _resx  = 1280
+    , _resy  = 720
+    , _trace = True
+    }
+  }
+
+toUI :: FilePath -> IO UI
+toUI f = do
+  preApp <- Application.read f
+  return $ fromPreApplication preApp
+
+fromPreApplication :: PreApplication -> UI
+fromPreApplication preAppl =
+  UI
+  {
+    _switch  = Main
+  , _options =
+    UIOptions
+    {
+      _resx  = Application._resx  preAppl
+    , _resy  = Application._resy  preAppl
+    , _trace = Application._trace preAppl
+    }
+  }
+
+fromUI :: UI -> PreApplication -> PreApplication
+fromUI ui pre0 = 
+  PreApplication
+  {
+    _resx  = ui ^. options . resx
+  , _resy  = ui ^. options . resy
+  , _trace = ui ^. options . Main.trace
+  , _pintr = _pintr pre0 
+  , _pmain = _pmain pre0 
+  , _popts = _popts pre0 
+  , _pinfo = _pinfo pre0 
+  }
+  
 main :: IO ()
 main = do
   -- Initialize SDL
@@ -235,11 +303,12 @@ mainLoop window fs = loop
 
 uiFrameAction :: FontSet Font -> UI -> IO UI
 uiFrameAction fs ui = do
-  switch' <- newIORef $ switch ui
+  switch' <- newIORef $ _switch ui
+  ref     <- newIORef 0
   let FontSet{..} = fs
   withFullscreen do
     withFont droidFont do
-      case switch ui of
+      case _switch ui of
         Main    -> do
           newLine
           button "New Game" >>= \case
@@ -255,32 +324,14 @@ uiFrameAction fs ui = do
         Options -> do
           text "Paraya Pre-Alpha"
           newLine
+          combo  "Resolution" ref ["1280x720", "800x600", "640x480"]
+          button "Apply"
           button "Back" >>= \case
             False -> return ()
             True  -> writeIORef switch' Main
           
   action' <- readIORef switch'
-  return ui { switch = action' }
-
-data UIContext = Main | Options
-  
-data UI
-  = UI
-  {
-    switch     :: UIContext
-  -- , btnNewGame :: IO Bool
-  -- , btnOptions :: IO Bool
-  -- , btnQuit    :: IO Bool
-  }
-
-initUI :: UI
-initUI = UI
-  {
-    switch = Main
-  --   btnNewGame = button "New Game"
-  -- , btnOptions = button "Options"
-  -- , btnQuit    = button "Quit"
-  }
+  return ui { _switch = action' }
 
 draw :: IO ()
 draw = do
