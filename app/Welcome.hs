@@ -12,6 +12,7 @@ import Control.Exception
 import Control.Monad.IO.Class
 import Control.Monad (when)
 import Control.Monad.Managed
+import Data.Text (splitOn, unpack)
 import DearImGui
 import DearImGui.OpenGL3
 import DearImGui.SDL
@@ -22,13 +23,16 @@ import Foreign.Marshal.Array (withArray)
 import Graphics.Rendering.OpenGL as GL
 import Foreign.Storable      (sizeOf)
 import SDL
-import Control.Lens          (view, makeLenses, toListOf, view, (^..), (^.), bimap)
+import Control.Lens          (view, makeLenses, toListOf, view, (^..), (^.), bimap, (&), (.~))
 
 import Graphics.RedViz.LoadShaders
 import qualified DearImGui.FontAtlas as FontAtlas
 import Control.Arrow (ArrowLoop(loop))
-import Data.IORef (newIORef, writeIORef, readIORef)
-import Application.Application as Application (PreApplication (..), read, Application (Application))
+import Data.IORef (newIORef, writeIORef, readIORef, IORef)
+import Application.Application as Application (PreApplication (..), read, write, pfile, Application (Application))
+import Unsafe.Coerce (unsafeCoerce)
+
+import Debug.Trace as DT
 
 data Descriptor =
      Descriptor VertexArrayObject NumArrayIndices
@@ -169,17 +173,19 @@ data UIContext = Main | Options
 data UIOptions
   =  UIOptions
   {
-    _resx  :: Int
-  , _resy  :: Int
-  , _trace :: Bool
+    _resx   :: Int
+  , _resy   :: Int
+  , _resp :: Int
+  , _trace  :: Bool
   } deriving Show
-$(makeLenses ''UIOptions)  
-  
+$(makeLenses ''UIOptions)
+
 data UI
   =  UI
   {
     _switch     :: UIContext
   , _options    :: UIOptions
+  , _file       :: FilePath
   } deriving Show
 $(makeLenses ''UI)
 
@@ -190,10 +196,12 @@ initUI = UI
   , _options = 
     UIOptions
     {
-      _resx  = 1280
-    , _resy  = 720
-    , _trace = True
+      _resx   = 1280
+    , _resy   = 720
+    , _resp   = 0
+    , _trace  = True
     }
+  , _file    = "./applications/solarsystem"
   }
 
 toUI :: FilePath -> IO UI
@@ -209,24 +217,33 @@ fromPreApplication preAppl =
   , _options =
     UIOptions
     {
-      _resx  = Application._resx  preAppl
-    , _resy  = Application._resy  preAppl
-    , _trace = Application._trace preAppl
+      _resx   = Application._resx  preAppl
+    , _resy   = Application._resy  preAppl
+    , _resp   = Application._resp  preAppl
+    , _trace  = Application._trace preAppl
     }
+  , _file    = preAppl ^. pfile
   }
 
-fromUI :: UI -> PreApplication -> PreApplication
-fromUI ui pre0 = 
-  PreApplication
-  {
-    _resx  = ui ^. options . resx
-  , _resy  = ui ^. options . resy
-  , _trace = ui ^. options . Main.trace
-  , _pintr = _pintr pre0 
-  , _pmain = _pmain pre0 
-  , _popts = _popts pre0 
-  , _pinfo = _pinfo pre0 
-  }
+fromUI :: UI -> IO PreApplication
+fromUI ui = do
+  pre0 <- Application.read (ui ^. file)
+  let
+      result =
+        PreApplication
+        {
+          _resx  = ui ^. options . resx
+        , _resy  = ui ^. options . resy
+        , _resp  = ui ^. options . resp
+        , _trace = ui ^. options . Main.trace
+        , _pintr = _pintr pre0 
+        , _pmain = _pmain pre0 
+        , _popts = _popts pre0 
+        , _pinfo = _pinfo pre0
+        , _pfile = _pfile pre0
+        }
+  return result
+
   
 main :: IO ()
 main = do
@@ -256,10 +273,11 @@ main = do
     -- Initialize ImGui's OpenGL backend
     _ <- managed_ $ bracket_ openGL3Init openGL3Shutdown
 
-    fontSet' <- FontAtlas.rebuild fontSet
+    fontSet' <- FontAtlas.rebuild fontSet    
 
     liftIO $ do
-      mainLoop window fontSet' initUI
+      initUI' <- toUI $ initUI ^. file
+      mainLoop window fontSet' initUI'
 
 mainLoop :: Window -> FontSet Font -> UI -> IO ()
 mainLoop window fs = loop
@@ -303,35 +321,57 @@ mainLoop window fs = loop
 
 uiFrameAction :: FontSet Font -> UI -> IO UI
 uiFrameAction fs ui = do
-  switch' <- newIORef $ _switch ui
-  ref     <- newIORef 0
+  switchRef <- newIORef $ _switch ui
+  respRef   <- newIORef $ ui ^. options . resp
+  refC      <- newIORef True
+  ref0      <- newIORef 0
+  refMS     <- newIORef 1
   let FontSet{..} = fs
   withFullscreen do
     withFont droidFont do
       case _switch ui of
         Main    -> do
+          withFont notoFont do text "Paraya Pre-Alpha"
           newLine
           button "New Game" >>= \case
             False -> return ()
             True  -> putStrLn "New Game!"
+          button "Continue"
           button "Options" >>= \case
             False -> return ()
-            True  -> writeIORef switch' Options
+            True  -> writeIORef switchRef Options
           button "Quit" >>= \case
             False -> return ()
             True  -> quit
           
         Options -> do
-          text "Paraya Pre-Alpha"
+          withFont notoFont do text "Paraya Pre-Alpha"
           newLine
-          combo  "Resolution" ref ["1280x720", "800x600", "640x480"]
-          button "Apply"
           button "Back" >>= \case
             False -> return ()
-            True  -> writeIORef switch' Main
+            True  -> writeIORef switchRef Main
+          combo  "Resolution"  respRef  resList
+          checkbox "Traces"    refC
+          combo  "Scale World" ref0 ["0.0001", "0.001", "0.01", "1"]
+          sliderFloat "Mouse Sensitivity" refMS 0 10
+          button "Save" >>= \case
+            False -> return ()
+            True  -> fromUI ui >>= write
           
-  action' <- readIORef switch'
-  return ui { _switch = action' }
+  action' <- readIORef switchRef
+  resp'   <- readIORef respRef
+  let
+    (resx', resy') = (\res -> (head res, res!!1)) (Prelude.read <$> (unpack <$> splitOn "x" (resList!!resp')) :: [Int])
+    result =
+      ui
+      & switch         .~ action'
+      & options . resx .~ resx'
+      & options . resy .~ resy'
+      & options . resp .~ resp'
+      
+  return result
+
+resList = ["1280x720", "800x600", "640x480"]      
 
 draw :: IO ()
 draw = do

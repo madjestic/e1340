@@ -16,6 +16,7 @@ module Application.Application
   , defaultPreApplication
   , write
   , Application.Application.read
+  , pfile
   ) where
 
 import Control.Lens                     (view, makeLenses)
@@ -42,25 +43,29 @@ data PreApplication
   {
     _resx  :: Int
   , _resy  :: Int
+  , _resp  :: Int
   , _trace :: Bool
   , _pintr :: FilePath 
   , _pmain :: FilePath 
   , _popts :: FilePath 
-  , _pinfo :: FilePath    
+  , _pinfo :: FilePath
+  , _pfile :: FilePath
   } deriving Show
 $(makeLenses ''PreApplication)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''PreApplication
 
-write :: PreApplication -> FilePath -> IO ()
-write preApp fileOut =
+write :: PreApplication -> IO ()
+write preApp = 
   B.writeFile fileOut $ encodePretty' config preApp
   where
+    fileOut = preApp ^. pfile
     config = defConfig { confCompare = comp }
 
 comp :: Text -> Text -> Ordering
 comp = keyOrder . fmap pack $
   [ "resx"
   , "resy"
+  , "resp"
   , "trace"
   , "pintr"
   , "pmain"
@@ -74,21 +79,25 @@ read filePath = do
   let
     resx'  = (_resx  . fromEitherDecode) d
     resy'  = (_resy  . fromEitherDecode) d
+    resp'  = (_resp  . fromEitherDecode) d
     trace' = (_trace . fromEitherDecode) d
     intr'  = (_pintr . fromEitherDecode) d
     main'  = (_pmain . fromEitherDecode) d
     opts'  = (_popts . fromEitherDecode) d
     info'  = (_pinfo . fromEitherDecode) d
+    file'  = (_pfile . fromEitherDecode) d
   return $  
     PreApplication
     {
       _resx  = resx'
     , _resy  = resy'
+    , _resp  = resp'
     , _trace = trace'
     , _pintr = intr' 
     , _pmain = main'
     , _popts = opts'
-    , _pinfo = info'     
+    , _pinfo = info'
+    , _pfile = file'
     }
     where
       fromEitherDecode = fromMaybe defaultPreApplication . fromEither
@@ -128,11 +137,13 @@ defaultPreApplication =
   {
     _resx  = 1280
   , _resy  = 720
+  , _resp  = 0
   , _trace = True
   , _pintr = "./projects/solarsystem"
   , _pmain = "./projects/solarsystem"
   , _popts = "./projects/solarsystem"
   , _pinfo = "./projects/solarsystem"
+  , _pfile = "./applications/solarsystem"
   }
 
 defaultApplication :: Application

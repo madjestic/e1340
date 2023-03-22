@@ -11,6 +11,7 @@ module Application
   , quit
   , defaultPreApplication
   , write
+  , pfile
   ) where
 
 import Application.Application
