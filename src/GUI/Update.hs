@@ -48,7 +48,7 @@ updateGUI' gui0@(IntrGUI {}) =
             { _strtB  = strtB'
             , _optsB  = optsB'
             , _quitB  = quitB'
-            , _cursor = cursor'
+            , _cursor = Just cursor'
             --, _cursor = (DT.trace ("cursor' : " ++ show cursor')) cursor'
             }
           _ -> gui
@@ -65,7 +65,7 @@ updateGUI' gui0@(OptsGUI {}) =
           OptsGUI {} ->
             gui
             { _backB  = backB'
-            , _cursor = cursor'
+            , _cursor = Just cursor'
             }
           _ -> gui
         
@@ -77,7 +77,7 @@ updateGUI' (MainGUI {} ) =
     let
       result =
         gui
-        { _cursor = cursor' }
+        { _cursor = Just cursor' }
         
     returnA -< result
 
@@ -195,9 +195,9 @@ mouseOverE' res0
         inside'  = insideBBox res0 (bbox' btn) (bx, by) (mx, my)
 mouseOverE' _ _ _ = (Empty, NoEvent)        
 
-updateCursor :: SF (AppInput, Widget) Widget
+updateCursor :: SF (AppInput, Maybe Widget) Widget
 updateCursor =
-  proc (input, Cursor activeC lableC _ opts)-> do
+  proc (input, Just (Cursor activeC lableC _ opts))-> do
     --(mouse', mevs) <- updateMouse -< input
     (mouse', _) <- updateMouse -< input
     let

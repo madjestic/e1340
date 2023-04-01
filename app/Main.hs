@@ -45,6 +45,7 @@ import Object             as O
 import ObjectTree         as OT
 import GUI
 import GHC.Float (int2Double)
+import Data.Maybe
 
 --import Debug.Trace    as DT
 
@@ -96,7 +97,7 @@ output lastInteraction window application = do
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
-    crsr    = _cursor $ app ^. App.gui  ::  Widget
+    crsr    = _cursor $ app ^. App.gui  ::  Maybe Widget
 
     app  = fromApplication application
     txs  = concat . concat
@@ -116,8 +117,8 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    mouseCoords = case (app ^. App.gui . cursor) of
-      crs'@(Cursor {}) -> _coords crs'
+    mouseCoords = case app ^. App.gui . cursor of
+      crs'@(Just Cursor {}) -> _coords $ fromJust crs'
       _ -> (0,0)
 
     (_, resy')        = app ^. options . App.res
@@ -133,7 +134,7 @@ output lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  renderCursorM           crsr
+  --renderCursorM           crsr
   
   glSwapWindow window
 

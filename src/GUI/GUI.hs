@@ -27,7 +27,7 @@ import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Aeson
 import Data.Aeson.TH
 import Data.Aeson.Encode.Pretty
-import Data.Maybe                       (fromMaybe)
+import Data.Maybe                       (fromMaybe, listToMaybe, maybeToList)
 import GHC.Generics
 import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Text                        (Text, pack)
@@ -41,33 +41,36 @@ data GUI
   =  IntrGUI
      {
        _res             :: (Int, Int)
-     , _cursor          :: Widget
+     , _cursor          :: Maybe Widget
      , _xx              :: Widget
      , _a_space_oddysey :: Widget
      , _strtB           :: Widget
      , _optsB           :: Widget
      , _quitB           :: Widget -- button
+     , _gizmo           :: Maybe Widget
      }
   |  OptsGUI
      {
        _res      :: (Int, Int)
-     , _cursor   :: Widget
+     , _cursor   :: Maybe Widget
      , _backB    :: Widget -- button
+     , _gizmo  :: Maybe Widget     
      }
   |  MainGUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
      , _speed  :: Widget
-     , _cursor :: Widget
-     , _gizmo  :: Widget
+     , _cursor :: Maybe Widget
+     , _gizmo  :: Maybe Widget
      }
   |  InfoGUI
      {
        _res    :: (Int, Int)
      , _fps    :: Widget
      , _infos  :: [Widget]
-     , _cursor :: Widget
+     , _cursor :: Maybe Widget
+     , _gizmo  :: Maybe Widget     
      }
   deriving (Generic, Show)
 $(makeLenses ''GUI)
@@ -116,6 +119,7 @@ read filePath gui' =
         , _strtB  = strtB'
         , _optsB  = optsB'
         , _quitB  = quitB'
+        , _gizmo  = Nothing
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -140,7 +144,7 @@ read filePath gui' =
         , _cursor = cursor'
         , _gizmo  = gizmo'
         , _speed  = speed'
-        , _fps    = fps'   
+        , _fps    = fps'
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -162,6 +166,7 @@ read filePath gui' =
           _res    = res'
         , _cursor = cursor'
         , _backB  = backB'
+        , _gizmo  = Nothing        
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -185,6 +190,7 @@ read filePath gui' =
         , _cursor = cursor'
         , _fps    = fps'
         , _infos  = infos'
+        , _gizmo  = Nothing        
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -206,31 +212,24 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     IntrGUI {} ->
-      [
-        _cursor gui
-      , _xx     gui
+      [ _xx     gui
       , _a_space_oddysey gui -- ^. _a_space_oddysey
       , _strtB gui
       , _optsB gui
-      , _quitB gui
-      ]
+      , _quitB gui ]
+      ++ maybeToList (_cursor gui)
     OptsGUI {} ->
-      [
-        _cursor gui 
-      , _backB  gui 
-      ]
+      maybeToList (_cursor gui) ++
+      [ _backB  gui ]
     MainGUI {} ->
-      [
-        _fps    gui
-      , _speed  gui
-      , _cursor gui
-      , _gizmo  gui
-      ]
+      [ _fps    gui
+      , _speed  gui ]
+      ++ maybeToList (_cursor gui)
+      ++ maybeToList (_gizmo  gui)
     InfoGUI {} ->
-      [
-        _fps    gui 
-      , _cursor gui     
-      ] ++ _infos gui
+      [ _fps    gui  ]
+      ++ _infos gui
+      ++ maybeToList (_cursor gui)
 
 fromFormat :: Format -> (Double, Double)
 fromFormat (Format alignment_ x_ y_ _ _ _) =
@@ -255,7 +254,7 @@ intrGUI res0 =
   IntrGUI
   {
     _res    = res0
-  , _cursor = Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
+  , _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _xx =
     TextField True ["PARAYA"] 
     (Format TC (-0.19) (-0.2) 0.0 0.08 1.1) defOpts
@@ -268,6 +267,7 @@ intrGUI res0 =
     (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
   , _quitB    = Button True "QUIT"    defBBox False False
     (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
+  , _gizmo    = Nothing
   }
 
 optsGUI :: (Int, Int) -> GUI
@@ -275,8 +275,9 @@ optsGUI res0 =
   OptsGUI
   {
     _res     = res0
-  , _cursor  = Cursor True "" (0.0, 0.0) defOpts
+  , _cursor  = Just $ Cursor True "" (0.0, 0.0) defOpts
   , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+  , _gizmo    = Nothing
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -286,8 +287,8 @@ mainGUI res0 =
     _res    = res0
   , _fps    = FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
   , _speed  = TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
-  , _cursor = Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
-  , _gizmo  = Icon      True "" 1
+  , _cursor = Just $ Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
+  , _gizmo  = Just $ Icon      True "" 1
   }
 
 infoGUI :: (Int, Int) -> GUI
@@ -300,5 +301,6 @@ infoGUI res0 =
     [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
     , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
     ]
-  , _cursor = Cursor True "" (0.0, 0.0) defOpts
+  , _cursor = Just $ Cursor True "" (0.0, 0.0) defOpts
+  , _gizmo    = Nothing  
   }

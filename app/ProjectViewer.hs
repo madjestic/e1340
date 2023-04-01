@@ -49,6 +49,7 @@ import ObjectTree         as OT
 import GUI
 import GHC.Float (int2Double)
 import Control.Monad.IO.Class
+import Data.Maybe
 
   --import Debug.Trace    as DT
 
@@ -102,20 +103,15 @@ output fps lastInteraction window application = do
     fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
-
     icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
-    --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
     fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
     objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
-    crsr    = _cursor $ app ^. App.gui  ::  Widget
-    app  = fromApplication application
-  -- let
-  --   gizmo =
-  --     case _gizmo  $ app ^. App.gui  :: Maybe Widget of
-  --       Just g
-  --   icns = [crsr, gizmo]
+    app     = fromApplication application
+    crsr    = _cursor $ app ^. App.gui  :: Maybe Widget
+    gizmo   = _gizmo  $ app ^. App.gui  :: Maybe Widget
+    icns    = maybeToList crsr ++ maybeToList gizmo :: [Widget]
 
   curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
   let
@@ -139,8 +135,8 @@ output fps lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    mouseCoords = case (app ^. App.gui . cursor) of
-      crs'@(Cursor {}) -> _coords crs'
+    mouseCoords = case app ^. App.gui . cursor of
+      crs'@(Just Cursor {}) -> _coords $ fromJust crs'
       _ -> (0,0)
 
     (_, resy)  = app ^. options . App.res
@@ -161,7 +157,7 @@ output fps lastInteraction window application = do
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
   --renderCursorM           crsr
-  --mapM_ renderIconsM      icns
+  mapM_ renderIconsM      icns
   
   glSwapWindow window
 

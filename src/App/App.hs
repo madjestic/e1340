@@ -197,14 +197,17 @@ fromProject prj0 gui0 = do
 --   return result
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
-toDrawable app objs time0 = drs -- (drs, drs')
-  where
-    mpos = _coords (app ^. App.App.gui . cursor)
-    resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
-    resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
-    res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
-    cam  = view playCam app :: Camera
-    drs  = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
+toDrawable app objs time0 = --drs -- (drs, drs')
+    case app ^. App.App.gui . cursor of
+      Just c  -> drs'
+        where
+          mpos = _coords c
+          resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
+          resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
+          res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
+          cam  = view playCam app :: Camera
+          drs'  = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
+      Nothing -> []
 
 toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
 toDrawable' mpos time0 res0 cam obj = drs
