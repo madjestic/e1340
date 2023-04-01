@@ -240,6 +240,10 @@ fromUI ui = do
         , _pmain = _pmain pre0 
         , _popts = _popts pre0 
         , _pinfo = _pinfo pre0
+        , _pintrGUI = _pintr pre0 
+        , _pmainGUI = _pmain pre0 
+        , _poptsGUI = _popts pre0 
+        , _pinfoGUI = _pinfo pre0
         , _pfile = _pfile pre0
         }
   return result

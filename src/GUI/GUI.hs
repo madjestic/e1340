@@ -1,8 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module GUI.GUI
   ( GUI (..)
-  , introGUI
+  , GUI'(..)
+  , intrGUI
   , mainGUI
   , optsGUI  
   , fromGUI
@@ -16,12 +18,24 @@ module GUI.GUI
   , backB
   , strtB
   , speed
+  , GUI.GUI.read
+  , GUI.GUI.write
   ) where
 
 import Control.Lens
+import Data.ByteString.Lazy as B hiding (drop, pack)
+import Data.Aeson
+import Data.Aeson.TH
+import Data.Aeson.Encode.Pretty
+import Data.Maybe                       (fromMaybe)
+import GHC.Generics
+import Data.ByteString.Lazy as B hiding (drop, pack)
+import Data.Text                        (Text, pack)
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Backend
+
+data GUI' = IntrGUI' | MainGUI' | OptsGUI' | InfoGUI' deriving Show
 
 data GUI
   =  IntrGUI
@@ -55,9 +69,168 @@ data GUI
      , _infos  :: [Widget]
      , _cursor :: Widget
      }
-  deriving Show
+  deriving (Generic, Show)
 $(makeLenses ''GUI)
 --deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''GUI
+instance ToJSON GUI
+instance FromJSON GUI
+
+comp :: Text -> Text -> Ordering
+comp = keyOrder . fmap pack $
+  [
+    "res"
+  , "cursor"
+  , "xx"
+  , "a_space_oddysey"
+  , "strtB"
+  , "optsB"
+  , "quitB"
+  , "fps"
+  , "speed"
+  , "gizmo"
+  , "infos"
+  ]
+
+read :: FilePath -> GUI' -> IO GUI
+read filePath gui' =
+  case gui' of
+    IntrGUI' -> do
+      Prelude.putStrLn $ "filePath : " ++ show filePath
+      d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
+      let
+        res'    = (_res    . fromEitherDecode) d
+        cursor' = (_cursor . fromEitherDecode) d
+        xx'     = (_xx     . fromEitherDecode) d
+        a_space_oddysey' = (_a_space_oddysey . fromEitherDecode) d
+        strtB'  = (_strtB  . fromEitherDecode) d 
+        optsB'  = (_optsB  . fromEitherDecode) d 
+        quitB'  = (_quitB  . fromEitherDecode) d 
+      
+      return $  
+        IntrGUI
+        {
+          _res    = res'
+        , _cursor = cursor'
+        , _xx     = xx'
+        , _a_space_oddysey = a_space_oddysey'
+        , _strtB  = strtB'
+        , _optsB  = optsB'
+        , _quitB  = quitB'
+        }
+        where
+          fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
+          fromEither d =
+            case d of
+              Right pt -> Just pt            
+              _ -> Nothing
+              
+    MainGUI' -> do
+      Prelude.putStrLn $ "filePath : " ++ show filePath
+      d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
+      let
+        res'    = (_res    . fromEitherDecode) d
+        cursor' = (_cursor . fromEitherDecode) d
+        gizmo'  = (_gizmo  . fromEitherDecode) d
+        speed'  = (_speed  . fromEitherDecode) d
+        fps'    = (_fps    . fromEitherDecode) d
+      return $  
+        MainGUI
+        {
+          _res    = res'
+        , _cursor = cursor'
+        , _gizmo  = gizmo'
+        , _speed  = speed'
+        , _fps    = fps'   
+        }
+        where
+          fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
+          fromEither d =
+            case d of
+              Right pt -> Just pt            
+              _ -> Nothing
+
+    OptsGUI' -> do
+      Prelude.putStrLn $ "filePath : " ++ show filePath
+      d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
+      let
+        res'     = (_res    . fromEitherDecode) d
+        cursor'  = (_cursor . fromEitherDecode) d
+        backB'   = (_backB  . fromEitherDecode) d
+      return $  
+        OptsGUI
+        {
+          _res    = res'
+        , _cursor = cursor'
+        , _backB  = backB'
+        }
+        where
+          fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
+          fromEither d =
+            case d of
+              Right pt -> Just pt            
+              _ -> Nothing
+              
+    InfoGUI' -> do
+      Prelude.putStrLn $ "filePath : " ++ show filePath
+      d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
+      let
+        res'    = (_res    . fromEitherDecode) d
+        cursor' = (_cursor . fromEitherDecode) d
+        fps'    = (_fps    . fromEitherDecode) d
+        infos'  = (_infos  . fromEitherDecode) d
+      return $  
+        InfoGUI
+        {
+          _res    = res'
+        , _cursor = cursor'
+        , _fps    = fps'
+        , _infos  = infos'
+        }
+        where
+          fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
+          fromEither d =
+            case d of
+              Right pt -> Just pt            
+              _ -> Nothing
+              
+    _ -> error $ "GUI' value does not exist: " ++ show gui'
+              ++ "when reading file: " ++ show filePath
+
+write :: FilePath -> GUI -> IO ()
+write filePath gui = do
+  B.writeFile filePath $ encodePretty' config gui
+    where
+      config = defConfig { confCompare = comp }                    
+
+fromGUI :: GUI -> [Widget]
+fromGUI gui =
+  case gui of
+    IntrGUI {} ->
+      [
+        _cursor gui
+      , _xx     gui
+      , _a_space_oddysey gui -- ^. _a_space_oddysey
+      , _strtB gui
+      , _optsB gui
+      , _quitB gui
+      ]
+    OptsGUI {} ->
+      [
+        _cursor gui 
+      , _backB  gui 
+      ]
+    MainGUI {} ->
+      [
+        _fps    gui
+      , _speed  gui
+      , _cursor gui
+      , _gizmo  gui
+      ]
+    InfoGUI {} ->
+      [
+        _fps    gui 
+      , _cursor gui     
+      ] ++ _infos gui
 
 fromFormat :: Format -> (Double, Double)
 fromFormat (Format alignment_ x_ y_ _ _ _) =
@@ -77,8 +250,8 @@ defBBox :: BBox
 defBBox =
   BBox (-0.2) (0.1) (0.2) (-0.1)
 
-introGUI :: (Int, Int) -> GUI
-introGUI res0 =
+intrGUI :: (Int, Int) -> GUI
+intrGUI res0 =
   IntrGUI
   {
     _res    = res0
@@ -129,32 +302,3 @@ infoGUI res0 =
     ]
   , _cursor = Cursor True "" (0.0, 0.0) defOpts
   }
-  
-fromGUI :: GUI -> [Widget]
-fromGUI gui =
-  case gui of
-    IntrGUI {} ->
-      [
-        _cursor gui
-      , _xx     gui
-      , _a_space_oddysey gui -- ^. _a_space_oddysey
-      , _strtB gui
-      , _optsB gui
-      , _quitB gui
-      ]
-    OptsGUI {} ->
-      [
-        _cursor gui 
-      , _backB  gui 
-      ]
-    MainGUI {} ->
-      [
-        _fps    gui
-      , _speed  gui
-      , _cursor gui 
-      ]
-    InfoGUI {} ->
-      [
-        _fps    gui 
-      , _cursor gui     
-      ] ++ _infos gui

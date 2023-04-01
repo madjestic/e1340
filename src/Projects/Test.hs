@@ -4,9 +4,9 @@ import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
 
-gui :: GUI'
+gui :: PreGUI
 gui =
-  GUI'
+  PreGUI
   defaultFonts
   defaultIcons
 
@@ -127,17 +127,17 @@ options =
     0.000001
   ]
 
-guiTestRed :: GUI'
+guiTestRed :: PreGUI
 guiTestRed =
-  GUI'
+  PreGUI
   -- [ TextField' True ["Test Red"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
   -- , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
   defaultFonts
   []
 
-emptyGUI :: GUI'
+emptyGUI :: PreGUI
 emptyGUI =
-  GUI'
+  PreGUI
   []
   []--defaultFonts
   

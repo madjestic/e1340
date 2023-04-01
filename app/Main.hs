@@ -219,31 +219,14 @@ main = do
 
   _ <- setMouseLocationMode camMode'
 
-  putStrLn "\n Initializing Apps"
-  intrApp' <- intrApp introProj
-  mainApp' <- mainApp mainProj
-  optsApp' <- optsApp optsProj
-  infoApp' <- mainApp pInfoProj
-  --counter' <- newMVar 0 :: IO (MVar Int)
+  putStrLn "\n Initializing Application"
 
-  putStrLn "\n Initializing GUI"
+  initPreApp <- A.read ""
+  initAppl <- fromPreApplication initPreApp
+  app <- initResources initAppl
 
   let
-    res' = mainApp' ^. options . App.res
-    initApp' =
-      Application
-      {
-        A._gui  = (intrApp' ^. App.gui)
-      , A._intr = intrApp'
-      , A._main = mainApp'
-      , A._opts = optsApp'
-      , A._info = infoApp'
-      --, A._counter = counter'
-      , A._hmap = []
-      , A._quit = False
-      }
-
-  app <- initResources initApp'
+    res' = initAppl ^. A.main . options . App.res
   
   putStrLn "Starting App."
   animate

@@ -48,8 +48,9 @@ import Object             as O
 import ObjectTree         as OT
 import GUI
 import GHC.Float (int2Double)
+import Control.Monad.IO.Class
 
---import Debug.Trace    as DT
+  --import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
@@ -109,9 +110,12 @@ output fps lastInteraction window application = do
     bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Widget
-    gizmo   = _gizmo  $ app ^. App.gui  ::  Widget
-    icns    = [crsr, gizmo]
     app  = fromApplication application
+  -- let
+  --   gizmo =
+  --     case _gizmo  $ app ^. App.gui  :: Maybe Widget of
+  --       Just g
+  --   icns = [crsr, gizmo]
 
   curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
   let
@@ -157,7 +161,7 @@ output fps lastInteraction window application = do
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
   --renderCursorM           crsr
-  mapM_ renderIconsM      icns
+  --mapM_ renderIconsM      icns
   
   glSwapWindow window
 
@@ -263,27 +267,29 @@ main = do
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
-  mainApp <- mainApp mainProj
+  --mainApp <- mainApp mainProj
   --counter <- newMVar 0 :: IO (MVar Int)
 
   putStrLn "\n Initializing GUI"
 
-  let
-    res' = mainApp ^. options . App.res
-    initApplication =
-      Application
-      {
-        A._gui  = mainApp ^. App.gui
-      , A._intr = mainApp
-      , A._opts = mainApp
-      , A._info = mainApp
-      , A._main = mainApp
-      , A._hmap = []
-      --, A._counter = counter
-      , A._quit = False
-      }
-
-  app <- initResources initApplication
+  -- let
+  --   res' = mainApp ^. options . App.res
+  --   initApplication =
+  --     Application
+  --     {
+  --       A._gui  = mainApp ^. App.gui
+  --     , A._intr = mainApp
+  --     , A._opts = mainApp
+  --     , A._info = mainApp
+  --     , A._main = mainApp
+  --     , A._hmap = []
+  --     --, A._counter = counter
+  --     , A._quit = False
+  --     }
+  initPreApp      <- A.read "./applications/solarsystem"
+  initApplication <- fromPreApplication initPreApp
+  app             <- initResources initApplication
+  let res'        = initApplication ^. A.main . options . App.res
   
   putStrLn "Starting App."
   animate

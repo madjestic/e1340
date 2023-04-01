@@ -12,10 +12,10 @@ module App.App
   , App.App.res
   , App.App.gui
   , App.App.objects
-  , intrApp
-  , mainApp
-  , optsApp
-  , infoApp
+--  , intrApp
+--  , mainApp
+--  , optsApp
+--  , infoApp
   , playCam
   , App.App.cameras
   , selectable
@@ -72,19 +72,15 @@ $(makeLenses ''App)
 
 -- -- < Init App State > ------------------------------------------------------
 
-fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
-fromProject prj0 = do 
-  objs <- ObjectTree.fromProject prj0
+-- TODO: refactor Project to PreApp : PreApp -> IO App
+fromProject :: Project -> GUI -> IO App
+fromProject prj0 gui0 = do
+  objTree <- ObjectTree.fromProject prj0
   let
-    cams = (fromProjectCamera prj0) <$> view P.cameras prj0
+    cams = fromProjectCamera prj0 <$> view P.cameras prj0
     pCam = head cams
+    res' = (view P.resx prj0, view P.resy prj0)    
 
-  return (objs, cams, pCam)    
-
-intrApp :: Project -> IO App
-intrApp prj0 = do
-  (objTree, cams, pCam) <- App.App.fromProject prj0
-  let
     result = 
       App
       { _debug   = (0,0)
@@ -92,83 +88,113 @@ intrApp prj0 = do
                    { _name = view P.name prj0
                    , _res  = res'
                    , _test = False }
-      , _gui     = introGUI res'
-      , _objects = objTree
+      , _gui     = gui0 --introGUI res'
+      , _objects = objTree -- TODO abstrace GUI
       , _playCam = pCam
       , _cameras = cams
       , _selectable = []
       , _selected   = [] }
-      where
-        res' = (view P.resx prj0, view P.resy prj0)
 
   return result
 
-optsApp :: Project -> IO App
-optsApp prj0 = do
-  (objTree, cams, pCam) <- App.App.fromProject prj0
+-- fromProject :: Project -> IO (ObjectTree, [Camera], Camera)
+-- fromProject prj0 = do 
+--   objs <- ObjectTree.fromProject prj0
+--   let
+--     cams = (fromProjectCamera prj0) <$> view P.cameras prj0
+--     pCam = head cams
+
+--   return (objs, cams, pCam)    
+
+-- intrApp :: Project -> IO App
+-- intrApp prj0 = do
+--   (objTree, cams, pCam) <- App.App.fromProject prj0
+--   let
+--     result = 
+--       App
+--       { _debug   = (0,0)
+--       , _options = Options
+--                    { _name = view P.name prj0
+--                    , _res  = res'
+--                    , _test = False }
+--       , _gui     = introGUI res'
+--       , _objects = objTree -- TODO abstrace GUI
+--       , _playCam = pCam
+--       , _cameras = cams
+--       , _selectable = []
+--       , _selected   = [] }
+--       where
+--         res' = (view P.resx prj0, view P.resy prj0)
+
+--   return result
+
+-- optsApp :: Project -> IO App
+-- optsApp prj0 = do
+--   (objTree, cams, pCam) <- App.App.fromProject prj0
   
-  let
-    result = 
-      App
-      { _debug   = (0,0)
-      , _options = Options
-                   { _name = view P.name prj0
-                   , _res  = res'
-                   , _test = False }
-      , _gui     = optsGUI res'
-      , _objects = objTree
-      , _playCam = pCam
-      , _cameras = cams
-      , _selectable = []
-      , _selected   = [] }
-      where
-        res' = (view P.resx prj0, view P.resy prj0)
+--   let
+--     result = 
+--       App
+--       { _debug   = (0,0)
+--       , _options = Options
+--                    { _name = view P.name prj0
+--                    , _res  = res'
+--                    , _test = False }
+--       , _gui     = optsGUI res'
+--       , _objects = objTree
+--       , _playCam = pCam
+--       , _cameras = cams
+--       , _selectable = []
+--       , _selected   = [] }
+--       where
+--         res' = (view P.resx prj0, view P.resy prj0)
 
-  return result
+--   return result
 
-mainApp :: Project -> IO App
-mainApp prj0 = do
-  (objTree, cams, pCam) <- App.App.fromProject prj0
-  let
-    result =
-      App
-      { _debug   = (0,0)
-      , _options = Options
-                   { _name = view P.name prj0
-                   , _res  = res'
-                   , _test = False }
-      , _gui     = mainGUI res'
-      , _objects = objTree
-      , _playCam = pCam
-      , _cameras = cams
-      , _selectable = []
-      , _selected   = [] }
-      where
-        res' = (view P.resx prj0, view P.resy prj0)
+-- TODO: mainApp to fromProject
+-- mainApp :: Project -> IO App
+-- mainApp prj0 = do
+--   (objTree, cams, pCam) <- App.App.fromProject prj0
+--   let
+--     gui'   = prj0 ^. P.gui
+--     res'   = (view P.resx prj0, view P.resy prj0)
+--     result =
+--       App
+--       { _debug   = (0,0)
+--       , _options = Options
+--                    { _name = view P.name prj0
+--                    , _res  = res'
+--                    , _test = False }
+--       , _gui     = gui' --mainGUI res'
+--       , _objects = objTree
+--       , _playCam = pCam
+--       , _cameras = cams
+--       , _selectable = []
+--       , _selected   = [] }
 
-  return result
+--   return result
 
-infoApp :: Project -> IO App
-infoApp prj0 = do
-  (objTree, cams, pCam) <- App.App.fromProject prj0
-  let
-    result =
-      App
-      { _debug   = (0,0)
-      , _options = Options
-                   { _name = view P.name prj0
-                   , _res  = res'
-                   , _test = False }
-      , _gui     = mainGUI res'
-      , _objects = objTree
-      , _playCam = pCam
-      , _cameras = cams
-      , _selectable = []
-      , _selected   = [] }
-      where
-        res' = (view P.resx prj0, view P.resy prj0)
+-- infoApp :: Project -> IO App
+-- infoApp prj0 = do
+--   (objTree, cams, pCam) <- App.App.fromProject prj0
+--   let
+--     result =
+--       App
+--       { _debug   = (0,0)
+--       , _options = Options
+--                    { _name = view P.name prj0
+--                    , _res  = res'
+--                    , _test = False }
+--       , _gui     = mainGUI res'
+--       , _objects = objTree
+--       , _playCam = pCam
+--       , _cameras = cams
+--       , _selectable = []
+--       , _selected   = [] }
+--       where
+--         res' = (view P.resx prj0, view P.resy prj0)
 
-  return result
+--   return result
 
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')

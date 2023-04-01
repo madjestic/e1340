@@ -15,10 +15,10 @@ module App
   , updateMainApp
   , updateIntroApp
   , updateOptsApp
-  , intrApp
-  , mainApp
-  , optsApp
-  , infoApp
+  -- , intrApp
+  -- , mainApp
+  -- , optsApp
+  -- , infoApp
   , Options (..)
   ) where
 

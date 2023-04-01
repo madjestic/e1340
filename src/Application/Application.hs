@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Application.Application
   ( Application (..)
@@ -14,9 +15,10 @@ module Application.Application
   , quit
   , PreApplication (..)
   , defaultPreApplication
-  , write
   , Application.Application.read
+  , Application.Application.write
   , pfile
+  , fromPreApplication
   ) where
 
 import Control.Lens                     (view, makeLenses)
@@ -29,27 +31,39 @@ import Data.ByteString.Lazy as B hiding (drop, pack)
 import Data.Text                        (Text, pack)
 import Data.Maybe                       (fromMaybe)
 import Control.Lens                     (toListOf, view, (^..), (^.), bimap)
+import GHC.Generics
 
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.Rendering.OpenGL as GL    (GLuint)
 
-import App (App(..), gui, intrApp, mainApp, optsApp, infoApp)
+import App (App(..), gui, fromProject)
 import GUI
 
 --import Debug.Trace as DT
 
+data PreApp
+  =  PreApp
+  { _projectPath :: FilePath
+  , _guiPath     :: FilePath
+  } deriving (Generic, Show)
+instance ToJSON PreApp
+
 data PreApplication
   =  PreApplication
   {
-    _resx  :: Int
-  , _resy  :: Int
-  , _resp  :: Int
-  , _trace :: Bool
-  , _pintr :: FilePath 
-  , _pmain :: FilePath 
-  , _popts :: FilePath 
-  , _pinfo :: FilePath
-  , _pfile :: FilePath
+    _pfile    :: FilePath
+  , _resx     :: Int
+  , _resy     :: Int
+  , _resp     :: Int
+  , _trace    :: Bool
+  , _pintr    :: FilePath
+  , _pmain    :: FilePath
+  , _popts    :: FilePath
+  , _pinfo    :: FilePath
+  , _pintrGUI :: FilePath
+  , _pmainGUI :: FilePath 
+  , _poptsGUI :: FilePath 
+  , _pinfoGUI :: FilePath
   } deriving Show
 $(makeLenses ''PreApplication)
 deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''PreApplication
@@ -70,7 +84,12 @@ comp = keyOrder . fmap pack $
   , "pintr"
   , "pmain"
   , "popts"
-  , "pinfo"]
+  , "pinfo"
+  , "pintrGUI"
+  , "pmainGUI"
+  , "poptsGUI"
+  , "pinfoGUI"
+  ]
 
 read :: FilePath -> IO PreApplication
 read filePath = do
@@ -86,6 +105,10 @@ read filePath = do
     opts'  = (_popts . fromEitherDecode) d
     info'  = (_pinfo . fromEitherDecode) d
     file'  = (_pfile . fromEitherDecode) d
+    pintrGUI' = (_pintrGUI . fromEitherDecode) d 
+    pmainGUI' = (_pmainGUI . fromEitherDecode) d 
+    poptsGUI' = (_poptsGUI . fromEitherDecode) d 
+    pinfoGUI' = (_pinfoGUI . fromEitherDecode) d 
   return $  
     PreApplication
     {
@@ -98,6 +121,10 @@ read filePath = do
     , _popts = opts'
     , _pinfo = info'
     , _pfile = file'
+    , _pintrGUI = pintrGUI' 
+    , _pmainGUI = pmainGUI'  
+    , _poptsGUI = poptsGUI'  
+    , _pinfoGUI = pinfoGUI'  
     }
     where
       fromEitherDecode = fromMaybe defaultPreApplication . fromEither
@@ -112,11 +139,16 @@ fromPreApplication p = do
   mainProj <- P.read (p ^. pmain)
   optsProj <- P.read (p ^. popts)
   infoProj <- P.read (p ^. pinfo)
+
+  intrGUI  <- GUI.read (p ^. pintrGUI) IntrGUI'
+  mainGUI  <- GUI.read (p ^. pmainGUI) MainGUI'
+  optsGUI  <- GUI.read (p ^. poptsGUI) OptsGUI'
+  infoGUI  <- GUI.read (p ^. pinfoGUI) InfoGUI'
   
-  intrApp' <- intrApp intrProj
-  mainApp' <- mainApp mainProj
-  optsApp' <- optsApp optsProj
-  infoApp' <- infoApp infoProj
+  intrApp' <- fromProject intrProj intrGUI
+  mainApp' <- fromProject mainProj mainGUI
+  optsApp' <- fromProject optsProj optsGUI
+  infoApp' <- fromProject infoProj infoGUI
   
   let appl =
         Application
@@ -143,6 +175,10 @@ defaultPreApplication =
   , _pmain = "./projects/solarsystem"
   , _popts = "./projects/solarsystem"
   , _pinfo = "./projects/solarsystem"
+  , _pintrGUI = "./gui/pintrgui"
+  , _pmainGUI = "./gui/pmaingui"
+  , _poptsGUI = "./gui/poptsgui"
+  , _pinfoGUI = "./gui/pinfogui"
   , _pfile = "./applications/solarsystem"
   }
 

@@ -4,9 +4,9 @@ import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
 
-gui :: GUI'
+gui :: PreGUI
 gui =
-  GUI'
+  PreGUI
   defaultFonts
   defaultIcons
 

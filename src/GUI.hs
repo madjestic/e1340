@@ -1,8 +1,9 @@
 module GUI
   ( GUI (..)
+  , GUI'(..)
   , updateGUIPre
   , updateGUI
-  , introGUI
+  , intrGUI
   , mainGUI
   , optsGUI    
   , fromGUI
@@ -16,6 +17,7 @@ module GUI
   , backB
   , strtB
   , speed
+  , GUI.GUI.read
   ) where
 
 import GUI.GUI
