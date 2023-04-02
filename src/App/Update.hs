@@ -116,14 +116,15 @@ updateMainApp app0 =
 
    let
      --selectedText = objectNames <$> view selectable result :: [String]
-     objTree      = App._objects app'
-     
-     result =
+     objTree = App._objects app'
+     result  =
        app'
        { 
          App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui = gui' & speed . text .~ [show . roundTo 3 . abs . norm $ (cam ^. controller . vel)]
+       , _gui         = case gui' ^. speed of
+           Just speed' -> gui' & speed ?~ (speed' & text .~ [show . roundTo 3 . abs . norm $ (cam ^. controller . vel)])
+           Nothing     -> gui' & speed .~ Nothing
        , _playCam     = cam
        , _selectable  = selectable'
        , _selected    = selected'

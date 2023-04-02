@@ -16,8 +16,9 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput
 
 import GUI.GUI
 import GHC.Float (int2Double)
+import Data.Maybe  
 
---import Debug.Trace    as DT
+  --import Debug.Trace    as DT
 
 updateGUIPre :: GUI -> SF AppInput GUI
 updateGUIPre gui0 =
@@ -36,18 +37,18 @@ updateGUI gui0 =
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
 updateGUI' gui0@(IntrGUI {}) =
   proc (input, gui) -> do
-    cursor' <- updateCursor                           -< (input, _cursor gui)
-    strtB'  <- updateButton (_res gui0) (_strtB gui0) -< (input, cursor', _strtB gui)
-    optsB'  <- updateButton (_res gui0) (_optsB gui0) -< (input, cursor', _optsB gui)
-    quitB'  <- updateButton (_res gui0) (_quitB gui0) -< (input, cursor', _quitB gui)
+    cursor' <- updateCursor                           -< (input, fromJust $ _cursor gui)
+    strtB'  <- updateButton (_res gui0) (fromJust $ _strtB gui0) -< (input, cursor', fromJust $ _strtB gui)
+    optsB'  <- updateButton (_res gui0) (fromJust $ _optsB gui0) -< (input, cursor', fromJust $ _optsB gui)
+    quitB'  <- updateButton (_res gui0) (fromJust $ _quitB gui0) -< (input, cursor', fromJust $ _quitB gui)
     let
       result =
         case gui of
           IntrGUI {} -> 
             gui
-            { _strtB  = strtB'
-            , _optsB  = optsB'
-            , _quitB  = quitB'
+            { _strtB  = Just strtB'
+            , _optsB  = Just optsB'
+            , _quitB  = Just quitB'
             , _cursor = Just cursor'
             --, _cursor = (DT.trace ("cursor' : " ++ show cursor')) cursor'
             }
@@ -57,14 +58,14 @@ updateGUI' gui0@(IntrGUI {}) =
 
 updateGUI' gui0@(OptsGUI {}) =
   proc (input, gui) -> do
-    cursor' <- updateCursor                           -< (input, _cursor gui)
-    backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
+    cursor' <- updateCursor                           -< (input, fromJust $ _cursor gui)
+    backB'  <- updateButton (_res gui0) (fromJust $ _backB gui0) -< (input, cursor', fromJust $_backB gui)
     let
       result =
         case gui of
           OptsGUI {} ->
             gui
-            { _backB  = backB'
+            { _backB  = Just backB'
             , _cursor = Just cursor'
             }
           _ -> gui
@@ -73,7 +74,7 @@ updateGUI' gui0@(OptsGUI {}) =
 
 updateGUI' (MainGUI {} ) =
   proc (input, gui) -> do
-    cursor' <- updateCursor -< (input, _cursor gui)
+    cursor' <- updateCursor -< (input, fromJust $ _cursor gui)
     let
       result =
         gui
@@ -195,9 +196,9 @@ mouseOverE' res0
         inside'  = insideBBox res0 (bbox' btn) (bx, by) (mx, my)
 mouseOverE' _ _ _ = (Empty, NoEvent)        
 
-updateCursor :: SF (AppInput, Maybe Widget) Widget
+updateCursor :: SF (AppInput, Widget) Widget
 updateCursor =
-  proc (input, Just (Cursor activeC lableC _ opts))-> do
+  proc (input, Cursor activeC lableC _ opts)-> do
     --(mouse', mevs) <- updateMouse -< input
     (mouse', _) <- updateMouse -< input
     let

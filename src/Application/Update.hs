@@ -52,11 +52,10 @@ appIntro app0  =
      where sf =
              proc (input, app1) -> do
                app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
-               
-               --skipE <- keyInput SDL.ScancodeSpace "Pressed" -< input
-               strtE <- arr isPressed >>> edge -< (app' ^? App.gui . strtB :: Maybe Widget)
-               optsE <- arr isPressed >>> edge -< (app' ^? App.gui . optsB :: Maybe Widget)
-               quitE <- arr isPressed >>> edge -< (app' ^? App.gui . quitB :: Maybe Widget)
+               let appGUI = app' ^. App.gui :: GUI
+               strtE <- arr isPressed >>> edge -< (app' ^. App.gui . strtB)
+               optsE <- arr isPressed >>> edge -< (app' ^. App.gui . optsB)
+               quitE <- arr isPressed >>> edge -< (app' ^. App.gui . quitB)
                
                let
                  strtB' = fromJust $ app0 ^? intr . App.gui . strtB
@@ -89,7 +88,7 @@ appOpts app0  =
      where sf =
              proc (input, app1) -> do
                app'  <- updateOptsApp (fromApplication app0) -< (input, app1^.Appl.main)
-               backE <- arr isPressed >>> edge -< (app' ^? App.gui . backB :: Maybe Widget)
+               backE <- arr isPressed >>> edge -< (app' ^. App.gui . backB :: Maybe Widget)
                
                let
                  backB' = fromJust $ app0 ^? opts . App.gui . backB

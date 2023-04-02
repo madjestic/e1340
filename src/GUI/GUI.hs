@@ -42,33 +42,33 @@ data GUI
      {
        _res             :: (Int, Int)
      , _cursor          :: Maybe Widget
-     , _xx              :: Widget
-     , _a_space_oddysey :: Widget
-     , _strtB           :: Widget
-     , _optsB           :: Widget
-     , _quitB           :: Widget -- button
+     , _xx              :: Maybe Widget
+     , _a_space_oddysey :: Maybe Widget
+     , _strtB           :: Maybe Widget
+     , _optsB           :: Maybe Widget
+     , _quitB           :: Maybe Widget -- button
      , _gizmo           :: Maybe Widget
      }
   |  OptsGUI
      {
-       _res      :: (Int, Int)
-     , _cursor   :: Maybe Widget
-     , _backB    :: Widget -- button
+       _res    :: (Int, Int)
+     , _cursor :: Maybe Widget
+     , _backB  :: Maybe Widget -- button
      , _gizmo  :: Maybe Widget     
      }
   |  MainGUI
      {
        _res    :: (Int, Int)
-     , _fps    :: Widget
-     , _speed  :: Widget
+     , _fps    :: Maybe Widget
+     , _speed  :: Maybe Widget
      , _cursor :: Maybe Widget
      , _gizmo  :: Maybe Widget
      }
   |  InfoGUI
      {
        _res    :: (Int, Int)
-     , _fps    :: Widget
-     , _infos  :: [Widget]
+     , _fps    :: Maybe Widget
+     , _infos  :: Maybe [Widget]
      , _cursor :: Maybe Widget
      , _gizmo  :: Maybe Widget     
      }
@@ -212,23 +212,30 @@ fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     IntrGUI {} ->
-      [ _xx     gui
-      , _a_space_oddysey gui -- ^. _a_space_oddysey
-      , _strtB gui
-      , _optsB gui
-      , _quitB gui ]
+      []
+      ++ maybeToList ( _a_space_oddysey gui) -- ^. _a_space_oddysey
+      ++ maybeToList ( _strtB gui) 
+      ++ maybeToList ( _optsB gui) 
+      ++ maybeToList ( _quitB gui) 
+      ++ maybeToList (_xx     gui)
       ++ maybeToList (_cursor gui)
     OptsGUI {} ->
-      maybeToList (_cursor gui) ++
-      [ _backB  gui ]
+      []
+      ++ maybeToList (_cursor gui)
+      ++ maybeToList (_backB  gui) 
     MainGUI {} ->
-      [ _fps    gui
-      , _speed  gui ]
+      []
+      ++ maybeToList (_fps    gui)
+      ++ maybeToList (_speed  gui )
       ++ maybeToList (_cursor gui)
       ++ maybeToList (_gizmo  gui)
     InfoGUI {} ->
-      [ _fps    gui  ]
-      ++ _infos gui
+      []
+      ++ maybeToList (_fps    gui  )
+      ++ fromMaybe [] (_infos  gui)
+      -- ++ (case (_infos  gui) of
+      --       Just xs -> xs
+      --       Nothing -> []) --maybeToList (_infos  gui)
       ++ maybeToList (_cursor gui)
 
 fromFormat :: Format -> (Double, Double)
@@ -255,17 +262,20 @@ intrGUI res0 =
   {
     _res    = res0
   , _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
-  , _xx =
+  , _xx = Just $
     TextField True ["PARAYA"] 
     (Format TC (-0.19) (-0.2) 0.0 0.08 1.1) defOpts
-  , _a_space_oddysey =
+  , _a_space_oddysey = Just $
     TextField True ["a space odyssey"] 
     (Format TC (-0.2) (-0.25) 0.0 0.03 0.5) defOpts
-  , _strtB   = Button True "NEW GAME" defBBox False False
+  , _strtB   = Just $
+      Button True "NEW GAME" defBBox False False
     (Format CC (0.0) ( 0.0) 0.0 0.033 0.5) defOpts
-  , _optsB    = Button True "OPTIONS" defBBox False False
+  , _optsB    = Just $
+      Button True "OPTIONS" defBBox False False
     (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
-  , _quitB    = Button True "QUIT"    defBBox False False
+  , _quitB    = Just $
+      Button True "QUIT"    defBBox False False
     (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
   , _gizmo    = Nothing
   }
@@ -276,8 +286,8 @@ optsGUI res0 =
   {
     _res     = res0
   , _cursor  = Just $ Cursor True "" (0.0, 0.0) defOpts
-  , _backB   = Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
-  , _gizmo    = Nothing
+  , _backB   = Just $ Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+  , _gizmo   = Nothing
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -285,8 +295,8 @@ mainGUI res0 =
   MainGUI
   {
     _res    = res0
-  , _fps    = FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
-  , _speed  = TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
+  , _fps    = Just $ FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
+  , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
   , _cursor = Just $ Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _gizmo  = Just $ Icon      True "" 1
   }
@@ -296,8 +306,8 @@ infoGUI res0 =
   InfoGUI
   {
     _res   = res0
-  , _fps   = FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
-  , _infos =
+  , _fps   = Just $ FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
+  , _infos = Just $
     [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
     , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
     ]
