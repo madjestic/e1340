@@ -20,6 +20,8 @@ module GUI.GUI
   , speed
   , GUI.GUI.read
   , GUI.GUI.write
+  , gui'
+  , defGUI
   ) where
 
 import Control.Lens
@@ -35,10 +37,12 @@ import Data.Text                        (Text, pack)
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Backend
 
-data GUI' = IntrGUI' | MainGUI' | OptsGUI' | InfoGUI' deriving Show
+data GUI' = IntrGUI' | MainGUI' | OptsGUI' | InfoGUI' deriving (Generic, Show)
+instance ToJSON GUI'
+instance FromJSON GUI'
 
 data GUI
-  =  IntrGUI
+  =  GUI
      {
        _res             :: (Int, Int)
      , _cursor          :: Maybe Widget
@@ -48,35 +52,37 @@ data GUI
      , _optsB           :: Maybe Widget
      , _quitB           :: Maybe Widget -- button
      , _gizmo           :: Maybe Widget
-     }
-  |  OptsGUI
-     {
-       _res    :: (Int, Int)
-     , _cursor :: Maybe Widget
-     , _backB  :: Maybe Widget -- button
-     , _gizmo  :: Maybe Widget     
-     }
-  |  MainGUI
-     {
-       _res    :: (Int, Int)
-     , _fps    :: Maybe Widget
-     , _speed  :: Maybe Widget
-     , _cursor :: Maybe Widget
-     , _gizmo  :: Maybe Widget
-     }
-  |  InfoGUI
-     {
-       _res    :: (Int, Int)
-     , _fps    :: Maybe Widget
-     , _infos  :: Maybe [Widget]
-     , _cursor :: Maybe Widget
-     , _gizmo  :: Maybe Widget     
+     , _backB           :: Maybe Widget -- button
+     , _fps             :: Maybe Widget
+     , _speed           :: Maybe Widget
+     , _infos           :: Maybe [Widget]
+     , _gui'            :: GUI'
      }
   deriving (Generic, Show)
 $(makeLenses ''GUI)
 --deriveJSON defaultOptions {fieldLabelModifier = drop 1} ''GUI
 instance ToJSON GUI
 instance FromJSON GUI
+
+defGUI :: GUI  
+defGUI =
+  GUI
+  {
+    _res             = (800,600)
+  , _cursor          = Nothing 
+  , _xx              = Nothing 
+  , _a_space_oddysey = Nothing 
+  , _strtB           = Nothing 
+  , _optsB           = Nothing 
+  , _quitB           = Nothing 
+  , _gizmo           = Nothing 
+  , _backB           = Nothing 
+  , _fps             = Nothing 
+  , _speed           = Nothing 
+  , _infos           = Nothing 
+  , _gui'            = MainGUI'
+    
+  }
 
 comp :: Text -> Text -> Ordering
 comp = keyOrder . fmap pack $
@@ -92,6 +98,7 @@ comp = keyOrder . fmap pack $
   , "speed"
   , "gizmo"
   , "infos"
+  , "gui'"
   ]
 
 read :: FilePath -> GUI' -> IO GUI
@@ -107,10 +114,11 @@ read filePath gui' =
         a_space_oddysey' = (_a_space_oddysey . fromEitherDecode) d
         strtB'  = (_strtB  . fromEitherDecode) d 
         optsB'  = (_optsB  . fromEitherDecode) d 
-        quitB'  = (_quitB  . fromEitherDecode) d 
+        quitB'  = (_quitB  . fromEitherDecode) d
+        gui'    = (_gui'   . fromEitherDecode) d
       
       return $  
-        IntrGUI
+        defGUI
         {
           _res    = res'
         , _cursor = cursor'
@@ -120,6 +128,7 @@ read filePath gui' =
         , _optsB  = optsB'
         , _quitB  = quitB'
         , _gizmo  = Nothing
+        , _gui'   = gui'
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -138,7 +147,7 @@ read filePath gui' =
         speed'  = (_speed  . fromEitherDecode) d
         fps'    = (_fps    . fromEitherDecode) d
       return $  
-        MainGUI
+        defGUI
         {
           _res    = res'
         , _cursor = cursor'
@@ -161,7 +170,7 @@ read filePath gui' =
         cursor'  = (_cursor . fromEitherDecode) d
         backB'   = (_backB  . fromEitherDecode) d
       return $  
-        OptsGUI
+        defGUI
         {
           _res    = res'
         , _cursor = cursor'
@@ -184,7 +193,7 @@ read filePath gui' =
         fps'    = (_fps    . fromEitherDecode) d
         infos'  = (_infos  . fromEitherDecode) d
       return $  
-        InfoGUI
+        defGUI
         {
           _res    = res'
         , _cursor = cursor'
@@ -210,8 +219,6 @@ write filePath gui = do
 
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
-  case gui of
-    IntrGUI {} ->
       []
       ++ maybeToList ( _a_space_oddysey gui) -- ^. _a_space_oddysey
       ++ maybeToList ( _strtB gui) 
@@ -219,23 +226,14 @@ fromGUI gui =
       ++ maybeToList ( _quitB gui) 
       ++ maybeToList (_xx     gui)
       ++ maybeToList (_cursor gui)
-    OptsGUI {} ->
-      []
       ++ maybeToList (_cursor gui)
       ++ maybeToList (_backB  gui) 
-    MainGUI {} ->
-      []
       ++ maybeToList (_fps    gui)
       ++ maybeToList (_speed  gui )
       ++ maybeToList (_cursor gui)
       ++ maybeToList (_gizmo  gui)
-    InfoGUI {} ->
-      []
       ++ maybeToList (_fps    gui  )
       ++ fromMaybe [] (_infos  gui)
-      -- ++ (case (_infos  gui) of
-      --       Just xs -> xs
-      --       Nothing -> []) --maybeToList (_infos  gui)
       ++ maybeToList (_cursor gui)
 
 fromFormat :: Format -> (Double, Double)
@@ -258,7 +256,7 @@ defBBox =
 
 intrGUI :: (Int, Int) -> GUI
 intrGUI res0 =
-  IntrGUI
+  defGUI
   {
     _res    = res0
   , _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
@@ -278,32 +276,35 @@ intrGUI res0 =
       Button True "QUIT"    defBBox False False
     (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
   , _gizmo    = Nothing
+  , _gui'     = IntrGUI'
   }
 
 optsGUI :: (Int, Int) -> GUI
 optsGUI res0 =
-  OptsGUI
+  defGUI
   {
     _res     = res0
   , _cursor  = Just $ Cursor True "" (0.0, 0.0) defOpts
   , _backB   = Just $ Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
   , _gizmo   = Nothing
+  , _gui'    = OptsGUI'
   }
 
 mainGUI :: (Int, Int) -> GUI
 mainGUI res0 =
-  MainGUI
+  defGUI
   {
     _res    = res0
   , _fps    = Just $ FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
   , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
   , _cursor = Just $ Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _gizmo  = Just $ Icon      True "" 1
+  , _gui'   = MainGUI'
   }
 
 infoGUI :: (Int, Int) -> GUI
 infoGUI res0 =
-  InfoGUI
+  defGUI
   {
     _res   = res0
   , _fps   = Just $ FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
@@ -312,5 +313,6 @@ infoGUI res0 =
     , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
     ]
   , _cursor = Just $ Cursor True "" (0.0, 0.0) defOpts
-  , _gizmo    = Nothing  
+  , _gizmo  = Nothing
+  , _gui'   = InfoGUI'
   }

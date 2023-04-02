@@ -204,8 +204,9 @@ instance Show (MVar a) where
 
 fromApplication :: Application -> App
 fromApplication appl =
-  case view Application.Application.gui appl of
-    IntrGUI {} -> view intr appl 
-    MainGUI {} -> view main appl 
-    InfoGUI {} -> view info appl 
-    OptsGUI {} -> view opts appl 
+  --case view Application.Application.gui.gui' appl of
+  case appl ^. Application.Application.gui . gui' of
+    IntrGUI' -> view intr appl 
+    MainGUI' -> view main appl 
+    InfoGUI' -> view info appl 
+    OptsGUI' -> view opts appl 

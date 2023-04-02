@@ -35,67 +35,41 @@ updateGUI gui0 =
     returnA -< gui
 
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
-updateGUI' gui0@(IntrGUI {}) =
+updateGUI' gui0 =
   proc (input, gui) -> do
-    cursor' <- updateCursor                           -< (input, fromJust $ _cursor gui)
-    strtB'  <- updateButton (_res gui0) (fromJust $ _strtB gui0) -< (input, cursor', fromJust $ _strtB gui)
-    optsB'  <- updateButton (_res gui0) (fromJust $ _optsB gui0) -< (input, cursor', fromJust $ _optsB gui)
-    quitB'  <- updateButton (_res gui0) (fromJust $ _quitB gui0) -< (input, cursor', fromJust $ _quitB gui)
+    cursor' <- updateCursor                           -< (input, _cursor gui)
+    --strtB'  <- updateButton (_res gui0) (fromJust $ _strtB gui0) -< (input, cursor', fromJust $ _strtB gui)
+    strtB'  <- updateButton (_res gui0) (_strtB gui0) -< (input, cursor', _strtB gui)
+    optsB'  <- updateButton (_res gui0) (_optsB gui0) -< (input, cursor', _optsB gui)
+    quitB'  <- updateButton (_res gui0) (_quitB gui0) -< (input, cursor', _quitB gui)
+    backB'  <- updateButton (_res gui0) (_backB gui0) -< (input, cursor', _backB gui)
     let
       result =
-        case gui of
-          IntrGUI {} -> 
             gui
-            { _strtB  = Just strtB'
-            , _optsB  = Just optsB'
-            , _quitB  = Just quitB'
-            , _cursor = Just cursor'
-            --, _cursor = (DT.trace ("cursor' : " ++ show cursor')) cursor'
+            { _strtB  = strtB'
+            , _optsB  = optsB'
+            , _quitB  = quitB'
+            , _backB  = backB'
+            , _cursor = cursor'
+            -- --, _cursor = (DT.trace ("cursor' : " ++ show cursor')) cursor'
             }
-          _ -> gui
-        
     returnA -< result
 
-updateGUI' gui0@(OptsGUI {}) =
-  proc (input, gui) -> do
-    cursor' <- updateCursor                           -< (input, fromJust $ _cursor gui)
-    backB'  <- updateButton (_res gui0) (fromJust $ _backB gui0) -< (input, cursor', fromJust $_backB gui)
-    let
-      result =
-        case gui of
-          OptsGUI {} ->
-            gui
-            { _backB  = Just backB'
-            , _cursor = Just cursor'
-            }
-          _ -> gui
-        
-    returnA -< result
+--updateGUI' gui = proc _ -> do returnA -< gui
 
-updateGUI' (MainGUI {} ) =
-  proc (input, gui) -> do
-    cursor' <- updateCursor -< (input, fromJust $ _cursor gui)
-    let
-      result =
-        gui
-        { _cursor = Just cursor' }
-        
-    returnA -< result
-
-updateGUI' gui = proc _ -> do returnA -< gui
-
-updateButton :: (Int, Int) -> Widget -> SF (AppInput, Widget, Widget) Widget
-updateButton res0 btn0@(Button {}) =
+updateButton :: (Int, Int) -> Maybe Widget -> SF (AppInput, Maybe Widget, Maybe Widget) (Maybe Widget)
+--updateButton res0 btn0@(Button {}) =
+updateButton _ Nothing = proc _ -> do returnA -< Nothing
+updateButton res0 btn0 =
   proc (input, crsr, btn) -> do
-    btn'     <- updateFormat  res0 btn0 -< (btn, crsr)
+    btn'     <- updateFormat  res0 (fromJust btn0) -< (fromJust btn, fromJust crsr)
     lbpE     <- lbp -< input
-
     let
       overBtn = _rover btn'
-      result  =
+      result  = 
         case btn' of
-          Button {} -> btn' {_pressed = isEvent $ gate lbpE overBtn}
-          _ -> btn'
+          Button {} -> Just btn' {_pressed = isEvent $ gate lbpE overBtn}
+          _ -> Just btn'
     returnA -< result
 updateButton _ w = proc _ -> do returnA -< w
 
@@ -196,12 +170,16 @@ mouseOverE' res0
         inside'  = insideBBox res0 (bbox' btn) (bx, by) (mx, my)
 mouseOverE' _ _ _ = (Empty, NoEvent)        
 
-updateCursor :: SF (AppInput, Widget) Widget
+updateCursor :: SF (AppInput, Maybe Widget) (Maybe Widget)
 updateCursor =
-  proc (input, Cursor activeC lableC _ opts)-> do
-    --(mouse', mevs) <- updateMouse -< input
-    (mouse', _) <- updateMouse -< input
-    let
-      coords' = bimap int2Double int2Double $ mouse' ^. pos
-      result' = (Cursor activeC lableC coords' opts)
-    returnA -< result'
+  proc (input, cursor)-> do
+    case cursor of
+      Just (Cursor activeC lableC _ opts) -> do
+        --(mouse', mevs) <- updateMouse -< input
+        (mouse', _) <- updateMouse -< input
+        let
+          coords' = bimap int2Double int2Double $ mouse' ^. pos
+          result' = Just $ Cursor activeC lableC coords' opts
+        returnA -< result'
+      Nothing -> do
+        returnA -< Nothing

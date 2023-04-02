@@ -29,11 +29,11 @@ mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) 
 mainLoop app0 =
   loopPre app0 $
   proc (input, gameState) -> do
-    app1 <- case Appl._gui app0 of
-              IntrGUI {} -> appIntro app0 -< (input, gameState)
-              OptsGUI {} -> appOpts  app0 -< (input, gameState)
-              MainGUI {} -> appMain  app0 -< (input, gameState)
-              InfoGUI {} -> appInfo  app0 -< (input, gameState)
+    app1 <- case app0 ^. Appl.gui.gui' of --case Appl._gui app0 of
+              IntrGUI' -> appIntro app0 -< (input, gameState)
+              OptsGUI' -> appOpts  app0 -< (input, gameState)
+              MainGUI' -> appMain  app0 -< (input, gameState)
+              InfoGUI' -> appInfo  app0 -< (input, gameState)
     returnA -< (app1, app1)
 
 switchOptsMain :: Application -> Event () -> Event () -> GUI

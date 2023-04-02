@@ -18,6 +18,8 @@ module GUI
   , strtB
   , speed
   , GUI.GUI.read
+  , gui'
+  , defGUI
   ) where
 
 import GUI.GUI
