@@ -78,6 +78,7 @@ data Object
   |  Sprite
      {
        _base        :: Object'
+     , _nameP       :: String
      }
   -- |  Graph
   --    {

@@ -1,3 +1,5 @@
+.PHONY: fonts ui
+
 all:
 	cabal build && gpu ./run.sh
 
@@ -324,6 +326,10 @@ solarsystem:
 	#./resources/convertGeo.sh venus
 	./resources/convertGeo.sh earth
 	./resources/convertGeo.sh moon
+	./resources/convertGeo.sh box
+	./resources/convertGeo.sh box_red
+	./resources/convertGeo.sh box_green
+	./resources/convertGeo.sh box_blue
 	# ./resources/convertGeo.sh mars
 	# ./resources/convertGeo.sh phobos
 	# ./resources/convertGeo.sh deimos
@@ -334,7 +340,20 @@ solarsystem:
 	# ./resources/convertGeo.sh callisto
 
 	cabal build exe:genProject
-	cabal run exe:genProject -- ./projects/solarsystem
-	cabal run exe:genUUID -- -p ./projects/solarsystem
-	cabal run +RTS -sstderr -N -RTS ProjectViewer ./projects/solarsystem
+	# cabal run exe:genProject -- ./projects/solarsystem
+	# cabal run exe:genUUID -- -p ./projects/solarsystem
+	# cabal run exe:genProject -- ./projects/test
+	# cabal run exe:genUUID -- -p ./projects/test
+	# cabal run exe:genProject -- ./projects/testred
+	# cabal run exe:genUUID -- -p ./projects/testred
+	# cabal run exe:genProject -- ./projects/testgreen
+	# cabal run exe:genUUID -- -p ./projects/testgreen
+	# cabal run exe:genProject -- ./projects/testblue
+	# cabal run exe:genUUID -- -p ./projects/testblue
+	# cabal run exe:genProject -- ./projects/options
+	# cabal run exe:genUUID -- -p ./projects/options
+	cabal build exe:genApplication
+	cabal run exe:genApplication
+	cabal run exe:genGUI
+	cabal run +RTS -sstderr -N -RTS ProjectViewer ./applications/solarsystem
 	#cabal run TS 8 ProjectViewer ./projects/solar_system_mini

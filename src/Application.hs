@@ -4,9 +4,13 @@ module Application
   , fromApplication
   , mainLoop
   , handleExit
-  , appIntro
+  , appIntr
   , appMain
   , appOpts
+  , pfile
+  , pname
+  , resx
+  , resy
   , intr
   , opts
   , main
@@ -16,7 +20,6 @@ module Application
   , quit
   , defaultPreApplication
   , Application.Application.write
-  , pfile
   , fromPreApplication
   , Application.Application.read
   ) where

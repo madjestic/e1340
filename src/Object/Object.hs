@@ -73,6 +73,7 @@ data Object
   |  Sprite
      {
        _base        :: Object'
+     , _nameP       :: String -- mostly for debugging fonts, remove when done?
      }
   deriving Show
 $(makeLenses ''Object)

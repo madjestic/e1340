@@ -2,10 +2,10 @@ module Projects.Test where
 
 import Data.UUID
 
-import Graphics.RedViz.Project.Project hiding (gui)
+import Graphics.RedViz.Project.Project
 
-gui :: PreGUI
-gui =
+defaultPreGUI :: PreGUI
+defaultPreGUI =
   PreGUI
   defaultFonts
   defaultIcons
@@ -19,7 +19,8 @@ project =
   -- 640
   -- 400
   "AbsoluteLocation"
-  [ (Model   "models/graph.bgeo")]
+  --[ (Model   "models/graph.bgeo")]
+  [ (Model   "models/box.bgeo")]
   [ (PreObject
     "box"
     "planet"
@@ -29,12 +30,12 @@ project =
     []
     []
     ["rotate", "translate"]
-    [[0,0,0,0,0,0.01]
+    [[0,0,0,0,0,0.01,0,0,0]
     ,[0.01,0,0]]
     )
   ]
   []
-  gui
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -75,7 +76,7 @@ test2 =
     )
   ]
   []
-  gui
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -113,7 +114,7 @@ options =
     )
   ]
   []
-  gui
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -163,7 +164,7 @@ projectTestRed =
     )
   ]
   []
-  emptyGUI
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -198,7 +199,7 @@ projectTestGreen =
     )
   ]
   []
-  emptyGUI
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -233,7 +234,7 @@ projectTestBlue =
     )
   ]
   []
-  emptyGUI
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -276,7 +277,7 @@ projectTestChecker =
     )
   ]
   []
-  gui
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0
@@ -311,7 +312,7 @@ projectTestCheckerOffset =
     )
   ]
   []
-  gui
+  defaultPreGUI
   [(ProjectCamera
     "PlayerCamera"
     50.0

@@ -148,7 +148,7 @@ fromPreObject prj0 cls pObj0 = do
     presolvers''  = toSolver <$> zip presolversF preattrsF :: [Solver]                     
     solvers''     = toSolver <$> zip solversF    attrsF    :: [Solver]
     
-    xforms'      = U.fromList <$> toListOf (traverse . sxf) svgeos' :: [M44 Double]
+    xforms'      = U.fromList <$> (Just <$> toListOf (traverse . sxf) svgeos') :: [M44 Double]
     ypr0s        = repeat (V3 0 0 0 :: V3 Double)
     
     (transforms', ypr')  =
@@ -174,16 +174,18 @@ fromPreObject prj0 cls pObj0 = do
   case cls of
     Font -> return $ updateOnce $
       Object.Sprite
-      (Object'
-       ds'
-       materials'
-       programs'
-       transforms'
-       (head transforms')
-       (identity :: M44 Double)
-       (sum ypr')
-       (V3 0 0 0 :: V3 Double)
-       time')
+      { _base =
+       ( Object'
+         ds'
+         materials'
+         programs'
+         transforms'
+         (head transforms')
+         (identity :: M44 Double)
+         (sum ypr')
+         (V3 0 0 0 :: V3 Double)
+         time')
+      ,_nameP = name' }
     _ ->
       case _ptype pObj0 of
         "planet" -> return $ updateOnce $
@@ -240,16 +242,18 @@ fromPreObject prj0 cls pObj0 = do
           }
         "sprite" -> return $ updateOnce $
           Sprite
-          (Object'
-           ds'
-           materials'
-           programs'
-           transforms'
-           (head transforms')
-           (identity :: M44 Double)
-           (sum ypr')
-           (V3 0 0 0 :: V3 Double)
-           time')
+          { _base =
+           ( Object'
+             ds'
+             materials'
+             programs'
+             transforms'
+             (head transforms')
+             (identity :: M44 Double)
+             (sum ypr')
+             (V3 0 0 0 :: V3 Double)
+             time')
+          ,_nameP = name' }
         ""       -> return emptyObj :: IO Object
         _        -> return emptyObj :: IO Object
 
@@ -275,9 +279,9 @@ initIconObjects prj0 = do
                
 initObject' :: VGeo -> IO Object
 initObject' vgeo = do
-  let (VGeo is_ st_ vs_ _ _ _ _ xf_) = vgeo
+  let (VGeo is_ st_ vs_ _ _ _ _ xf_ nm_) = vgeo
       vaoArgs       = (,,) <$.> is_ <*.> st_ <*.> vs_
-      preTransforms = U.fromList <$> xf_
+      preTransforms = U.fromList <$> (Just <$> xf_)
       
   mats' <- mapM Material.read $ mts vgeo :: IO [Material]
   ds    <- mapM toDescriptor vaoArgs
@@ -312,6 +316,7 @@ initObject' vgeo = do
         , Obj._ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1
         }
+    , _nameP = nm_
     }
 
 toVGeo :: Project -> PreObject -> IO [VGeo]
@@ -362,7 +367,7 @@ toCurve objs = do
       & programs    .~ [program]
 
     curveObj' =
-      Sprite base'
+      Sprite base' ""
   
   return curveObj'
 

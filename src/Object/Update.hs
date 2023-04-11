@@ -19,7 +19,7 @@ import Graphics.RedViz.Object as Object
 import Object.Object as Obj
 import Solvable
 
-import Debug.Trace as DT (trace)
+--import Debug.Trace as DT (trace)
 
 updateObjectsPre :: [Object] -> SF () [Object]
 updateObjectsPre objs0 =

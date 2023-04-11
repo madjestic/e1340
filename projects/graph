@@ -23,7 +23,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "sprite",
-            "uuid": "d9861d24-19e2-43da-9fc8-34b8d5365043"
+            "uuid": "cb1f9bd0-0d0b-4107-871f-e6d4f90631c6"
         },
         {
             "pname": "gizmo",
@@ -36,7 +36,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "d34865ce-6356-41f7-b501-8d8355565d82"
+            "uuid": "13b16a94-1968-42e2-b2c9-3681bf271bff"
         }
     ],
     "background": [],

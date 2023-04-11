@@ -6,6 +6,10 @@
 module Application.Application
   ( Application (..)
   , fromApplication
+  , pfile
+  , pname
+  , Application.Application.resx
+  , Application.Application.resy
   , intr
   , opts
   , main
@@ -17,7 +21,6 @@ module Application.Application
   , defaultPreApplication
   , Application.Application.read
   , Application.Application.write
-  , pfile
   , fromPreApplication
   ) where
 
@@ -41,17 +44,18 @@ import GUI
 
 --import Debug.Trace as DT
 
-data PreApp
-  =  PreApp
-  { _projectPath :: FilePath
-  , _guiPath     :: FilePath
-  } deriving (Generic, Show)
-instance ToJSON PreApp
+-- data PreApp
+--   =  PreApp
+--   { _projectPath :: FilePath
+--   , _guiPath     :: FilePath
+--   } deriving (Generic, Show)
+-- instance ToJSON PreApp
 
 data PreApplication
   =  PreApplication
   {
     _pfile    :: FilePath
+  , _pname    :: String
   , _resx     :: Int
   , _resy     :: Int
   , _resp     :: Int
@@ -77,7 +81,9 @@ write preApp =
 
 comp :: Text -> Text -> Ordering
 comp = keyOrder . fmap pack $
-  [ "resx"
+  [ "pfile"
+  , "pname"
+  , "resx"
   , "resy"
   , "resp"
   , "trace"
@@ -93,9 +99,11 @@ comp = keyOrder . fmap pack $
 
 read :: FilePath -> IO PreApplication
 read filePath = do
-  Prelude.putStrLn $ "filePath : " ++ show filePath
+  Prelude.putStrLn $ "filePath -> PreApplication : " ++ show filePath
   d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String PreApplication)
   let
+    file'  = (_pfile . fromEitherDecode) d
+    name'  = (_pname . fromEitherDecode) d
     resx'  = (_resx  . fromEitherDecode) d
     resy'  = (_resy  . fromEitherDecode) d
     resp'  = (_resp  . fromEitherDecode) d
@@ -104,7 +112,6 @@ read filePath = do
     main'  = (_pmain . fromEitherDecode) d
     opts'  = (_popts . fromEitherDecode) d
     info'  = (_pinfo . fromEitherDecode) d
-    file'  = (_pfile . fromEitherDecode) d
     pintrGUI' = (_pintrGUI . fromEitherDecode) d 
     pmainGUI' = (_pmainGUI . fromEitherDecode) d 
     poptsGUI' = (_poptsGUI . fromEitherDecode) d 
@@ -112,7 +119,9 @@ read filePath = do
   return $  
     PreApplication
     {
-      _resx  = resx'
+      _pfile = file'
+    , _pname = name'
+    , _resx  = resx'
     , _resy  = resy'
     , _resp  = resp'
     , _trace = trace'
@@ -120,7 +129,6 @@ read filePath = do
     , _pmain = main'
     , _popts = opts'
     , _pinfo = info'
-    , _pfile = file'
     , _pintrGUI = pintrGUI' 
     , _pmainGUI = pmainGUI'  
     , _poptsGUI = poptsGUI'  
@@ -167,19 +175,20 @@ defaultPreApplication :: PreApplication
 defaultPreApplication =
   PreApplication
   {
-    _resx  = 1280
-  , _resy  = 720
-  , _resp  = 0
-  , _trace = True
-  , _pintr = "./projects/solarsystem"
-  , _pmain = "./projects/solarsystem"
-  , _popts = "./projects/solarsystem"
-  , _pinfo = "./projects/solarsystem"
+    _pfile    = "./applications/solarsystem"
+  , _pname    = "Hello, World!"
+  , _resx     = 1280
+  , _resy     = 720
+  , _resp     = 0                            -- resolultion list position (for multi-res selctors)
+  , _trace    = True
+  , _pintr    = "./projects/testred"
+  , _pmain    = "./projects/test"
+  , _popts    = "./projects/testgreen"
+  , _pinfo    = "./projects/testblue"
   , _pintrGUI = "./gui/pintrgui"
   , _pmainGUI = "./gui/pmaingui"
   , _poptsGUI = "./gui/poptsgui"
   , _pinfoGUI = "./gui/pinfogui"
-  , _pfile = "./applications/solarsystem"
   }
 
 defaultApplication :: Application
@@ -205,8 +214,8 @@ instance Show (MVar a) where
 fromApplication :: Application -> App
 fromApplication appl =
   --case view Application.Application.gui.gui' appl of
-  case appl ^. Application.Application.gui . gui' of
+  case appl ^. Application.Application.gui . guiSwitch of
     IntrGUI' -> view intr appl 
     MainGUI' -> view main appl 
-    InfoGUI' -> view info appl 
     OptsGUI' -> view opts appl 
+    InfoGUI' -> view info appl 

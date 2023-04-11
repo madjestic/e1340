@@ -20,7 +20,7 @@ module GUI.GUI
   , speed
   , GUI.GUI.read
   , GUI.GUI.write
-  , gui'
+  , guiSwitch
   , defGUI
   ) where
 
@@ -56,7 +56,7 @@ data GUI
      , _fps             :: Maybe Widget
      , _speed           :: Maybe Widget
      , _infos           :: Maybe [Widget]
-     , _gui'            :: GUI'
+     , _guiSwitch       :: GUI'
      }
   deriving (Generic, Show)
 $(makeLenses ''GUI)
@@ -80,8 +80,7 @@ defGUI =
   , _fps             = Nothing 
   , _speed           = Nothing 
   , _infos           = Nothing 
-  , _gui'            = MainGUI'
-    
+  , _guiSwitch       = MainGUI'
   }
 
 comp :: Text -> Text -> Ordering
@@ -98,12 +97,12 @@ comp = keyOrder . fmap pack $
   , "speed"
   , "gizmo"
   , "infos"
-  , "gui'"
+  , "guiSwitch"
   ]
 
 read :: FilePath -> GUI' -> IO GUI
-read filePath gui' =
-  case gui' of
+read filePath guiSwitch =
+  case guiSwitch of
     IntrGUI' -> do
       Prelude.putStrLn $ "filePath : " ++ show filePath
       d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
@@ -115,7 +114,7 @@ read filePath gui' =
         strtB'  = (_strtB  . fromEitherDecode) d 
         optsB'  = (_optsB  . fromEitherDecode) d 
         quitB'  = (_quitB  . fromEitherDecode) d
-        gui'    = (_gui'   . fromEitherDecode) d
+        guiSwitch    = (_guiSwitch   . fromEitherDecode) d
       
       return $  
         defGUI
@@ -128,7 +127,7 @@ read filePath gui' =
         , _optsB  = optsB'
         , _quitB  = quitB'
         , _gizmo  = Nothing
-        , _gui'   = gui'
+        , _guiSwitch   = guiSwitch
         }
         where
           fromEitherDecode = fromMaybe (intrGUI (1280,720)) . fromEither
@@ -208,7 +207,7 @@ read filePath gui' =
               Right pt -> Just pt            
               _ -> Nothing
               
-    _ -> error $ "GUI' value does not exist: " ++ show gui'
+    _ -> error $ "GUI' value does not exist: " ++ show guiSwitch
               ++ "when reading file: " ++ show filePath
 
 write :: FilePath -> GUI -> IO ()
@@ -276,18 +275,21 @@ intrGUI res0 =
       Button True "QUIT"    defBBox False False
     (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
   , _gizmo    = Nothing
-  , _gui'     = IntrGUI'
+  , _guiSwitch     = IntrGUI'
   }
 
 optsGUI :: (Int, Int) -> GUI
 optsGUI res0 =
   defGUI
   {
-    _res     = res0
-  , _cursor  = Just $ Cursor True "" (0.0, 0.0) defOpts
-  , _backB   = Just $ Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
-  , _gizmo   = Nothing
-  , _gui'    = OptsGUI'
+    _res       = res0
+  , _cursor    = Just $ Cursor True "" (0.0, 0.0) defOpts
+  , _backB     = Just $ Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+      -- Just $
+      -- Button True "<>< BACK" defBBox False False
+      -- (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
+  , _gizmo     = Nothing
+  , _guiSwitch = OptsGUI'
   }
 
 mainGUI :: (Int, Int) -> GUI
@@ -299,7 +301,7 @@ mainGUI res0 =
   , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
   , _cursor = Just $ Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _gizmo  = Just $ Icon      True "" 1
-  , _gui'   = MainGUI'
+  , _guiSwitch   = MainGUI'
   }
 
 infoGUI :: (Int, Int) -> GUI
@@ -314,5 +316,5 @@ infoGUI res0 =
     ]
   , _cursor = Just $ Cursor True "" (0.0, 0.0) defOpts
   , _gizmo  = Nothing
-  , _gui'   = InfoGUI'
+  , _guiSwitch   = InfoGUI'
   }

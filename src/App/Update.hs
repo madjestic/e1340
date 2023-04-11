@@ -57,7 +57,6 @@ selectByDist dist cam0 objs0 = selectable'
 updateIntroApp :: App -> SF (AppInput, App) App
 updateIntroApp app0 =
  proc (input, app') -> do
-
    (cams, cam) <- updateCameras    (App._cameras app0, App._playCam app0) -< (input, App._playCam app')
    objs        <- updateObjectsPre (app0 ^. objects . foreground)         -< ()
    gui'        <- updateGUIPre     (app0 ^. gui)                          -< input
@@ -70,7 +69,7 @@ updateIntroApp app0 =
      --selectedText = objectNames <$> view selectable result :: [String]
      objTree      = App._objects app'
      
-     result =
+     result = --app0
        app'
        {
          App._objects = (objTree {_foreground = objs })

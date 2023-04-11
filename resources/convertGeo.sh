@@ -26,7 +26,7 @@ convertGeo(){
 	echo "cp" $PDG $PDGCPY
 	cp $PDG $PDGCPY
     else
-	echo "pass"
+	echo "model file is not found in ./resources/models"
 	# python3 ./resources/geoParser.py
 	# cabal run geoIndexer ./models/model.geo ../models/model.bgeo
 	# cp ./models/model.geo ../models/model.bgeo

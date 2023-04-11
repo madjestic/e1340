@@ -45,8 +45,8 @@ import GUI
 import Graphics.RedViz.Object (transform0)
 import GHC.Float (int2Double)
 
--- import Debug.Trace as DT
-
+--import Debug.Trace as DT
+-- TODO: add camMode here:
 data App
   = App
   {
@@ -88,7 +88,7 @@ fromProject prj0 gui0 = do
                    { _name = view P.name prj0
                    , _res  = res'
                    , _test = False }
-      , _gui     = gui0 --introGUI res'
+      , _gui     = gui0    -- introGUI res'
       , _objects = objTree -- TODO abstrace GUI
       , _playCam = pCam
       , _cameras = cams
@@ -206,7 +206,7 @@ toDrawable app objs time0 = --drs -- (drs, drs')
           resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
           res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
           cam  = view playCam app :: Camera
-          drs'  = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
+          drs' = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
       Nothing -> []
 
 toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
@@ -214,7 +214,7 @@ toDrawable' mpos time0 res0 cam obj = drs
   where
     drs      =
       (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
-        -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
+        -> Drawable ( name') (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
       <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
 
     n      = length $ obj ^. base . descriptors :: Int

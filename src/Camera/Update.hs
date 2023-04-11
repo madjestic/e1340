@@ -21,7 +21,7 @@ import Graphics.RedViz.Input.FRP.Yampa.Update
 import Graphics.RedViz.Utils
 import GHC.Float (int2Double)
 
-import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 -- clampBy :: Double -> Double -> Double
 -- clampBy d x = d'

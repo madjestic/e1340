@@ -5,7 +5,7 @@ module Application.Update
   (
     mainLoop
   , handleExit
-  , appIntro
+  , appIntr
   , appMain
   , appOpts  
   ) where
@@ -29,52 +29,47 @@ mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) 
 mainLoop app0 =
   loopPre app0 $
   proc (input, gameState) -> do
-    app1 <- case app0 ^. Appl.gui.gui' of --case Appl._gui app0 of
-              IntrGUI' -> appIntro app0 -< (input, gameState)
-              OptsGUI' -> appOpts  app0 -< (input, gameState)
-              MainGUI' -> appMain  app0 -< (input, gameState)
-              InfoGUI' -> appInfo  app0 -< (input, gameState)
+    app1 <- case app0 ^. Appl.gui.guiSwitch of --case Appl._gui app0 of
+              IntrGUI' -> appIntr app0 -< (input, gameState)
+              OptsGUI' -> appOpts app0 -< (input, gameState)
+              MainGUI' -> appMain app0 -< (input, gameState)
+              InfoGUI' -> appInfo app0 -< (input, gameState)
     returnA -< (app1, app1)
 
-switchOptsMain :: Application -> Event () -> Event () -> GUI
---switchOptsMain appl optsE startE = ui'
-switchOptsMain appl optsE _ = ui'
+switchGUI' :: Application -> Event () -> Event () -> GUI'
+switchGUI' appl strtE optsE = ui'
   where
-    ui' =
-      -- TODO : rename main to mainApp ?
-      if isEvent optsE
-      then appl ^. opts . App.gui
-      else appl ^. main . App.gui
+    ui'
+      | isEvent optsE  = OptsGUI'
+      | isEvent strtE  = MainGUI'
+      | otherwise = error "Unknown GUI' Option" undefined
 
-appIntro :: Application -> SF (AppInput, Application) Application
-appIntro app0  = 
+appIntr :: Application -> SF (AppInput, Application) Application
+appIntr appl0  = 
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'  <- updateIntroApp (fromApplication app0) -< (input, app1^.Appl.main)
-               let appGUI = app' ^. App.gui :: GUI
+               app'  <- updateIntroApp (fromApplication appl0) -< (input, app1^.Appl.intr)
+
                strtE <- arr isPressed >>> edge -< (app' ^. App.gui . strtB)
                optsE <- arr isPressed >>> edge -< (app' ^. App.gui . optsB)
                quitE <- arr isPressed >>> edge -< (app' ^. App.gui . quitB)
                
                let
-                 strtB' = fromJust $ app0 ^? intr . App.gui . strtB
-                 optsB' = fromJust $ app0 ^? intr . App.gui . optsB
-                 quitB' = fromJust $ app0 ^? intr . App.gui . quitB
-                 
+                 strtB' = fromJust $ appl0 ^? intr . App.gui . strtB
+                 optsB' = fromJust $ appl0 ^? intr . App.gui . optsB
+                 quitB' = fromJust $ appl0 ^? intr . App.gui . quitB
+
                  result = app1 { _intr = app'
                                , _quit = isEvent quitE }
                  result'= app1 { _quit = isEvent quitE
                                , _intr = app' & App.gui . optsB .~ optsB'
                                               & App.gui . quitB .~ quitB'
                                               & App.gui . strtB .~ strtB'}
-                          
                returnA -< ( result
                           , catEvents [strtE, optsE] $>
                             result' { Appl._gui =
-                                      switchOptsMain app0
-                                      (optsE $> ())
-                                      (strtE $> ())
+                                      app' ^. App.gui & guiSwitch .~ switchGUI' appl0 strtE optsE
                                     })
                
            cont arg =
@@ -83,7 +78,7 @@ appIntro app0  =
                returnA -< result
 
 appOpts :: Application -> SF (AppInput, Application) Application
-appOpts app0  = 
+appOpts app0  = -- proc (input, app1) -> do returnA -< app0
   switch sf cont
      where sf =
              proc (input, app1) -> do
@@ -102,7 +97,7 @@ appOpts app0  =
                
            cont arg =
              proc (input', _) -> do
-               result <- mainLoop arg -< input'
+               result  <- mainLoop arg -< input'
                returnA -< result
                
 appMain :: Application -> SF (AppInput, Application) Application
@@ -110,7 +105,7 @@ appMain app0 =
   switch sf cont
      where sf =
              proc (input, app1) -> do
-               app'        <- updateMainApp (fromApplication app0) -< (input, app1 ^. main)
+               app'        <- updateMainApp (fromApplication app0) -< (input, app1^.Appl.main)
                reset       <- keyInput SDL.ScancodeSpace "Pressed" -< input
                zE          <- keyInput SDL.ScancodeZ     "Pressed" -< input
 

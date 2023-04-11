@@ -9,8 +9,8 @@ import Control.Concurrent ( MVar, newMVar, swapMVar, readMVar, forkIO)
 import Control.Lens       ( toListOf, view, (^..), (^.), bimap)
 import Control.Monad      ( when )
 import Data.Set           ( fromList, toList )
-import Data.Text          ( pack)
-import Foreign.C          ( CInt )
+import Data.Text          ( pack, unpack)
+import Foreign.C          ( CInt)
 import FRP.Yampa as FRP   ( (>>>), reactimate, Arrow((&&&)), Event(..), SF )
 import SDL
     ( pollEvent
@@ -51,7 +51,7 @@ import GHC.Float (int2Double)
 import Control.Monad.IO.Class
 import Data.Maybe
 
-  --import Debug.Trace    as DT
+--import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
@@ -85,13 +85,13 @@ animate window sf =
             mEvent <- SDL.pollEvent
             return (dt, Event . SDL.eventPayload <$> mEvent)
             
-        renderOutput fps _ (app, shouldExit) =
+        renderOutput fps _ (appl, shouldExit) =
           do
             lastInteraction <- newMVar =<< SDL.time
 
-            output fps lastInteraction window app
+            output fps lastInteraction window appl
 
-            return (shouldExit || (app ^. quit))
+            return (shouldExit || (appl ^. quit))
 
 output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
 output fps lastInteraction window application = do
@@ -147,16 +147,16 @@ output fps lastInteraction window application = do
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles       
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Widget   -> IO ()
+    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Maybe Widget   -> IO ()
     renderIconsM      = renderIcons' mouseCoords' icnsDrs renderAsTriangles    :: Widget   -> IO ()
     
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })   :: Drawable -> IO ()
 
-  mapM_ renderAsCurves    curvDrs
+  -- mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  --renderCursorM           crsr
+  renderCursorM           crsr
   mapM_ renderIconsM      icns
   
   glSwapWindow window
@@ -180,10 +180,11 @@ renderWidget fps lastInteraction drs cmds wgt =
     Cursor {} -> return ()
     _ -> return ()
 
-renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Maybe Widget-> IO ()
+renderCursor _ [] _ _ = error "drawables is empty for renderCursor"
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a _ _ _ ->
+    Just (Cursor a _ _ _) ->
       when a $ do
       let
         f = (Format TL (x) (-y) (0.0) 0.0 0.2)
@@ -240,26 +241,29 @@ main = do
 
   args      <- getArgs
   --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
-  mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-               else          P.read (unsafeCoerce (args!!0)   :: FilePath)
+  -- mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
+  --              else          P.read (unsafeCoerce (args!!0)   :: FilePath)
+  initPreApp  <- if debug then A.read ("./applications/solarsystem" :: FilePath)
+                 else          A.read (unsafeCoerce (head args)     :: FilePath)
   
   let
-    title   = pack $ view P.name mainProj
-    resX    = (unsafeCoerce $ view P.resx mainProj) :: CInt
-    resY    = (unsafeCoerce $ view P.resy mainProj) :: CInt
+    --title   = pack $ view P.name mainProj
+    title   = pack $ view A.pname initPreApp
+    resX    = (unsafeCoerce $ view A.resx initPreApp) :: CInt
+    resY    = (unsafeCoerce $ view A.resy initPreApp) :: CInt
 
   window    <- openWindow
                title
                (resX, resY)
 
   -- | SDL Mouse Options
-  let camMode' =
-        case view P.camMode mainProj of
-          "RelativeLocation" -> RelativeLocation
-          "AbsoluteLocation" -> AbsoluteLocation
-          _ -> error "wrong mouse mode"
+  -- let camMode' =
+  --       case view P.camMode mainProj of
+  --         "RelativeLocation" -> RelativeLocation
+  --         "AbsoluteLocation" -> AbsoluteLocation
+  --         _ -> error "wrong mouse mode"
 
-  _ <- setMouseLocationMode camMode'
+  -- _ <- setMouseLocationMode camMode'
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
 
   putStrLn "\n Initializing Apps"
@@ -268,24 +272,10 @@ main = do
 
   putStrLn "\n Initializing GUI"
 
-  -- let
-  --   res' = mainApp ^. options . App.res
-  --   initApplication =
-  --     Application
-  --     {
-  --       A._gui  = mainApp ^. App.gui
-  --     , A._intr = mainApp
-  --     , A._opts = mainApp
-  --     , A._info = mainApp
-  --     , A._main = mainApp
-  --     , A._hmap = []
-  --     --, A._counter = counter
-  --     , A._quit = False
-  --     }
-  initPreApp      <- A.read "./applications/solarsystem"
+  --initPreApp      <- A.read "./applications/solarsystem"
   initApplication <- fromPreApplication initPreApp
   app             <- initResources initApplication
-  let res'        = initApplication ^. A.main . options . App.res
+  let res'        =  initApplication ^. A.main . options . App.res
   
   putStrLn "Starting App."
   animate

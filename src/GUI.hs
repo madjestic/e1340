@@ -18,7 +18,7 @@ module GUI
   , strtB
   , speed
   , GUI.GUI.read
-  , gui'
+  , guiSwitch
   , defGUI
   ) where
 

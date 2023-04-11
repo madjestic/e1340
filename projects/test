@@ -5,7 +5,7 @@
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/graph.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
@@ -25,7 +25,10 @@
                     0,
                     0,
                     0,
-                    1.0e-2
+                    1.0e-2,
+                    0,
+                    0,
+                    0
                 ],
                 [
                     1.0e-2,
@@ -37,7 +40,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "f74ffda0-bb08-4172-935d-dbac69367633"
+            "uuid": "6b1ce8b4-4cd3-42c3-9ce4-f651fe7db867"
         }
     ],
     "background": [],
