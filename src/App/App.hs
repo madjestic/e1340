@@ -2,6 +2,7 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DeriveGeneric #-}
 --{-# LANGUAGE OverloadedRecordDot #-}
 
 module App.App
@@ -38,6 +39,7 @@ import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project as P
 import Graphics.RedViz.Project.Utils
+import Graphics.RedViz.Widget (format, xoffset, yoffset)
                                       
 import Object hiding (Empty)                         
 import ObjectTree
@@ -196,12 +198,16 @@ fromProject prj0 gui0 = do
 
 --   return result
 
+instance Monoid Double
+instance Semigroup Double
+
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = --drs -- (drs, drs')
     case app ^. App.App.gui . cursor of
-      Just c  -> drs'
+      Just cursor'  -> drs'
         where
-          mpos = _coords c
+          --fmt  = cursor' ^. format
+          mpos = (cursor' ^. format . xoffset, cursor' ^. format . yoffset)
           resX = fromEnum $ fst $ view (options . App.App.res) app :: Int
           resY = fromEnum $ snd $ view (options . App.App.res) app :: Int
           res' = (toEnum resX, toEnum resY) :: (CInt, CInt)

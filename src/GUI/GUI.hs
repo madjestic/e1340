@@ -236,7 +236,7 @@ fromGUI gui =
       ++ maybeToList (_cursor gui)
 
 fromFormat :: Format -> (Double, Double)
-fromFormat (Format alignment_ x_ y_ _ _ _) =
+fromFormat (Format alignment_ resx_ resy_ x_ y_ _ _ _) =
   (\ (x0, y0) (x1,y1) -> (x0+x1, y0+y1)) (x_,y_) $
   case alignment_ of
     TL -> (-1.0, 0.5)
@@ -253,38 +253,51 @@ defBBox :: BBox
 defBBox =
   BBox (-0.2) (0.1) (0.2) (-0.1)
 
+fontSize :: Int -> Double
+fontSize s =
+  case s of
+    5 -> 0.3
+    4 -> 0.2
+    3 -> 0.1
+    2 -> 0.05
+    1 -> 0.02
+    0 -> 0.01
+    _ -> 1.0
+
 intrGUI :: (Int, Int) -> GUI
-intrGUI res0 =
+intrGUI res0@(resx, resy) =
   defGUI
   {
     _res    = res0
-  , _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
+  --, _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
+  , _cursor = Just $ Cursor True ""
+    (defaultCursorFormat resx resy) defOpts
   , _xx = Just $
     TextField True ["PARAYA"] 
-    (Format TC (-0.19) (-0.2) 0.0 0.08 1.1) defOpts
+    (Format TC resx resy (0.19) (0.0) 0.0 0.08 (fontSize 5)) defOpts
   , _a_space_oddysey = Just $
     TextField True ["a space odyssey"] 
-    (Format TC (-0.2) (-0.25) 0.0 0.03 0.5) defOpts
+    (Format TC resx resy (-0.2) (-0.25) 0.0 0.03 (fontSize 4)) defOpts
   , _strtB   = Just $
       Button True "NEW GAME" defBBox False False
-    (Format CC (0.0) ( 0.0) 0.0 0.033 0.5) defOpts
+    (Format CC resx resy (0.0) ( 0.0) 0.0 0.033 (fontSize 4)) defOpts
   , _optsB    = Just $
       Button True "OPTIONS" defBBox False False
-    (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
+    (Format CC resx resy (0.0) (-0.075) 0.0 0.033 (fontSize 4)) defOpts
   , _quitB    = Just $
       Button True "QUIT"    defBBox False False
-    (Format CC (0.0) (-0.15) 0.0 0.033 0.5) defOpts
+    (Format CC resx resy (0.0) (-0.15) 0.0 0.033 (fontSize 4)) defOpts
   , _gizmo    = Nothing
   , _guiSwitch     = IntrGUI'
   }
 
 optsGUI :: (Int, Int) -> GUI
-optsGUI res0 =
+optsGUI res0@(resx, resy) =
   defGUI
   {
     _res       = res0
-  , _cursor    = Just $ Cursor True "" (0.0, 0.0) defOpts
-  , _backB     = Just $ Button True "< BACK" defBBox False False (Format CC (0.0) (0.0) 0.0 0.085 1.0) defOpts
+  , _cursor    = Just $ Cursor True "" (defaultCursorFormat resx resy) defOpts
+  , _backB     = Just $ Button True "< BACK" defBBox False False (Format CC resx resy (0.0) (0.0) 0.0  0.085 1.0) defOpts
       -- Just $
       -- Button True "<>< BACK" defBBox False False
       -- (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
@@ -293,28 +306,28 @@ optsGUI res0 =
   }
 
 mainGUI :: (Int, Int) -> GUI
-mainGUI res0 =
+mainGUI res0@(resx,resy) =
   defGUI
   {
     _res    = res0
-  , _fps    = Just $ FPS       True (Format TC (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
-  , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC 0.53 0.094 0.0 0.015 0.2) defOpts
-  , _cursor = Just $ Cursor    True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
-  , _gizmo  = Just $ Icon      True "" 1
+  , _fps    = Just $ FPS       True (Format TC resx resy (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
+  , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC resx resy 0.53 0.094 0.0 0.015 0.2) defOpts
+  , _cursor = Just $ Cursor    True ""   (Format CC resx resy (fromIntegral resx/2) (fromIntegral resy/2) (0.0) 0.0 1.0)  defOpts
+  , _gizmo  = Just $ Icon      True "" 1 (Format TL resx resy (0) (0) (0.0) 0.0 0.5) defOpts
   , _guiSwitch   = MainGUI'
   }
 
 infoGUI :: (Int, Int) -> GUI
-infoGUI res0 =
+infoGUI res0@(resx, resy) =
   defGUI
   {
     _res   = res0
-  , _fps   = Just $ FPS True (Format TC 0.0 (0.0) (0.0) 0.085 1.0) defOpts
+  , _fps   = Just $ FPS True (Format TC resx resy 0.0 (0.0) (0.0) 0.085 1.0) defOpts
   , _infos = Just $
-    [ TextField True ["planet ebanat"] (Format BC 0.0 0.0 (0.0) 0.085 1.0) defOpts
-    , TextField True ["population: 11,000,000,000 ebanats"] (Format TC (-0.15) (0.0) 0.0 0.085 1.0) defOpts
+    [ TextField True ["planet ebanat"] (Format BC resx resy 0.0 0.0 (0.0) 0.085 1.0) defOpts
+    , TextField True ["population: 11,000,000,000 ebanats"] (Format TC resx resy (-0.15) (0.0) 0.0 0.085 1.0) defOpts
     ]
-  , _cursor = Just $ Cursor True "" (0.0, 0.0) defOpts
+  , _cursor = Just $ Cursor True "" (defaultCursorFormat resx resy) defOpts
   , _gizmo  = Nothing
   , _guiSwitch   = InfoGUI'
   }

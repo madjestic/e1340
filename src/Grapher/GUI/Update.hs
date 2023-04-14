@@ -36,7 +36,7 @@ updateGUI gui0 =
 updateGUI' :: GUI -> SF (AppInput, GUI) GUI
 updateGUI' (IntrGUI {}) =
   proc (input, gui) -> do
-    cursor' <- updateCursor        -< (input, _cursor gui)
+    cursor' <- updateCursor -< (input, _cursor gui)
     let
       result =
         case gui of
@@ -122,10 +122,12 @@ insideBBox res0 (BBox x0 y0 x1 y1) (bx, by) (mx, my) = inside'
 
 mouseOverE :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE res0
-  (Cursor _ _ (mx, my)           _)
+  (Cursor _ _ fmt _)
   btn@(Button _ _ _ _ _ fmtBtn _)
   = (btn', event')
   where
+    mx     = fmt ^. xoffset
+    my     = fmt ^. yoffset
     btn'   =
       btn
       { _format =
@@ -143,10 +145,12 @@ mouseOverE _ _ _ = (Empty, NoEvent)
 
 mouseOverE' :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE' res0
-  (Cursor _ _ (mx, my) _          )
+  (Cursor _ _ fmt _ )
   btn@(Button  _ _ _ _ _ fmtBtn _)
   = (btn', event')
   where
+    mx     = fmt ^. xoffset
+    my     = fmt ^. yoffset
     btn'   =
       btn
       { _format =
@@ -165,9 +169,19 @@ mouseOverE' _ _ _ = (Empty, NoEvent)
 
 updateCursor :: SF (AppInput, Widget) Widget
 updateCursor =
-  proc (input, Cursor activeC lableC _ opts)-> do
+  proc (input, Cursor activeC lableC fmt opts)-> do
     (mouse', _) <- updateMouse -< input
     let
-      coords' = bimap int2Double int2Double $ mouse' ^. pos
-      result' = (Cursor activeC lableC coords' opts)
+      mousePos' = mouse' ^. pos
+      --coords' = bimap int2Double int2Double $ mouse' ^. pos
+      result' =
+        Cursor
+        {
+          _active  = activeC
+        , _lable   = lableC
+        , _format  = fmt
+                     & xoffset .~ (int2Double $ mousePos'^._1)
+                     & yoffset .~ (int2Double $ mousePos'^._2)
+        , _options = opts}
+
     returnA -< result'

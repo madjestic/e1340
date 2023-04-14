@@ -118,7 +118,8 @@ output lastInteraction window application = do
 
   let
     mouseCoords = case app ^. App.gui . cursor of
-      crs'@(Just Cursor {}) -> _coords $ fromJust crs'
+      crs'@(Just Cursor {}) -> --_coords $ fromJust crs'
+        (fromJust crs' ^. format . xoffset, fromJust crs' ^. format . yoffset) 
       _ -> (0,0)
 
     (_, resy')        = app ^. options . App.res
@@ -129,7 +130,7 @@ output lastInteraction window application = do
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+    renderCursorM     = Main.renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
@@ -156,10 +157,10 @@ renderWidget lastInteraction drs cmds wgt =
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =
   case wgt of
-    Cursor a _ _ _ ->
+    Cursor a _ fmt _ ->
       when a $ do
       let
-        f = (Format TL (x) (-y) (0.0) 0.0 1.0)
+        f = fmt -- (Format TL (x) (-y) (0.0) 0.0 1.0)
       renderIcon cmds drs f 0 --"cursor"
     _ -> return ()
 

@@ -22,18 +22,19 @@ import Application.Application as Appl
 import App
 import GUI
 import Graphics.RedViz.Widget
+import System.IO.Unsafe
 
 --import Debug.Trace    as DT
 
 mainLoop :: Application -> SF AppInput Application --SF (AppInput, Application) Application
-mainLoop app0 =
-  loopPre app0 $
+mainLoop appl0 =
+  loopPre appl0 $
   proc (input, gameState) -> do
-    app1 <- case app0 ^. Appl.gui.guiSwitch of --case Appl._gui app0 of
-              IntrGUI' -> appIntr app0 -< (input, gameState)
-              OptsGUI' -> appOpts app0 -< (input, gameState)
-              MainGUI' -> appMain app0 -< (input, gameState)
-              InfoGUI' -> appInfo app0 -< (input, gameState)
+    app1 <- case appl0 ^. Appl.gui.guiSwitch of --case Appl._gui appl0 of
+              IntrGUI' -> appIntr appl0 -< (input, gameState)
+              OptsGUI' -> appOpts appl0 -< (input, gameState)
+              MainGUI' -> appMain appl0 -< (input, gameState)
+              InfoGUI' -> appInfo appl0 -< (input, gameState)
     returnA -< (app1, app1)
 
 switchGUI' :: Application -> Event () -> Event () -> GUI'

@@ -160,13 +160,13 @@ renderWidget lastInteraction drs cmds wgt =
     Cursor {} -> return ()
     _ -> return ()
 
-renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderCursor (x,y) drs cmds wgt =
+renderCursor :: [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderCursor drs cmds wgt =
   case wgt of
-    Cursor a _ _ _ ->
+    Cursor a _ fmt _ ->
       when a $ do
       let
-        f = (Format TL (x) (-y) (0.0) 0.0 1.0)
+        f = fmt --(Format TL (x) (-y) (0.0) 0.0 1.0)
       renderIcon cmds drs f 0 --"cursor"
     _ -> return ()
 

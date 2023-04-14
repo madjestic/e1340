@@ -10,14 +10,12 @@ defaultPreGUI =
   defaultFonts
   defaultIcons
 
-project :: Project
-project =
+project :: Int -> Int -> Project
+project resx resy =
   Project
   "Test Project"
-  1280
-  800
-  -- 640
-  -- 400
+  resx
+  resy
   "AbsoluteLocation"
   --[ (Model   "models/graph.bgeo")]
   [ (Model   "models/box.bgeo")]
@@ -90,14 +88,14 @@ test2 =
     0.000001
   ]
 
-options :: Project
-options =
+options :: Int -> Int -> Project
+options resx resy =
   Project
   "Options Menu"
   -- 1280
   -- 800
-  640
-  400
+  resx
+  resy
   "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
   [ (PreObject
@@ -143,12 +141,12 @@ emptyGUI =
   []--defaultFonts
   
 
-projectTestRed :: Project
-projectTestRed =
+projectTestRed :: Int -> Int -> Project
+projectTestRed resx resy =
   Project
   "test red"
-  800
-  600
+  resx
+  resy
   "AbsoluteLocation"
   [ (Model   "models/box_red.bgeo")]
   [ (PreObject
@@ -178,12 +176,12 @@ projectTestRed =
     0.000001
   ]
 
-projectTestGreen :: Project
-projectTestGreen =
+projectTestGreen :: Int -> Int -> Project
+projectTestGreen resx resy =
   Project
   "test green"
-  800
-  600
+  resx --1280
+  resy --720
   "AbsoluteLocation"
   [ (Model   "models/box_green.bgeo")]
   [ (PreObject
@@ -213,12 +211,12 @@ projectTestGreen =
     0.000001
   ]
 
-projectTestBlue :: Project
-projectTestBlue =
+projectTestBlue :: Int -> Int -> Project
+projectTestBlue resx resy =
   Project
   "test blue"
-  800
-  600
+  resx
+  resy
   "AbsoluteLocation"
   [ (Model   "models/box_blue.bgeo")]
   [ (PreObject
@@ -252,8 +250,8 @@ projectTestChecker :: Project
 projectTestChecker =
   Project
   "test checkerboard"
-  800
-  600
+  1280
+  720
   "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
   [ (PreObject

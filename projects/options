@@ -1,7 +1,7 @@
 {
     "name": "Options Menu",
-    "resx": 640,
-    "resy": 400,
+    "resx": 1280,
+    "resy": 720,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -37,7 +37,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "9eb8a698-0ee3-44c6-aa6f-68fb9b7e2791"
+            "uuid": "206879b6-366a-4f56-9992-9a189f947b40"
         }
     ],
     "background": [],

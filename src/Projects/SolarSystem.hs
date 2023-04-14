@@ -11,12 +11,12 @@ gui =
   defaultFonts
   defaultIcons
 
-project :: Project
-project =
+project :: Int -> Int -> Project
+project resx resy =
   Project
   "Solar System Extended"
-  1280 --2265 --1280
-  800  --1416 --800
+  resx --1280 --2265 --1280
+  resy --720  --1416 --800
   "AbsoluteLocation"
   [ (Model   "models/sun.bgeo")
   , (Model   "models/mercury.bgeo")

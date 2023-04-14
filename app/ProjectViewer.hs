@@ -35,7 +35,7 @@ import System.IO.Unsafe
     
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
-import Graphics.RedViz.Rendering as R
+import Graphics.RedViz.Rendering as R hiding (renderIcons)
 import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
 import Graphics.RedViz.Drawable
@@ -50,8 +50,9 @@ import GUI
 import GHC.Float (int2Double)
 import Control.Monad.IO.Class
 import Data.Maybe
+import Data.Coerce (coerce)
 
---import Debug.Trace    as DT
+import Debug.Trace    as DT
 
 debug :: Bool
 #ifdef DEBUGMAIN
@@ -136,27 +137,27 @@ output fps lastInteraction window application = do
 
   let
     mouseCoords = case app ^. App.gui . cursor of
-      crs'@(Just Cursor {}) -> _coords $ fromJust crs'
+      crs'@(Just Cursor {}) -> --_coords $ fromJust crs'
+        (fromJust crs' ^. format . xoffset, fromJust crs' ^. format . yoffset)
       _ -> (0,0)
 
-    (_, resy)  = app ^. options . App.res
-    mouseCoords' = (\ (x,y) resy -> (x/resy, y/resy)) mouseCoords (fromIntegral resy)
+    --(resx, resy)  = app ^. options . App.res
+    --mouseCoords' = (\ (x,y) (resx, resy) -> (x/(DT.trace ("x : " ++ show x) resx), y/((DT.trace ("y : " ++ show y ++ "\n") resy)))) mouseCoords (fromIntegral resx, fromIntegral resy)
  
     renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
     renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles       
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Maybe Widget   -> IO ()
-    renderIconsM      = renderIcons' mouseCoords' icnsDrs renderAsTriangles    :: Widget   -> IO ()
-    
+    --renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Maybe Widget   -> IO ()
+    renderIconsM      = renderIcons icnsDrs renderAsTriangles    :: Widget   -> IO ()
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })   :: Drawable -> IO ()
 
   -- mapM_ renderAsCurves    curvDrs
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  renderCursorM           crsr
+  --renderCursorM           crsr
   mapM_ renderIconsM      icns
   
   glSwapWindow window
@@ -180,30 +181,16 @@ renderWidget fps lastInteraction drs cmds wgt =
     Cursor {} -> return ()
     _ -> return ()
 
-renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Maybe Widget-> IO ()
-renderCursor _ [] _ _ = error "drawables is empty for renderCursor"
-renderCursor (x,y) drs cmds wgt =
+renderIcons :: [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+renderIcons [] _ _ = error "drawables is empty for renderCursor"
+renderIcons drs cmds wgt =
   case wgt of
-    Just (Cursor a _ _ _) ->
+    Cursor a _ fmt _ ->
       when a $ do
-      let
-        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
-      renderIcon cmds drs f 0 --"cursor"
-    _ -> return ()
-
-renderIcons' :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderIcons' (x,y) drs cmds wgt =
-  case wgt of
-    Cursor a _ _ _ ->
+      renderCursor cmds drs fmt 0 --"cursor"
+    Icon a _ idx fmt _ ->
       when a $ do
-      let
-        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
-      renderIcon cmds drs f 0 --"cursor"
-    Icon a _ idx ->
-      when a $ do
-      let
-        f = (Format TL (x) (-y) (0.0) 0.0 0.2)
-      renderIcon cmds drs f idx --"icon"
+      renderIcon cmds drs fmt idx --"icon"
     _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
@@ -257,25 +244,16 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  -- let camMode' =
-  --       case view P.camMode mainProj of
-  --         "RelativeLocation" -> RelativeLocation
-  --         "AbsoluteLocation" -> AbsoluteLocation
-  --         _ -> error "wrong mouse mode"
-
-  -- _ <- setMouseLocationMode camMode'
+  _ <- setMouseLocationMode AbsoluteLocation
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
+  _ <- cursorVisible $= False
 
-  putStrLn "\n Initializing Apps"
-  --mainApp <- mainApp mainProj
-  --counter <- newMVar 0 :: IO (MVar Int)
-
-  putStrLn "\n Initializing GUI"
+  putStrLn "\n Initializing Application"
 
   --initPreApp      <- A.read "./applications/solarsystem"
   initApplication <- fromPreApplication initPreApp
   app             <- initResources initApplication
-  let res'        =  initApplication ^. A.main . options . App.res
+  let res'        =  unsafeCoerce (resX, resY) :: (Int, Int)
   
   putStrLn "Starting App."
   animate

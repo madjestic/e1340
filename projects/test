@@ -1,7 +1,7 @@
 {
     "name": "Test Project",
     "resx": 1280,
-    "resy": 800,
+    "resy": 720,
     "camMode": "AbsoluteLocation",
     "models": [
         {
@@ -40,7 +40,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "6b1ce8b4-4cd3-42c3-9ce4-f651fe7db867"
+            "uuid": "c0bd7589-c34b-4d0c-bcea-662fdbdedc91"
         }
     ],
     "background": [],

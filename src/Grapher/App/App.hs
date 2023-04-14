@@ -2,6 +2,7 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DeriveGeneric #-}
 --{-# LANGUAGE OverloadedRecordDot #-}
 
 module Grapher.App.App
@@ -36,10 +37,12 @@ import Graphics.RedViz.Material as M
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project as P
 import Graphics.RedViz.Project.Utils
+import Graphics.RedViz.Widget (format, xoffset, yoffset, Format(..), defaultFormat)
                                       
 import Grapher.Object hiding (Empty)                         
 import Grapher.ObjectTree as ObjectTree
 import Grapher.GUI
+--import Data.Semigroup (Semigroup)
 --import GHC.Float (int2Double)
 
 --import Debug.Trace as DT
@@ -122,10 +125,17 @@ mainApp prj0 = do
 
   return result
 
+instance Monoid Format where
+  mempty = defaultFormat
+instance Semigroup Format where
+  f <> _ = f
+
 toDrawable :: App -> [Object] -> Double -> [Drawable]
 toDrawable app objs time0 = drs -- (drs, drs')
   where
-    mpos = _coords (app ^. Grapher.App.App.gui . cursor)
+    --mpos = _coords (app ^. Grapher.App.App.gui . cursor)
+    fmt  = app ^. Grapher.App.App.gui . cursor . format
+    mpos = (fmt ^. xoffset, fmt ^. yoffset)
     resX = fromEnum $ fst $ view (options . Grapher.App.App.res) app :: Int
     resY = fromEnum $ snd $ view (options . Grapher.App.App.res) app :: Int
     res' = (toEnum resX, toEnum resY) :: (CInt, CInt)

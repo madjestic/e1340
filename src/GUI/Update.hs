@@ -128,11 +128,14 @@ insideBBox res0 (BBox x0 y0 x1 y1) (bx, by) (mx, my) = inside'
       y0+by >= y && y >= y1+by
 
 mouseOverE :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
-mouseOverE res0
-  (Cursor _ _ (mx, my)           _)
+mouseOverE
+  res0
+  (Cursor _ _ fmt _)
   btn@(Button _ _ _ _ _ fmtBtn _)
   = (btn', event')
   where
+    mx     = fmt ^. xoffset
+    my     = fmt ^. yoffset
     btn'   =
       btn
       { _format =
@@ -150,10 +153,12 @@ mouseOverE _ _ _ = (Empty, NoEvent)
 
 mouseOverE' :: (Int, Int) -> Widget -> Widget -> (Widget, Event ())
 mouseOverE' res0
-  (Cursor _ _ (mx, my) _          )
+  (Cursor _ _ fmt _ )
   btn@(Button  _ _ _ _ _ fmtBtn _)
   = (btn', event')
   where
+    mx     = fmt ^. xoffset
+    my     = fmt ^. yoffset
     btn'   =
       btn
       { _format =
@@ -174,12 +179,21 @@ updateCursor :: SF (AppInput, Maybe Widget) (Maybe Widget)
 updateCursor =
   proc (input, cursor)-> do
     case cursor of
-      Just (Cursor activeC lableC _ opts) -> do
+      Just (Cursor activeC lableC fmt opts) -> do
         --(mouse', mevs) <- updateMouse -< input
         (mouse', _) <- updateMouse -< input
         let
-          coords' = bimap int2Double int2Double $ mouse' ^. pos
-          result' = Just $ Cursor activeC lableC coords' opts
+          mousePos = mouse' ^. pos :: (Int, Int)
+          coords'  = bimap int2Double int2Double mousePos
+          result'  = Just $
+            Cursor
+            {
+              _active  = activeC
+            , _lable   = lableC
+            , _format  = fmt
+                         & xoffset .~ (int2Double $ mousePos^._1)
+                         & yoffset .~ (int2Double $ mousePos^._2)
+            , _options = opts}
         returnA -< result'
       Nothing -> do
         returnA -< Nothing

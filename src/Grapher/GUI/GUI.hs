@@ -31,7 +31,7 @@ data GUI
 $(makeLenses ''GUI)
 
 fromFormat :: Format -> (Double, Double)
-fromFormat (Format alignment_ x_ y_ _ _ _) =
+fromFormat (Format alignment_ _ _ x_ y_ _ _ _) =
   (\ (x0, y0) (x1,y1) -> (x0+x1, y0+y1)) (x_,y_) $
   case alignment_ of
     TL -> (-1.0, 0.5)
@@ -45,20 +45,20 @@ fromFormat (Format alignment_ x_ y_ _ _ _) =
     BR -> ( 1.0, 0.5)
 
 introGUI :: (Int, Int) -> GUI
-introGUI res0 =
+introGUI res0@(resx,resy) =
   IntrGUI
   {
     _res    = res0
-  , _cursor = Cursor True "" (0.0, 0.0) defOpts
+  , _cursor = Cursor True "" (defaultCursorFormat resx resy) defOpts
   }
 
 mainGUI :: (Int, Int) -> GUI
-mainGUI res0 =
+mainGUI res0@(resx, resy) =
   MainGUI
   {
-    _res    = res0
-  , _fps  = FPS True (Format TC (0.0) (0.0) (0.0) 0.085 1.0) defOpts
-  , _cursor = Cursor True "" (0.0, 0.0) defOpts
+    _res  = res0
+  , _fps  = FPS True (Format TC resx resy (0.0) (0.0) (0.0) 0.085 1.0) defOpts
+  , _cursor = Cursor True "" (defaultCursorFormat resx resy)  defOpts
   }
 
 fromGUI :: GUI -> [Widget]
