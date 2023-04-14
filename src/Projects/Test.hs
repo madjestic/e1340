@@ -34,18 +34,19 @@ project resx resy =
   ]
   []
   defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
+  [ defaultPCam
   ]
+    -- "PlayerCamera"
+    -- 50.0
+    -- 100.0
+    -- [1, 0, 0, 0,
+    --  0, 1, 0, 0,
+    --  0, 0, 1,-11,
+    --  0, 0, 0, 1])
+    -- 1.0
+    -- 5.0
+    -- 0.000001
+
 
 test2 :: Project
 test2 =
@@ -113,17 +114,7 @@ options resx resy =
   ]
   []
   defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
+  [ defaultPCam
   ]
 
 guiTestRed :: PreGUI
@@ -163,17 +154,7 @@ projectTestRed resx resy =
   ]
   []
   defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
+  [ defaultPCam
   ]
 
 projectTestGreen :: Int -> Int -> Project
@@ -198,17 +179,7 @@ projectTestGreen resx resy =
   ]
   []
   defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
+  [ defaultPCam
   ]
 
 projectTestBlue :: Int -> Int -> Project
@@ -233,17 +204,7 @@ projectTestBlue resx resy =
   ]
   []
   defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
+  [ defaultPCam
   ]
 
 projectTestChecker :: Project

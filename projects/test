@@ -40,7 +40,7 @@
             "presolverAttrs": [],
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "c0bd7589-c34b-4d0c-bcea-662fdbdedc91"
+            "uuid": "85ff94bc-29fb-4266-b205-ae65d11a32c1"
         }
     ],
     "background": [],
@@ -66,9 +66,9 @@
                 0,
                 1
             ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1.0e-6,
+            "pMouseS": 1.0e-2,
+            "pKeyboardRS": 1.0e-2,
+            "pKeyboardTS": 0.1,
             "pcname": "PlayerCamera"
         }
     ],

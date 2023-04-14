@@ -149,7 +149,6 @@ output fps lastInteraction window application = do
     renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles       
                                               , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    --renderCursorM     = renderCursor mouseCoords' icnsDrs renderAsTriangles    :: Maybe Widget   -> IO ()
     renderIconsM      = renderIcons icnsDrs renderAsTriangles    :: Widget   -> IO ()
     renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })   :: Drawable -> IO ()
 
@@ -157,7 +156,6 @@ output fps lastInteraction window application = do
   mapM_ renderAsTriangles objsDrs
   mapM_ renderAsPoints    bgrsDrs
   mapM_ renderWidgets     wgts
-  --renderCursorM           crsr
   mapM_ renderIconsM      icns
   
   glSwapWindow window

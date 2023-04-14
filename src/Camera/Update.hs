@@ -49,7 +49,19 @@ updateCameraController cam0 =
             rlag     = 0.95           -- | rotation    stop lag/innertia
             tlag     = 0.9            -- | translation stop lag/innertia
 
-            -- | compute rotation velocity = length (mouseP - originP) * scalar
+            baseSpeed     = 1
+            ctl    = keyLCtrl  $ (keys kbrd')
+            shift  = keyLShift $ (keys kbrd')
+            alt    = keyLAlt   $ (keys kbrd')
+            scalar = s ctl shift alt
+            s ctl' shift' alt'
+              | ctl' && shift' = baseSpeed * 100     -- superfast
+              | ctl'           = baseSpeed * 10
+              | shift'         = baseSpeed * 2   -- fast
+              | alt'           = baseSpeed * 0.1   -- slow
+              | otherwise      = baseSpeed         -- base speed
+
+                       -- | compute rotation velocity = length (mouseP - originP) * scalar
             -- (mrx', mry') = mouse' ^. rpos
             (mx' , my')  = bimap int2Double int2Double $ mouse' ^. pos
             (resx, resy) = cam0^.res
@@ -57,16 +69,16 @@ updateCameraController cam0 =
                        , fromIntegral $ resy `div` 2 )
             cpos     = V3 (mx' - cx) (-my' + cy) (0.0) -- centralized mouse position (relative to origin, screen center, 0,0,0)
             x'       = (cpos^._x / fromIntegral (resx `div` 2))
-            y'       = (cpos^._y / fromIntegral (resy`div` 2)) 
+            y'       = (cpos^._y / fromIntegral (resy `div` 2)) 
             f x      = x * abs x**3
-            nscpos   = V3 (f x') (f y') 0.0                     :: V3 Double -- normalized screen centralized position
-            rvec     = (V3 1 (-1) 1 * nscpos)^._yxz ^* 1000     :: V3 Double
+            nscpos   = V3 (f x') (f y') 0.0              :: V3 Double -- normalized screen centralized position
+            rvec     = (V3 1 (-1) 1 * nscpos)^._yxz ^* 2 :: V3 Double
             
             ypr'     = 
-              ((view (controller.ypr) cam +) :: V3 Double -> V3 Double) $
-              (0.00001 * (view mouseS cam) * rvec +) $
+              (view (controller.ypr) cam +) $
+              (view mouseS cam * rvec +) $
               sum $
-              (0.0000001 * scalar * view keyboardRS cam *) <$>
+              (scalar * view keyboardRS cam *) <$>
               zipWith (*^) ((\x -> if x then (1.0::Double) else 0) . ($ keys kbrd') <$>
                             [ keyUp,  keyDown, keyLeft, keyRight, keyPageUp,  keyPageDown ])
                             [ pPitch, nPitch,  pYaw,    nYaw,     pRoll,      nRoll ]
@@ -79,18 +91,6 @@ updateCameraController cam0 =
                 pRoll  = (keyVecs kbrd')!!10 -- positive  roll
                 nRoll  = (keyVecs kbrd')!!11 -- negative  roll
            
-                baseSpeed     = 5000
-                ctl    = keyLCtrl  $ (keys kbrd')
-                shift  = keyLShift $ (keys kbrd')
-                alt    = keyLAlt   $ (keys kbrd')
-                scalar = s ctl shift alt
-                s ctl' shift' alt'
-                  | ctl' && shift' = baseSpeed * 2     -- superfast
-                  | ctl' && alt'   = baseSpeed * 0.01  -- very slow
-                  | shift'         = baseSpeed * 1.5   -- fast
-                  | alt'           = baseSpeed * 0.1   -- slow
-                  | otherwise      = baseSpeed         -- base speed
-
           let
             ctl0 = view controller cam -- change cam to cam0 has a drastic difference
             mtx0 = view Controllable.transform ctl0
@@ -102,9 +102,9 @@ updateCameraController cam0 =
    
             vel' =
               (view (controller.vel) cam +) $
-              foldr1 (+) $
-              fmap ( 0.1 * scalar * (view keyboardTS cam) *) $ -- <- make it keyboard controllabe: speed up/down
-              fmap (LM.transpose (rot) !*) $
+              sum $
+              ( scalar * view keyboardTS cam *) <$> -- <- make it keyboard controllabe: speed up/down
+              (LM.transpose rot !*) <$>
               zipWith (*^) ((\x -> if x then (1::Double) else 0) . ($ (keys kbrd')) <$>
                             [keyW, keyS, keyA, keyD, keyQ, keyE])
                             [fVel, bVel, lVel, rVel, uVel, dVel]
@@ -115,9 +115,6 @@ updateCameraController cam0 =
                     rVel   = (keyVecs kbrd')!!3  -- right     velocity
                     uVel   = (keyVecs kbrd')!!4  -- up        velocity
                     dVel   = (keyVecs kbrd')!!5  -- down      velocity
-                    unitV3     = 1 :: V3 Double
-                    baseSpeed  = 9999999999
-                    scalar     = unitV3 ^* (baseSpeed * _scale cam)
 
           let
             tr'  = (view translation (Controllable._transform (view controller cam)) +) vel'

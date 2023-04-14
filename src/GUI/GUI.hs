@@ -312,7 +312,8 @@ mainGUI res0@(resx,resy) =
     _res    = res0
   , _fps    = Just $ FPS       True (Format TC resx resy (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
   , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC resx resy 0.53 0.094 0.0 0.015 0.2) defOpts
-  , _cursor = Just $ Cursor    True ""   (Format CC resx resy (fromIntegral resx/2) (fromIntegral resy/2) (0.0) 0.0 1.0)  defOpts
+  , _cursor = Just $ Cursor    True ""
+    (defaultCursorFormat resx resy) defOpts
   , _gizmo  = Just $ Icon      True "" 1 (Format TL resx resy (0) (0) (0.0) 0.0 0.5) defOpts
   , _guiSwitch   = MainGUI'
   }
