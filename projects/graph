@@ -21,9 +21,20 @@
             "solverAttrs": [],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 0,
             "ptype": "sprite",
-            "uuid": "e04b1e1e-3855-4050-a3b2-ac46adcff724"
+            "uuid": "ea430b5f-a294-4ef8-9abe-2d6986e7901b"
         },
         {
             "pname": "gizmo",
@@ -34,9 +45,20 @@
             "solverAttrs": [],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "30852b05-2b6d-4b86-8f3e-4e50ad5b5df1"
+            "uuid": "2b5c0a7b-1297-4d13-bc0e-d8414b02efb9"
         }
     ],
     "background": [],

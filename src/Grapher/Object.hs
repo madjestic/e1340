@@ -10,8 +10,9 @@ module Grapher.Object
   , velocity
   , solvers
   , updateObjectsPre
-  , objectNames
-  , nameP
+  -- , objectNames
+  -- , nameP
+  -- , name
   , time
   ) where
 

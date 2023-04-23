@@ -11,7 +11,7 @@ module Grapher.App
   , selected
   , debug
   , fromProject
-  , toDrawable
+  , toDrawables
   , updateMainApp
   , updateIntroApp
   , updateOptsApp

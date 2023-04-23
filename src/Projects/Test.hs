@@ -3,6 +3,7 @@ module Projects.Test where
 import Data.UUID
 
 import Graphics.RedViz.Project.Project
+import Graphics.RedViz.Backend (defaultBackendOptions)
 
 defaultPreGUI :: PreGUI
 defaultPreGUI =
@@ -19,99 +20,51 @@ project resx resy =
   "AbsoluteLocation"
   --[ (Model   "models/graph.bgeo")]
   [ (Model   "models/box.bgeo")]
-  [ (PreObject
-    "box"
-    "planet"
-    0
-    nil
-    [0]
-    []
-    []
-    ["rotate", "translate"]
-    [[0,0,0,0,0,0.01,0,0,0]
-    ,[0.01,0,0]]
-    )
-  ]
+  [ PreObject
+    {
+      _pname          = "box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = ["rotate", "translate"]
+    , _solverAttrs    = [[0,0,0,0,0,0.01,0,0,0]
+                        ,[0.01,0,0]]
+    , _options        = defaultBackendOptions
+    }
+    
+    ]
   []
   defaultPreGUI
   [ defaultPCam
-  ]
-    -- "PlayerCamera"
-    -- 50.0
-    -- 100.0
-    -- [1, 0, 0, 0,
-    --  0, 1, 0, 0,
-    --  0, 0, 1,-11,
-    --  0, 0, 0, 1])
-    -- 1.0
-    -- 5.0
-    -- 0.000001
-
-
-test2 :: Project
-test2 =
-  Project
-  "Test Project"
-  1280
-  800
-  -- 640
-  -- 400
-  "AbsoluteLocation"
-  [
-    (Model   "models/earth.bgeo")
-  ]
-  [ (PreObject
-    "box"
-    "planet"
-        0
-    nil
-    [0]
-    []
-    []
-    --["rotate", "translate"]
-    []
-    [[0,0,0,0,0,0.01]
-    ,[0.01,0,0]]
-    )
-  ]
-  []
-  defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
   ]
 
 options :: Int -> Int -> Project
 options resx resy =
   Project
   "Options Menu"
-  -- 1280
-  -- 800
   resx
   resy
   "AbsoluteLocation"
   [ (Model   "models/box.bgeo")]
-  [ (PreObject
-    "box"
-    "planet"
-        0
-    nil
-    [0]
-    []
-    []
-    ["rotate", "translate"]
-    [[0,0,0,0,0,0.01]
-    ,[0.01,0,0]]
-    )
-  ]
+  [ PreObject
+    {
+      _pname          = "box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = ["rotate", "translate"]
+    , _solverAttrs    = [[0,0,0,0,0,0.01]
+                        ,[0.01,0,0]]
+    , _options        = defaultBackendOptions
+    }
+    
+    ]
   []
   defaultPreGUI
   [ defaultPCam
@@ -120,8 +73,6 @@ options resx resy =
 guiTestRed :: PreGUI
 guiTestRed =
   PreGUI
-  -- [ TextField' True ["Test Red"] (Format' "CC" (-0.4) 0.0 0.085 1.0)
-  -- , FPS' True (Format' "TC" (-0.4) 0.0 0.085 1.0) ]
   defaultFonts
   []
 
@@ -129,7 +80,7 @@ emptyGUI :: PreGUI
 emptyGUI =
   PreGUI
   []
-  []--defaultFonts
+  []
   
 
 projectTestRed :: Int -> Int -> Project
@@ -139,18 +90,35 @@ projectTestRed resx resy =
   resx
   resy
   "AbsoluteLocation"
-  [ (Model   "models/box_red.bgeo")]
-  [ (PreObject
-    "red box"
-    "planet"
-        0
-    nil
-    [0]
-    []
-    []
-    []
-    []
-    )
+  [ (Model "models/box_red.bgeo")
+  , (Model "models/PNK.bgeo")
+  ]
+  [ PreObject
+    {
+      _pname          = "red box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions
+    }
+  , PreObject
+    {
+      _pname          = "NPK"
+    , _ptype          = "sprite"
+    , _pidx           = 1
+    , _uuid           = nil
+    , _modelIDXs      = [1]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions
+    }
   ]
   []
   defaultPreGUI
@@ -161,21 +129,23 @@ projectTestGreen :: Int -> Int -> Project
 projectTestGreen resx resy =
   Project
   "test green"
-  resx --1280
-  resy --720
+  resx
+  resy
   "AbsoluteLocation"
   [ (Model   "models/box_green.bgeo")]
-  [ (PreObject
-    "green box"
-    "planet"
-        0
-    nil
-    [0]
-    []
-    []
-    []
-    []
-    )
+  [ PreObject
+    {
+      _pname          = "green box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions
+    }
   ]
   []
   defaultPreGUI
@@ -190,97 +160,20 @@ projectTestBlue resx resy =
   resy
   "AbsoluteLocation"
   [ (Model   "models/box_blue.bgeo")]
-  [ (PreObject
-    "blue box"
-    "planet"
-        0
-    nil
-    [0]
-    []
-    []
-    []
-    []
-    )
+  [ PreObject
+    { _pname          = "blue box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        =  defaultBackendOptions
+    }
   ]
   []
   defaultPreGUI
   [ defaultPCam
-  ]
-
-projectTestChecker :: Project
-projectTestChecker =
-  Project
-  "test checkerboard"
-  1280
-  720
-  "AbsoluteLocation"
-  [ (Model   "models/box.bgeo")]
-  [ (PreObject
-    "Checker box"
-    "planet"
-        0
-    nil
-    [0]
-    [
-      "prerotate"
-    ]
-    [
-      [0,0,0,0,0,100]
-    ]
-    [
-      "rotate"
-    ]
-    [
-      [0,0,0,10000,0,0]
-    ]
-    )
-  ]
-  []
-  defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
-  ]
-
-projectTestCheckerOffset :: Project
-projectTestCheckerOffset =
-  Project
-  "test checkerboard"
-  800
-  600
-  "AbsoluteLocation"
-  [ (Model   "models/box.bgeo")]
-  [ (PreObject
-    "Checker box"
-    "planet"
-        0
-    nil
-    [0]
-    [    ]
-    [    ]
-    [    ]
-    [    ]
-    )
-  ]
-  []
-  defaultPreGUI
-  [(ProjectCamera
-    "PlayerCamera"
-    50.0
-    100.0
-    [1, 0, 0, 0,
-     0, 1, 0, 0,
-     0, 0, 1,-11,
-     0, 0, 0, 1])
-    1.0
-    5.0
-    0.000001
   ]

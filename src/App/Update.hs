@@ -18,7 +18,7 @@ import Graphics.RedViz.Widget (text)
 import App.App as App
 import GUI
 import ObjectTree
-import Object as Obj
+import Object
 import Camera
 
 -- import Debug.Trace as DT (trace)
@@ -27,23 +27,23 @@ formatDebug' :: App -> String
 formatDebug' app0 =
   "App.Cam pos     : " ++ show camPos ++ "\n" ++
   "App.Object name : " ++ show obj0Name ++ "\n" ++
-  "App.Object time : " ++ show (obj0 ^. base . Obj.time) ++ "\n" ++
+  "App.Object time : " ++ show (obj0 ^. base . Object.time) ++ "\n" ++
   "App.Object tr   : " ++ show obj0tr ++ "\n" ++
   "App.Object ypr  : " ++ show obj0ypr ++ "\n"
   where
     obj0  = head $ app0 ^. App.objects.foreground :: Object
     obj0Name =
       case obj0 of
-        Obj.Empty _ -> "Empty"
-        _ -> obj0 ^. nameP
+        Object.Empty _ -> "Empty"
+        _ -> obj0 ^. base . Object.name
     obj0tr =
       case obj0 of
-        Obj.Empty _ -> V3 (-1) (-1) (-1)
+        Object.Empty _ -> V3 (-1) (-1) (-1)
         _ -> (head $ obj0^.base.transforms::M44 Double)^.translation :: V3 Double
     obj0ypr =
       case obj0 of
-        Obj.Empty _ -> V3 (-1) (-1) (-1)
-        _ -> obj0^.base.Obj.ypr :: V3 Double
+        Object.Empty _ -> V3 (-1) (-1) (-1)
+        _ -> obj0^.base.Object.ypr :: V3 Double
     camPos =
       app0 ^. playCam . controller . Ctrl.transform . translation  :: V3 Double
 
@@ -73,7 +73,7 @@ updateIntroApp app0 =
        app'
        {
          App._objects = (objTree {_foreground = objs })
-       , _gui         = gui' -- { _inpOpts = inpOpts'
+       , App._gui         = gui' -- { _inpOpts = inpOpts'
                              -- , _inpQuit = inpQuit' }
        , App._cameras = cams                        
        , _playCam     = cam
@@ -92,7 +92,7 @@ updateOptsApp app0 =
      -- objTree      = App._objects app'
      result =
        app'
-       { _gui         = gui' }
+       { App._gui         = gui' }
 
    returnA  -< result
 
@@ -121,7 +121,7 @@ updateMainApp app0 =
        { 
          App._objects = (objTree {_foreground = objs })
        , App._cameras = cams
-       , _gui         = case gui' ^. speed of
+       , App._gui         = case gui' ^. speed of
            Just speed' -> gui' & speed ?~ (speed' & text .~ [show . roundTo 3 . abs . norm $ (cam ^. controller . vel)])
            Nothing     -> gui' & speed .~ Nothing
        , _playCam     = cam

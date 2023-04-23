@@ -78,7 +78,6 @@ data Solver =
        _models :: [FilePath]
      }
   |  Gravity
-  |  Spin
   |  Trace
      {
        _trs :: [V3 Double]
@@ -96,8 +95,8 @@ toSolver (solver, parms) =
     "pretranslate'" -> PreTranslate ObjectSpace (toV3 parms)
     "prerotate"     -> PreRotate   WorldSpace   (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "prerotate'"    -> PreRotate   ObjectSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
-    -- D - dynamic animation (apply every frame,  ypr + matrix update)
-    -- S - static  animation (apply a const value (matrix only update))
+    -- Dynamic - dynamic animation (apply every frame,  ypr + matrix update)
+    -- Static  - static  animation (apply a const value (matrix only update))
     "translate"     -> Translate    Dynamic WorldSpace  (toV3 parms) (toV3 parms)
     "translate'"    -> Translate    Dynamic ObjectSpace (toV3 parms) (toV3 parms)
     "translateconst"-> Translate    Static  WorldSpace  (toV3 parms) (toV3 parms)
@@ -111,9 +110,7 @@ toSolver (solver, parms) =
       }
     "rotate'"       -> Rotate       Dynamic ObjectSpace (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
     "rotateconst"   -> Rotate       Static  WorldSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
---    "rotateconst"   -> RotateConst  (toV3 $ take 3 parms) (toV3 $ drop 3 parms)
     "gravity"       -> Gravity
-    --"spin"          -> Spin
     "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (parms!!7)  (round $ last parms)
     "trace"         -> Trace        []
     "identity"      -> Identity

@@ -52,17 +52,17 @@ remove x (y:[]) =
 remove x (y:ys) =
   if x == y then remove x ys else y : remove x ys
 
-gvel :: Object -> [Object] -> V3 Double
-gvel _ [] = V3 0 0 0
-gvel obj0 objs0 = acc * 99999
-  where
-    m0     =  _mass obj0                                   :: Double
-    xform0 = obj0 ^. base . transform0                     :: M44 Double
-    p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
-    xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
-    ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
-    ms'    = fmap _mass objs0                              :: [Double]
-    acc    = sum $ fmap (gravity p0 m0) (zip ps' ms')      :: V3 Double
+-- gvel :: Object -> [Object] -> V3 Double
+-- gvel _ [] = V3 0 0 0
+-- gvel obj0 objs0 = acc * 99999
+--   where
+--     m0     =  _mass obj0                                   :: Double
+--     xform0 = obj0 ^. base . transform0                     :: M44 Double
+--     p0     = LM.transpose xform0 ^._w._xyz                 :: V3 Double
+--     xforms = fmap (head . _transforms) $ _base <$> objs0   :: [M44 Double]
+--     ps'    = fmap ( view (_w._xyz) . LM.transpose) xforms  :: [V3 Double]
+--     ms'    = fmap _mass objs0                              :: [Double]
+--     acc    = sum $ fmap (gravity p0 m0) (zip ps' ms')      :: V3 Double
 
 updateObject :: [Object] -> Object -> Object
 updateObject objs0 obj0 = obj1
@@ -99,27 +99,27 @@ solveDynamic objs0 obj0 slv =
         mtx    = mtx0 !*! mtx1
         obj1 = obj0 & base . transform0 .~ mtx
 
-    Spin -> obj1
-      where
-        mtx0  = obj0 ^. base . transform0
-        ypr0' = V3 0 0 (-0.035)
+    -- Spin -> obj1
+    --   where
+    --     mtx0  = obj0 ^. base . transform0
+    --     ypr0' = V3 0 0 (-0.035)
         
-        mtx1 =
-          mkTransformationMat
-            rot
-            tr
-            where
-              tr   = V3 0 0 0
-              rot0 = LM.identity :: M33 Double
-              rot  = 
-                (LM.identity :: M33 Double)
-                !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0')) -- yaw  
-                !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
-                !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
+    --     mtx1 =
+    --       mkTransformationMat
+    --         rot
+    --         tr
+    --         where
+    --           tr   = V3 0 0 0
+    --           rot0 = LM.identity :: M33 Double
+    --           rot  = 
+    --             (LM.identity :: M33 Double)
+    --             !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0')) -- yaw  
+    --             !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
+    --             !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
 
-        mtx  = mtx0 !*! mtx1
+    --     mtx  = mtx0 !*! mtx1
         
-        obj1 = obj0 & base . transform0 .~ mtx
+    --     obj1 = obj0 & base . transform0 .~ mtx
 
     Rotate  _ WorldSpace _ ypr0' _ -> obj1
       where
@@ -147,19 +147,19 @@ solveDynamic objs0 obj0 slv =
         mtx  = mtx0 & translation .~ ((tr0 - acc) *! rot + acc)
         obj1 = obj0 & base . transform0 .~ mtx
 
-    Gravity -> obj1
-      where
-        mtx0 = obj0 ^. base . transform0
-        --av0  = _avelocity obj0
-        vel0 = _velocity obj0
-        vel1 = gvel obj0 (remove obj0 objs0)
-        vel  = vel0 + vel1
-        mtx  = mtx0 & translation .~ (mtx0 ^. translation + vel)
+    -- Gravity -> obj1
+    --   where
+    --     mtx0 = obj0 ^. base . transform0
+    --     --av0  = _avelocity obj0
+    --     vel0 = _velocity obj0
+    --     vel1 = gvel obj0 (remove obj0 objs0)
+    --     vel  = vel0 + vel1
+    --     mtx  = mtx0 & translation .~ (mtx0 ^. translation + vel)
 
-        obj1 =
-          obj0
-          & base . transform0 .~ mtx
-          & velocity .~ vel
+    --     obj1 =
+    --       obj0
+    --       & base . transform0 .~ mtx
+    --       & velocity .~ vel
 
     Trace _ -> obj1
       where
@@ -216,29 +216,29 @@ lookupObj objs0 idx = obj
   where
     obj = head $ filter (\obj' -> _idxP obj' == idx ) objs0
 
-accumulateOrbitalPivots :: [Object] -> Object -> V3 Double
-accumulateOrbitalPivots [] _ = V3 0 0 0
-accumulateOrbitalPivots [obj1] obj0 =
-  case obj0 `maybeOrbits` obj1 of
-    Just pivot -> pivot + accumulateOrbitalPivots [] obj1
-    Nothing -> V3 0 0 0
---accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots (delete obj0 objs) obj1
-accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs obj1
-  where pivot' = 
-          --case obj0 `maybeOrbits` obj1 of
-          case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
-                                              "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
-                                              "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
-                                              "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
-                                              "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
-                                              "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
-                                              "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
-                                              "\n"
-                                             ) obj1) of
-          --case obj0 `maybeOrbits` (DT.trace ("show (obj1 ^. base . transform0 . translation)" ++ show (obj1 ^. base . transform0 . translation)) obj1) of
-            --Just pivot -> pivot
-            Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
-            Nothing -> V3 0 0 0
+-- accumulateOrbitalPivots :: [Object] -> Object -> V3 Double
+-- accumulateOrbitalPivots [] _ = V3 0 0 0
+-- accumulateOrbitalPivots [obj1] obj0 =
+--   case obj0 `maybeOrbits` obj1 of
+--     Just pivot -> pivot + accumulateOrbitalPivots [] obj1
+--     Nothing -> V3 0 0 0
+-- --accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots (delete obj0 objs) obj1
+-- accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs obj1
+--   where pivot' = 
+--           --case obj0 `maybeOrbits` obj1 of
+--           case obj0 `maybeOrbits` ( DT.trace (show (obj0 ^. nameP) ++ "`maybeOrbits`" ++ show (obj1 ^. nameP) ++ " : " ++ show (obj0 `maybeOrbits` obj1) ++ "\n" ++
+--                                               "obj0 ^. nameP : " ++ show (obj0 ^. nameP)   ++ "\n" ++
+--                                               "obj0 ^. idxP  : " ++ show (_idxP obj0)      ++ "\n" ++
+--                                               "obj0 ^. base . transform0 . translation : " ++ show (obj0 ^. base . transform0 . translation) ++ "\n" ++
+--                                               "obj1 ^. nameP : " ++ show (obj1 ^. nameP)   ++ "\n" ++
+--                                               "obj0 ^. idxP  : " ++ show (_idxP obj1)      ++ "\n" ++
+--                                               "obj1 ^. base . transform0 . translation : " ++ show (obj1 ^. base . transform0 . translation) ++ "\n" ++
+--                                               "\n"
+--                                              ) obj1) of
+--           --case obj0 `maybeOrbits` (DT.trace ("show (obj1 ^. base . transform0 . translation)" ++ show (obj1 ^. base . transform0 . translation)) obj1) of
+--             --Just pivot -> pivot
+--             Just pivot -> (DT.trace ("pivot : " ++ show pivot) pivot)
+--             Nothing -> V3 0 0 0
 
 -- maybeOrbits' :: [Object] -> Object -> Maybe (V3 Double)
 -- maybeOrbits' objs0 obj0 = undefined
@@ -252,39 +252,39 @@ accumulateOrbitalPivots (obj1:objs) obj0 = pivot' + accumulateOrbitalPivots objs
 --       else Nothing
 --     Nothing -> Nothing
     
-maybeOrbits :: Object -> Object -> Maybe (V3 Double)
-maybeOrbits obj0 obj1 =
-  case maybeOrbit obj0 of
-    Just idx ->
-      if idx == _idxP obj1
-      then Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
-      else Nothing
-    Nothing -> Nothing
+-- maybeOrbits :: Object -> Object -> Maybe (V3 Double)
+-- maybeOrbits obj0 obj1 =
+--   case maybeOrbit obj0 of
+--     Just idx ->
+--       if idx == _idxP obj1
+--       then Just (obj1 ^. base . transform0 . translation) -- obj0 orbits obj1
+--       else Nothing
+--     Nothing -> Nothing
 
--- | an object orbits something : index => 0
--- | or Nothing
-maybeOrbit :: Object -> Maybe Integer
-maybeOrbit obj0 = result
-  where
-    slvs'
-      = (\slv -> case slv of
-              Orbit {} -> Just $ _idx slv
-              _ -> Nothing
-        ) <$> obj0 ^. solvers
-    result =
-      if not . null $ slvs'
-      then head slvs'
-      else Nothing
+-- -- | an object orbits something : index => 0
+-- -- | or Nothing
+-- maybeOrbit :: Object -> Maybe Integer
+-- maybeOrbit obj0 = result
+--   where
+--     slvs'
+--       = (\slv -> case slv of
+--               Orbit {} -> Just $ _idx slv
+--               _ -> Nothing
+--         ) <$> obj0 ^. solvers
+--     result =
+--       if not . null $ slvs'
+--       then head slvs'
+--       else Nothing
             
-g :: Double
-g = 6.673**(-11.0) :: Double
+-- g :: Double
+-- g = 6.673**(-11.0) :: Double
 
-gravity :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
-gravity p0 m0 (p1, m1) = acc
-  where
-    dir  = p1 ^-^ p0                 :: V3 Double
-    dist = norm dir                  :: Double
-    f    = g * m0 * m1 / dist**2.0   :: Double
-    acc  = (f / m0) *^ (dir ^/ dist) :: V3 Double
--- | F = G*@mass*m2/(dist^2);       // Newton's gravity equation
--- | a += (F/@mass)*normalize(dir); // Acceleration
+-- gravity :: V3 Double -> Double -> (V3 Double, Double) -> V3 Double
+-- gravity p0 m0 (p1, m1) = acc
+--   where
+--     dir  = p1 ^-^ p0                 :: V3 Double
+--     dist = norm dir                  :: Double
+--     f    = g * m0 * m1 / dist**2.0   :: Double
+--     acc  = (f / m0) *^ (dir ^/ dist) :: V3 Double
+-- -- | F = G*@mass*m2/(dist^2);       // Newton's gravity equation
+-- -- | a += (F/@mass)*normalize(dir); // Acceleration

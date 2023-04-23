@@ -40,7 +40,7 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput )
 import Graphics.RedViz.Rendering as R
 import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
-import Graphics.RedViz.Drawable
+import Graphics.RedViz.Drawable hiding (toDrawables)
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Texture  as Texture  (uuid, name, Texture)
 
@@ -79,8 +79,8 @@ animate window sf =
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time
-            currentTime <- SDL.time                          
-            dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            ct <- SDL.time                          
+            dt <- (ct -) <$> swapMVar lastInteraction ct --dtime
             mEvent <- SDL.pollEvent
             
             return (dt, Event . SDL.eventPayload <$> mEvent)
@@ -96,7 +96,7 @@ animate window sf =
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
 -- | render FPS current
-  currentTime <- SDL.time
+  ct <- SDL.time
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
@@ -104,14 +104,12 @@ output lastInteraction window application = do
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-    --icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
-    --icnsDrs = toDrawable app (DT.trace ("DEBUG : icnObjs length : " ++ show (length icnObjs)) icnObjs) currentTime :: [Drawable]
-    fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
-    objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
-    bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
-    --wgts    = [] -- app ^. objects . gui . widgets -- TODO: GUI
+    icnsDrs = concatMap (toDrawables app ct) icnObjs :: [Drawable]
+    fntsDrs = concatMap (toDrawables app ct) fntObjs :: [Drawable]
+    objsDrs = concatMap (toDrawables app ct) fgrObjs :: [Drawable]
+    bgrsDrs = concatMap (toDrawables app ct) bgrObjs :: [Drawable]
+
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
-    --crsr    = _cursor $ app ^. App.gui  ::  Widget
 
     app  = fromApplication application
     txs  = concat . concat
@@ -131,103 +129,20 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
-                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
-    renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
-    --renderCursorM     = renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
+    render'       = render txs hmap                         :: Drawable -> IO ()
+    renderWidgets = renderWidget 0.0 fntsDrs icnsDrs render' :: Widget   -> IO ()
 
-  mapM_ renderAsTriangles objsDrs
-  mapM_ renderAsPoints    bgrsDrs
-  mapM_ renderWidgets     wgts
-  -- renderCursorM           crsr
+  mapM_ render' $ objsDrs ++ bgrsDrs
+  mapM_ renderWidgets wgts
   
   glSwapWindow window
 
-renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderWidget lastInteraction drs cmds wgt =
-  case wgt of
-    TextField a t f _->
-      when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f _->
-      when a $ renderString cmds drs f l
-    FPS a f _->
-      when a $ do
-        ct <- SDL.time -- current time
-        dt <- (ct -) <$> readMVar lastInteraction
-        renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
-    Cursor {} -> return ()
-    _ -> return ()
-
-renderCursor :: [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderCursor drs cmds wgt =
-  case wgt of
-    Cursor a _ fmt _ ->
-      when a $ do
-      let
-        f = fmt --(Format TL (x) (-y) (0.0) 0.0 1.0)
-      renderIcon cmds drs f 0 --"cursor"
-    _ -> return ()
-
 -- < Main Function > -----------------------------------------------------------
-
-initResources :: Application -> IO Application
-initResources app0 =
+initResources :: Application -> [Graph] -> IO Application
+initResources app0 gs =
   do
     let
-      fntObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      icnObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
-      txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
-      uuids  = fmap (view T.uuid) txs
-      hmap   = toList . fromList $ zip uuids [0..]
-
-    putStrLn "Initializing Resources..."
-    putStrLn "Loading Textures..."
-    mapM_ (bindTexture hmap) txs
-    putStrLn "Finished loading textures."
-
-    return app0 { _hmap = hmap }
-      where
-        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
-        fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
-        fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
-        bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
-
-genTexObject :: Graph -> IO TextureObject
-genTexObject g = do
-  let
-    arr'  = view array g
-    arr'' = AM.toByteString arr'
-    Sz2 resx' resy' = view sz g
-    txInfo = texInfo resx' resy' TexRGBA arr''
-  t  <- loadTexture txInfo -- :: IO TextureObject
-  --uuid <- nextUUID
-  texture2DWrap            $= (Repeated, ClampToEdge)
-  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
-  blend                    $= Enabled
-  blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
-  generateMipmap' Texture2D
-  --return (fromMaybe nil uuid, t)
-  return t
-
-initResources' :: Application -> [Graph] -> IO Application
-initResources' app0 gs =
-  do
-    let
-      fntObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      icnObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      objs   = introObjs ++ fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      objs   = fntObjs ++ fgrObjs ++ bgrObjs
       txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
       uuids  = fmap (view Texture.uuid) txs
       hmap   = toList . fromList $ zip uuids [0..]
@@ -246,16 +161,28 @@ initResources' app0 gs =
     putStrLn "Finished loading textures."
     return app0 { _hmap = hmap }
       where
-        introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
+
+genTexObject :: Graph -> IO TextureObject
+genTexObject g = do
+  let
+    arr'  = view array g
+    arr'' = AM.toByteString arr'
+    Sz2 resx' resy' = view sz g
+    txInfo = texInfo resx' resy' TexRGBA arr''
+  t  <- loadTexture txInfo -- :: IO TextureObject
+  texture2DWrap            $= (Repeated, ClampToEdge)
+  textureFilter  Texture2D $= ((Linear', Just Nearest), Linear')
+  blend                    $= Enabled
+  blendFunc                $= (SrcAlpha, OneMinusSrcAlpha)
+  generateMipmap' Texture2D
+  return t
 
 genArray :: Int -> Int -> IO (Array S Ix2 Word8)
 genArray m n = do
     let lol = unsafeCoerce $ DLS.chunksOf n [ x | x <- fmap (`div`4) [0..(4*m*n-1)]] :: [[Word8]] -- lol = list of lists
-    --let lol = unsafeCoerce $ [ x | x <- [0..(m*n-1)]] :: [[Word8]] -- lol = list of lists
     fromListsM Seq lol :: IO (Array S Ix2 Word8)
 
 main :: IO ()
@@ -288,7 +215,6 @@ main = do
   putStrLn "\n Initializing Apps"
   intrApp' <- intrApp introProj
   mainApp' <- mainApp mainProj
-  --counter' <- newMVar 0 :: IO (MVar Int)
   putStrLn "\n Initializing GUI"
 
   let
@@ -309,10 +235,8 @@ main = do
       intrApp'
       mainApp' 
       []
-      --counter'
 
-  --app <- initResources initApp'
-  app <- initResources' initApp' [gr]
+  app <- initResources initApp' [gr]
   
   putStrLn "Starting App."
   animate

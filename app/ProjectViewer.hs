@@ -38,9 +38,10 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput )
 import Graphics.RedViz.Rendering as R hiding (renderIcons)
 import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
-import Graphics.RedViz.Drawable
+import Graphics.RedViz.Drawable hiding (toDrawables)
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget as W
+import Graphics.RedViz.Object
 
 import Application as A
 import App hiding (debug)
@@ -53,6 +54,7 @@ import Data.Maybe
 import Data.Coerce (coerce)
 
 import Debug.Trace    as DT
+import Data.Aeson (object)
 
 debug :: Bool
 #ifdef DEBUGMAIN
@@ -81,8 +83,8 @@ animate window sf =
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time
-            currentTime     <- SDL.time                          
-            dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            ct     <- SDL.time                          
+            dt <- (ct -) <$> swapMVar lastInteraction ct --dtime
             mEvent <- SDL.pollEvent
             return (dt, Event . SDL.eventPayload <$> mEvent)
             
@@ -97,17 +99,17 @@ animate window sf =
 output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
 output fps lastInteraction window application = do
 -- | render FPS current
-  currentTime <- SDL.time
+  ct <- SDL.time
 
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
     fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
-    icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
-    fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
-    objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
-    bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    icnsDrs = concatMap (toDrawables app ct) icnObjs :: [Drawable]
+    fntsDrs = concatMap (toDrawables app ct) fntObjs :: [Drawable]
+    objsDrs = concatMap (toDrawables app ct) fgrObjs :: [Drawable]
+    bgrsDrs = concatMap (toDrawables app ct) bgrObjs :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     app     = fromApplication application
     crsr    = _cursor $ app ^. App.gui  :: Maybe Widget
@@ -116,7 +118,7 @@ output fps lastInteraction window application = do
 
   curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
   let
-    curvDrs = toDrawable app curvObjs currentTime :: [Drawable]
+    curvDrs = concatMap (toDrawables app ct) curvObjs :: [Drawable]
     txs  = concat 
            (concatMap
              (\obj -> obj ^.. base . materials . traverse . textures)
@@ -135,61 +137,26 @@ output fps lastInteraction window application = do
   clearColor $= bgrColor opts
   clear [ColorBuffer, DepthBuffer]
 
+  dts <- readMVar fps
+  ct  <- SDL.time -- current time
+  dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
+  dts'<- swapMVar fps $ tail dts ++ [dt]
+
   let
+    dt = sum dts'/fromIntegral (length dts')
     mouseCoords = case app ^. App.gui . cursor of
-      crs'@(Just Cursor {}) -> --_coords $ fromJust crs'
+      crs'@(Just Cursor {}) -> 
         (fromJust crs' ^. format . xoffset, fromJust crs' ^. format . yoffset)
       _ -> (0,0)
 
-    --(resx, resy)  = app ^. options . App.res
-    --mouseCoords' = (\ (x,y) (resx, resy) -> (x/(DT.trace ("x : " ++ show x) resx), y/((DT.trace ("y : " ++ show y ++ "\n") resy)))) mouseCoords (fromIntegral resx, fromIntegral resy)
- 
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles       
-                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
-    renderWidgets     = renderWidget fps lastInteraction fntsDrs renderAsIcons :: Widget   -> IO ()
-    renderIconsM      = renderIcons icnsDrs renderAsTriangles    :: Widget   -> IO ()
-    renderAsCurves    = render txs hmap (opts { primitiveMode = LineStrip })   :: Drawable -> IO ()
+    render'       = render txs hmap                         :: Drawable -> IO ()
+    renderWidgets = renderWidget dt fntsDrs icnsDrs render' :: Widget   -> IO ()
 
-  -- mapM_ renderAsCurves    curvDrs
-  mapM_ renderAsTriangles objsDrs
-  mapM_ renderAsPoints    bgrsDrs
-  mapM_ renderWidgets     wgts
-  mapM_ renderIconsM      icns
+  mapM_ render' $ objsDrs ++ bgrsDrs
+  mapM_ renderWidgets icns
+  mapM_ renderWidgets wgts
   
   glSwapWindow window
-
-renderWidget :: MVar [Double] -> MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderWidget fps lastInteraction drs cmds wgt =
-  case wgt of
-    TextField a t f _ ->
-      when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f _ ->
-      when a $ renderString cmds drs f l
-    FPS a f _ ->
-      when a $ do
-        dts <- readMVar fps
-        ct  <- SDL.time -- current time
-        dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
-        dts'<- swapMVar fps $ tail dts ++ [dt]
-        let dt' = (sum dts')/(fromIntegral $ length dts')
-        renderString cmds drs f $ "fps:" ++ show (round (1.0/dt') :: Integer)
-            
-    Cursor {} -> return ()
-    _ -> return ()
-
-renderIcons :: [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderIcons [] _ _ = error "drawables is empty for renderCursor"
-renderIcons drs cmds wgt =
-  case wgt of
-    Cursor a _ fmt _ ->
-      when a $ do
-      renderCursor cmds drs fmt 0 --"cursor"
-    Icon a _ idx fmt _ ->
-      when a $ do
-      renderIcon cmds drs fmt idx --"icon"
-    _ -> return ()
 
 -- < Main Function > -----------------------------------------------------------
 
@@ -197,13 +164,7 @@ initResources :: Application -> IO Application
 initResources app0 =
   do
     let
-      fntObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      icnObjs' = case fntObjs of
-        [] -> []
-        _  -> [head fntObjs]
-      objs   = fntObjs' ++ icnObjs' ++ fgrObjs ++ bgrObjs-- ++ testObjs
+      objs   = fntObjs ++ icnObjs ++ fgrObjs ++ bgrObjs
       txs    = concat $ objs ^.. traverse . base . materials . traverse . textures
       uuids  = fmap (view T.uuid) txs
       hmap   = toList . fromList $ zip uuids [0..]
@@ -215,9 +176,8 @@ initResources app0 =
 
     return app0 { _hmap = hmap }
       where
-        --introObjs = concat $ toListOf (App.objects . OT.foreground)  (_intr app0)  :: [Object]
         fntObjs   = concat $ toListOf (App.objects . OT.fonts)       (_main app0)  :: [Object]
-        --icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
+        icnObjs   = concat $ toListOf (App.objects . OT.icons)       (_main app0)  :: [Object]
         fgrObjs   = concat $ toListOf (App.objects . OT.foreground)  (_main app0)  :: [Object]
         bgrObjs   = concat $ toListOf (App.objects . OT.background)  (_main app0)  :: [Object]
 
@@ -225,14 +185,10 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  --mainProj  <- if debug then P.read ("./projects/planetsputnik" :: FilePath)
-  -- mainProj  <- if debug then P.read ("./projects/solarsystem" :: FilePath)
-  --              else          P.read (unsafeCoerce (args!!0)   :: FilePath)
   initPreApp  <- if debug then A.read ("./applications/solarsystem" :: FilePath)
                  else          A.read (unsafeCoerce (head args)     :: FilePath)
   
   let
-    --title   = pack $ view P.name mainProj
     title   = pack $ view A.pname initPreApp
     resX    = (unsafeCoerce $ view A.resx initPreApp) :: CInt
     resY    = (unsafeCoerce $ view A.resy initPreApp) :: CInt

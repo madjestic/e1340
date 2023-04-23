@@ -35,7 +35,7 @@ import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput )
 import Graphics.RedViz.Rendering as R
 import Graphics.RedViz.Material as M
 import qualified Graphics.RedViz.Texture  as T
-import Graphics.RedViz.Drawable
+import Graphics.RedViz.Drawable hiding (toDrawables)
 import Graphics.RedViz.Texture
 import Graphics.RedViz.Widget
 
@@ -68,8 +68,8 @@ animate window sf =
         senseInput _ =
           do
             lastInteraction <- newMVar =<< SDL.time
-            currentTime <- SDL.time                          
-            dt <- (currentTime -) <$> swapMVar lastInteraction currentTime --dtime
+            ct <- SDL.time                          
+            dt <- (ct -) <$> swapMVar lastInteraction ct --dtime
             mEvent <- SDL.pollEvent
             
             return (dt, Event . SDL.eventPayload <$> mEvent)
@@ -85,17 +85,17 @@ animate window sf =
 output :: MVar Double -> Window -> Application -> IO ()
 output lastInteraction window application = do
 -- | render FPS current
-  currentTime <- SDL.time
+  ct <- SDL.time
   let
     icnObjs = concat $ toListOf (objects . icons)       app :: [Object]
     fntObjs = concat $ toListOf (objects . fonts)       app :: [Object]
     fgrObjs = concat $ toListOf (objects . foreground)  app :: [Object]
     bgrObjs = concat $ toListOf (objects . background)  app :: [Object]
 
-    icnsDrs = toDrawable app icnObjs currentTime :: [Drawable]
-    fntsDrs = toDrawable app fntObjs currentTime :: [Drawable]
-    objsDrs = toDrawable app fgrObjs currentTime :: [Drawable]
-    bgrsDrs = toDrawable app bgrObjs currentTime :: [Drawable]
+    icnsDrs = concatMap (toDrawables app ct) icnObjs :: [Drawable]
+    fntsDrs = concatMap (toDrawables app ct) fntObjs :: [Drawable]
+    objsDrs = concatMap (toDrawables app ct) fgrObjs :: [Drawable]
+    bgrsDrs = concatMap (toDrawables app ct) bgrObjs :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     crsr    = _cursor $ app ^. App.gui  ::  Maybe Widget
 
@@ -125,10 +125,10 @@ output lastInteraction window application = do
     (_, resy')        = app ^. options . App.res
     mouseCoords'      = (\ (x,y)(x',y') -> (x/x', y/y')) mouseCoords (fromIntegral resy',fromIntegral resy')
  
-    renderAsTriangles = render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
-    renderAsPoints    = render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
-    renderAsIcons     = render txs hmap (opts { primitiveMode = Triangles
-                                              , depthMsk      = Disabled  })   :: Drawable -> IO ()
+    renderAsTriangles = undefined -- render txs hmap (opts { primitiveMode = Triangles })   :: Drawable -> IO ()
+    renderAsPoints    = undefined -- render txs hmap (opts { primitiveMode = Points    })   :: Drawable -> IO ()
+    renderAsIcons     = undefined -- render txs hmap (opts { primitiveMode = Triangles
+                                              -- , depthMsk      = Disabled  })   :: Drawable -> IO ()
     renderWidgets     = renderWidget lastInteraction fntsDrs renderAsIcons     :: Widget   -> IO ()
     renderCursorM     = Main.renderCursor mouseCoords'    icnsDrs renderAsTriangles :: Widget   -> IO ()
 
@@ -139,20 +139,20 @@ output lastInteraction window application = do
   
   glSwapWindow window
 
-renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
-renderWidget lastInteraction drs cmds wgt =
-  case wgt of
-    TextField a t f _ ->
-      when a $ renderString cmds drs f $ concat t
-    Button a l _ _ _ f _->
-      when a $ renderString cmds drs f l
-    FPS a f _ ->
-      when a $ do
-        ct <- SDL.time -- current time
-        dt <- (ct -) <$> readMVar lastInteraction
-        renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
-    Cursor {} -> return ()
-    _ -> return ()
+-- renderWidget :: MVar Double -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
+-- renderWidget lastInteraction drs cmds wgt =
+--   case wgt of
+--     TextField a t f _ ->
+--       when a $ renderString cmds drs f $ concat t
+--     Button a l _ _ _ f _->
+--       when a $ renderString cmds drs f l
+--     FPS a f _ ->
+--       when a $ do
+--         ct <- SDL.time -- current time
+--         dt <- (ct -) <$> readMVar lastInteraction
+--         renderString cmds drs f $ "fps:" ++ show (round (1/dt) :: Integer)
+--     Cursor {} -> return ()
+--     _ -> return ()
 
 renderCursor :: (Double, Double) -> [Drawable] -> (Drawable -> IO ()) -> Widget-> IO ()
 renderCursor (x,y) drs cmds wgt =

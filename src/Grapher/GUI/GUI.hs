@@ -11,6 +11,7 @@ module Grapher.GUI.GUI
   ) where
 
 import Control.Lens
+import Data.Maybe
 
 import Graphics.RedViz.Widget
 import Graphics.RedViz.Backend
@@ -19,13 +20,13 @@ data GUI
   =  IntrGUI
      {
        _res             :: (Int, Int)
-     , _cursor          :: Widget
+     , _cursor          :: Maybe Widget
      }
   |  MainGUI
      {
        _res    :: (Int, Int)
-     , _fps    :: Widget
-     , _cursor :: Widget
+     , _fps    :: Maybe Widget
+     , _cursor :: Maybe Widget
      }
   deriving Show
 $(makeLenses ''GUI)
@@ -49,27 +50,26 @@ introGUI res0@(resx,resy) =
   IntrGUI
   {
     _res    = res0
-  , _cursor = Cursor True "" (defaultCursorFormat resx resy) defOpts
+  , _cursor = Just $ Cursor True "" (defaultCursorFormat resx resy) defOpts
   }
 
 mainGUI :: (Int, Int) -> GUI
 mainGUI res0@(resx, resy) =
   MainGUI
   {
-    _res  = res0
-  , _fps  = FPS True (Format TC resx resy (0.0) (0.0) (0.0) 0.085 1.0) defOpts
-  , _cursor = Cursor True "" (defaultCursorFormat resx resy)  defOpts
+    _res    = res0
+  , _fps    = Just $ FPS True (Format TC resx resy (0.0) (0.0) (0.0) 0.085 1.0) defOpts
+  , _cursor = Just $ Cursor True "" (defaultCursorFormat resx resy)  defOpts
   }
 
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
   case gui of
     IntrGUI {} ->
-      [
-        _cursor gui
-      ]
+      [] ++ maybeToList (_cursor gui)
+
     MainGUI _ fps' cursor' ->
-      [
-        fps'
-      , cursor'
-      ]
+      []
+      ++ maybeToList fps'
+      ++ maybeToList cursor'
+

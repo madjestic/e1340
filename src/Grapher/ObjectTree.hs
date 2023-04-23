@@ -39,7 +39,7 @@ import Graphics.RedViz.PGeo ( readBGeo
                             , toVAO
                             , VAO)
 import Graphics.RedViz.Utils as U
-import Graphics.RedViz.Object as Obj
+import Graphics.RedViz.Object as Object
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
@@ -49,6 +49,7 @@ import Graphics.RedViz.Primitives
 import Grapher.Object as Object
 import Solvable hiding (_ypr, _trs)
 import Grapher.Object.Update (updateOnce)
+import Graphics.RedViz.Backend (defaultBackendOptions)
 
 --import Debug.Trace as DT
 
@@ -150,6 +151,8 @@ fromPreObject prj0 cls pObj0 = do
     
     xforms'      = U.fromList <$> (Just <$> toListOf (traverse . sxf) svgeos') :: [M44 Double]
     ypr0s        = repeat (V3 0 0 0 :: V3 Double)
+
+    
     
     (transforms', ypr')  =
       case cls of
@@ -170,22 +173,28 @@ fromPreObject prj0 cls pObj0 = do
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
     trs'         = [V3 0 0 0, V3 0 0 0, V3 0 0 0]
+    options'     = pObj0 ^. P.options
 
   case cls of
     Font -> return $ updateOnce $
       Object.Sprite
       { _base =
        ( Object'
-         ds'
-         materials'
-         programs'
-         transforms'
-         (head transforms')
-         (identity :: M44 Double)
-         (sum ypr')
-         (V3 0 0 0 :: V3 Double)
-         time')
-      ,_nameP = name' }
+         {
+           Object._name   = "sprite"
+         ,_descriptors    = ds'
+         ,_materials      = materials'
+         ,_programs       = programs'
+         ,_transforms     = transforms'
+         ,_transform0     = (head transforms')
+         ,_transform1     = (identity :: M44 Double)
+         ,_ypr0           = (sum ypr')
+         ,_ypr            = (V3 0 0 0 :: V3 Double)
+         ,_time           = time'
+         ,Object._options = options'
+         }               
+       )
+      }
     _ ->
       case _ptype pObj0 of
         "planet" -> return $ updateOnce $
@@ -194,18 +203,19 @@ fromPreObject prj0 cls pObj0 = do
             _base = 
             ( Object'
               {
-               _descriptors = ds'
-              ,_materials   = materials'
-              ,_programs    = programs'
-              ,_transforms  = transforms'
-              ,_transform0  = identity :: M44 Double --(head transforms')
-              ,_transform1  = identity :: M44 Double --(head transforms')
-              ,_ypr0        = (sum ypr')
-              ,_ypr         = (V3 0 0 0 :: V3 Double)
-              ,_time        = time'
+                Object._name    = "sprite"
+              ,_descriptors     = ds'
+              ,_materials       = materials'
+              ,_programs        = programs'
+              ,_transforms      = transforms'
+              ,_transform0      = identity :: M44 Double --(head transforms')
+              ,_transform1      = identity :: M44 Double --(head transforms')
+              ,_ypr0            = (sum ypr')
+              ,_ypr             = (V3 0 0 0 :: V3 Double)
+              ,_time            =   time'
+              , Object._options = options'
               }
             )
-          ,_nameP     = name'
           ,_idxP      = idx'
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
@@ -220,18 +230,19 @@ fromPreObject prj0 cls pObj0 = do
             _base = 
             ( Object'
               {
-               _descriptors = ds'
-              ,_materials   = materials'
-              ,_programs    = programs'
-              ,_transforms  = transforms'
-              ,_transform0  = (head transforms')
-              ,_transform1  = identity :: M44 Double
-              ,_ypr0        = (sum ypr')
-              ,_ypr         = (V3 0 0 0 :: V3 Double)
-              ,_time        = time'
+                Object._name    = "sprite"
+              ,_descriptors     = ds'
+              ,_materials       = materials'
+              ,_programs        = programs'
+              ,_transforms      = transforms'
+              ,_transform0      = (head transforms')
+              ,_transform1      = identity :: M44 Double
+              ,_ypr0            = (sum ypr')
+              ,_ypr             = (V3 0 0 0 :: V3 Double)
+              ,_time            = time'
+              , Object._options = options'
               }
             )
-          ,_nameP     = name'
           ,_idxP      = idx'          
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
@@ -244,16 +255,21 @@ fromPreObject prj0 cls pObj0 = do
           Sprite
           { _base =
            ( Object'
-             ds'
-             materials'
-             programs'
-             transforms'
-             (head transforms')
-             (identity :: M44 Double)
-             (sum ypr')
-             (V3 0 0 0 :: V3 Double)
-             time')
-          ,_nameP = name' }
+             {
+               Object._name    = "sprite"
+             ,_descriptors     = ds'
+             ,_materials       = materials'
+             ,_programs        = programs'
+             ,_transforms      = transforms'
+             ,_transform0      = (head transforms')
+             ,_transform1      = (identity :: M44 Double)
+             ,_ypr0            = (sum ypr')
+             ,_ypr             = (V3 0 0 0 :: V3 Double)
+             ,_time            = time'
+             , Object._options = options'
+             }
+           )
+          }
         ""       -> return emptyObj :: IO Object
         _        -> return emptyObj :: IO Object
 
@@ -306,17 +322,18 @@ initObject' vgeo = do
       _base =
         Object'
         {
-          _descriptors = ds
-        , _materials   = mats'
-        , _programs    = progs
-        , _transforms  = preTransforms
-        , _transform0  = (identity::M44 Double)
-        , _transform1  = (identity::M44 Double)
-        , Obj._ypr     = V3 0 0 0 :: V3 Double
-        , Obj._ypr0    = V3 0 0 0 :: V3 Double
-        , _time        = 0.1
+          Object._name    = "sprite"
+        , _descriptors    = ds
+        , _materials      = mats'
+        , _programs       = progs
+        , _transforms     = preTransforms
+        , _transform0     = (identity::M44 Double)
+        , _transform1     = (identity::M44 Double)
+        , Object._ypr     = V3 0 0 0 :: V3 Double
+        , Object._ypr0    = V3 0 0 0 :: V3 Double
+        , _time           = 0.1
+        , Object._options = defaultBackendOptions
         }
-    , _nameP = nm_
     }
 
 toVGeo :: Project -> PreObject -> IO [VGeo]
@@ -362,12 +379,13 @@ toCurve objs = do
   let
     base' =
       defaultObject'
+      & Object.name .~ "curve"
       & descriptors .~ [ds]
       & materials   .~ [material]
       & programs    .~ [program]
 
     curveObj' =
-      Sprite base' ""
+      Sprite base'
   
   return curveObj'
 

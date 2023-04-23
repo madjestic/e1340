@@ -47,7 +47,7 @@ data GUI
        _res             :: (Int, Int)
      , _cursor          :: Maybe Widget
      , _xx              :: Maybe Widget
-     , _a_space_oddysey :: Maybe Widget
+     , _title           :: Maybe Widget
      , _strtB           :: Maybe Widget
      , _optsB           :: Maybe Widget
      , _quitB           :: Maybe Widget -- button
@@ -71,7 +71,7 @@ defGUI =
     _res             = (800,600)
   , _cursor          = Nothing 
   , _xx              = Nothing 
-  , _a_space_oddysey = Nothing 
+  , _title           = Nothing 
   , _strtB           = Nothing 
   , _optsB           = Nothing 
   , _quitB           = Nothing 
@@ -79,7 +79,7 @@ defGUI =
   , _backB           = Nothing 
   , _fps             = Nothing 
   , _speed           = Nothing 
-  , _infos           = Nothing 
+  , _infos           = Nothing
   , _guiSwitch       = MainGUI'
   }
 
@@ -97,6 +97,7 @@ comp = keyOrder . fmap pack $
   , "speed"
   , "gizmo"
   , "infos"
+  , "pnk_rcf"
   , "guiSwitch"
   ]
 
@@ -107,14 +108,14 @@ read filePath guiSwitch =
       Prelude.putStrLn $ "filePath : " ++ show filePath
       d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
       let
-        res'    = (_res    . fromEitherDecode) d
-        cursor' = (_cursor . fromEitherDecode) d
-        xx'     = (_xx     . fromEitherDecode) d
-        a_space_oddysey' = (_a_space_oddysey . fromEitherDecode) d
-        strtB'  = (_strtB  . fromEitherDecode) d 
-        optsB'  = (_optsB  . fromEitherDecode) d 
-        quitB'  = (_quitB  . fromEitherDecode) d
-        guiSwitch    = (_guiSwitch   . fromEitherDecode) d
+        res'      = (_res    . fromEitherDecode) d
+        cursor'   = (_cursor . fromEitherDecode) d
+        xx'       = (_xx     . fromEitherDecode) d
+        title'    = (_title . fromEitherDecode) d
+        strtB'    = (_strtB  . fromEitherDecode) d 
+        optsB'    = (_optsB  . fromEitherDecode) d 
+        quitB'    = (_quitB  . fromEitherDecode) d
+        guiSwitch = (_guiSwitch   . fromEitherDecode) d
       
       return $  
         defGUI
@@ -122,7 +123,7 @@ read filePath guiSwitch =
           _res    = res'
         , _cursor = cursor'
         , _xx     = xx'
-        , _a_space_oddysey = a_space_oddysey'
+        , _title  = title'
         , _strtB  = strtB'
         , _optsB  = optsB'
         , _quitB  = quitB'
@@ -140,11 +141,11 @@ read filePath guiSwitch =
       Prelude.putStrLn $ "filePath : " ++ show filePath
       d <- (eitherDecode <$> B.readFile filePath) :: IO (Either String GUI)
       let
-        res'    = (_res    . fromEitherDecode) d
-        cursor' = (_cursor . fromEitherDecode) d
-        gizmo'  = (_gizmo  . fromEitherDecode) d
-        speed'  = (_speed  . fromEitherDecode) d
-        fps'    = (_fps    . fromEitherDecode) d
+        res'     = (_res     . fromEitherDecode) d
+        cursor'  = (_cursor  . fromEitherDecode) d
+        gizmo'   = (_gizmo   . fromEitherDecode) d
+        speed'   = (_speed   . fromEitherDecode) d
+        fps'     = (_fps     . fromEitherDecode) d
       return $  
         defGUI
         {
@@ -219,7 +220,7 @@ write filePath gui = do
 fromGUI :: GUI -> [Widget]
 fromGUI gui =
       []
-      ++ maybeToList ( _a_space_oddysey gui) -- ^. _a_space_oddysey
+      ++ maybeToList ( _title gui) -- ^. _title
       ++ maybeToList ( _strtB gui) 
       ++ maybeToList ( _optsB gui) 
       ++ maybeToList ( _quitB gui) 
@@ -269,13 +270,12 @@ intrGUI res0@(resx, resy) =
   defGUI
   {
     _res    = res0
-  --, _cursor = Just $ Cursor True "" ((fromIntegral $ fst res0)/2, (fromIntegral $ snd res0)/2) defOpts
   , _cursor = Just $ Cursor True ""
     (defaultCursorFormat resx resy) defOpts
   , _xx = Just $
     TextField True ["PARAYA"] 
     (Format TC resx resy (0.19) (0.0) 0.0 0.08 (fontSize 5)) defOpts
-  , _a_space_oddysey = Just $
+  , _title = Just $
     TextField True ["a space odyssey"] 
     (Format TC resx resy (-0.2) (-0.25) 0.0 0.03 (fontSize 4)) defOpts
   , _strtB   = Just $
@@ -298,9 +298,6 @@ optsGUI res0@(resx, resy) =
     _res       = res0
   , _cursor    = Just $ Cursor True "" (defaultCursorFormat resx resy) defOpts
   , _backB     = Just $ Button True "< BACK" defBBox False False (Format CC resx resy (0.0) (0.0) 0.0  0.085 1.0) defOpts
-      -- Just $
-      -- Button True "<>< BACK" defBBox False False
-      -- (Format CC (0.0) (-0.075) 0.0 0.033 0.5) defOpts
   , _gizmo     = Nothing
   , _guiSwitch = OptsGUI'
   }
@@ -309,13 +306,13 @@ mainGUI :: (Int, Int) -> GUI
 mainGUI res0@(resx,resy) =
   defGUI
   {
-    _res    = res0
-  , _fps    = Just $ FPS       True (Format TC resx resy (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
-  , _speed  = Just $ TextField True ["speed : 0.777"] (Format BC resx resy 0.53 0.094 0.0 0.015 0.2) defOpts
-  , _cursor = Just $ Cursor    True ""
+    _res       = res0
+  , _fps       = Just $ FPS       True (Format TC resx resy (-0.1) (-0.05) (0.0) 0.015 0.2) defOpts
+  , _speed     = Just $ TextField True ["speed : 0.777"] (Format BC resx resy 0.53 0.094 0.0 0.015 0.2) defOpts
+  , _cursor    = Just $ Cursor    True ""
     (defaultCursorFormat resx resy) defOpts
-  , _gizmo  = Just $ Icon      True "" 1 (Format TL resx resy (0) (0) (0.0) 0.0 0.5) defOpts
-  , _guiSwitch   = MainGUI'
+  , _gizmo     = Just $ Icon      True "" 1 (Format TL resx resy (0) (0) (0) 0.0 0.5) defOpts
+  , _guiSwitch = MainGUI'
   }
 
 infoGUI :: (Int, Int) -> GUI

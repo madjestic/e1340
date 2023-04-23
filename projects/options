@@ -35,9 +35,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 0,
             "ptype": "planet",
-            "uuid": "6496379d-7a69-4ae9-9db8-423505c23047"
+            "uuid": "dd1bc94e-353a-4528-8d70-f31083b00d5d"
         }
     ],
     "background": [],

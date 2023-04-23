@@ -13,10 +13,10 @@ import Projects.SolarSystem
 --import Projects.InfoEarth
 import Projects.Graph
 import Projects.Body3
-import Projects.PlanetSputnik
-import Projects.SolarSystemMini
-import Projects.SolarSystemExtended
-import Projects.Curve
+--import Projects.PlanetSputnik
+--import Projects.SolarSystemMini
+--import Projects.SolarSystemExtended
+--import Projects.Curve
 
 -- import Debug.Trace as DT
 
@@ -32,20 +32,20 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "testred"       -> Project.write (Projects.Test.projectTestRed   1280 720) filePath
   "testgreen"     -> Project.write (Projects.Test.projectTestGreen 1280 720) filePath 
   "testblue"      -> Project.write (Projects.Test.projectTestBlue  1280 720) filePath 
-  "testchecker"   -> Project.write Projects.Test.projectTestChecker filePath
-  "testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
+  --"testchecker"   -> Project.write Projects.Test.projectTestChecker filePath
+  --"testcheckeroffset" -> Project.write Projects.Test.projectTestCheckerOffset filePath
   --"solarsystem"   -> Project.write Projects.SolarSystem.project     filePath
   "solarsystem"   -> Project.write (Projects.SolarSystem.project   1280 720) filePath
-  "solar_system_mini" -> Project.write Projects.SolarSystemMini.project     filePath
-  "solar_system_extended" -> Project.write Projects.SolarSystemExtended.project     filePath
+  --"solar_system_mini" -> Project.write Projects.SolarSystemMini.project     filePath
+  --"solar_system_extended" -> Project.write Projects.SolarSystemExtended.project     filePath
 --  "infoearth"     -> Project.write Projects.InfoEarth.project       filePath
   "test"          -> Project.write (Projects.Test.project 1280 720)            filePath
-  "test2"         -> Project.write Projects.Test.test2              filePath
+  --"test2"         -> Project.write Projects.Test.test2              filePath
   "graph"         -> Project.write Projects.Graph.project           filePath
   "options"       -> Project.write (Projects.Test.options 1280 720) filePath
   "body3"         -> Project.write Projects.Body3.project           filePath
-  "planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
-  "curve"         -> Project.write Projects.Curve.project           filePath
+  --"planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
+  --"curve"         -> Project.write Projects.Curve.project           filePath
   _ -> Project.write (Projects.Test.project 1280 720)               filePath
                                    
 splitter :: String -> IO (String, String)

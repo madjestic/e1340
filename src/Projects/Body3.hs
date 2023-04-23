@@ -3,6 +3,7 @@ module Projects.Body3 where
 import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
+import Graphics.RedViz.Backend  
 
 gui :: PreGUI
 gui =
@@ -23,47 +24,44 @@ project =
   , (Model   "models/body_1.bgeo")
   , (Model   "models/body_2.bgeo")
   ]
-  [ (PreObject
-    "red"
-    "rbd"
-    0
-    nil
-    [0]
-    []
-    []
-    --["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
-    ["gravity"]
-    [[1,2]]
+  [ ( PreObject
+      { _pname          = "red"
+      , _ptype          = "rbd"
+      , _pidx           = 0
+      , _uuid           = nil
+      , _modelIDXs      = [0]
+      , _presolvers     = []
+      , _presolverAttrs = []
+      , _solvers        = ["gravity"]
+      , _solverAttrs    = [[1,2]]
+      , _options        = defaultBackendOptions 
+      }
     )
-  , (PreObject
-    "blue"
-    "rbd"
-    0
-    nil
-    [1]
-    []
-    []
-    --["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
-    ["gravity"]
-    [[0,2]]
-    )
-  , (PreObject
-    "green"
-    "rbd"
-    0
-    nil
-    [2]
-    []
-    []
-    --["rotate", "translate"]
-    -- [[0,0,0,0,0,1000]
-    -- ,[1000,0,0]]
-    ["gravity"]
-    [[0,1]]
+  , ( PreObject
+      { _pname          = "blue"
+        , _ptype          = "rbd"
+        , _pidx           = 0
+        , _uuid           = nil
+        , _modelIDXs      = [1]
+        , _presolvers     = []
+        , _presolverAttrs = []
+        , _solvers        = ["gravity"]
+        , _solverAttrs    = [[0,2]]
+        , _options        = defaultBackendOptions 
+        }
+      )
+  , ( PreObject
+      { _pname          =  "green"
+      , _ptype          = "rbd"
+      , _pidx           = 0
+      , _uuid           = nil
+      , _modelIDXs      = [2]
+      , _presolvers     = []
+      , _presolverAttrs = []
+      , _solvers        = ["gravity"]
+      , _solverAttrs    =  [[0,1]]
+      , _options        = defaultBackendOptions
+      }
     )
   ]
   []

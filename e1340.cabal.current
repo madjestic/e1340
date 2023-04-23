@@ -90,9 +90,9 @@ executable Grapher
   hs-source-dirs:
                        app
                      , src
-  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
   --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
-  --ghc-options:   -O2 -threaded
+  ghc-options:   -O2 -threaded
   --cpp-options:   -DDEBUG
   --cpp-options:   -DDEBUGMAIN 
   build-depends:
@@ -164,99 +164,99 @@ executable Grapher
                 , Grapher.Application.Interface
                 , Grapher.Application
                 , Grapher.Application.Update
-                , Projects.Curve                
+                --, Projects.Curve                
                 , Solvable
 
   default-language:    Haskell2010
                 
                                                                            
-executable e1340
-  main-is:      Main.hs
-  hs-source-dirs:
-                app
-              , src
-  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
-  --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
-  ghc-options:   -O2 -threaded
-  --cpp-options:   -DDEBUG
-  --cpp-options:   -DDEBUGMAIN
-  build-depends:
-                 base
-               , aeson               
-               , aeson-pretty        
-               --, bearriver
-               , Yampa             
-               , bytestring          
-               , containers          
-               , GLUtil              
-               , ilist               
-               , lens                
-               , linear              
-               , locators            
-               , massiv              
-               , OpenGL              
-               , random                        
-               , sdl2                
-               , split               
-               , store               
-               , text                
-               , simple-affine-space 
-               , sort                
-               , vector              
-               , uuid                
+-- executable e1340
+--   main-is:      Main.hs
+--   hs-source-dirs:
+--                 app
+--               , src
+--   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+--   --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+--   ghc-options:   -O2 -threaded
+--   --cpp-options:   -DDEBUG
+--   --cpp-options:   -DDEBUGMAIN
+--   build-depends:
+--                  base
+--                , aeson               
+--                , aeson-pretty        
+--                --, bearriver
+--                , Yampa             
+--                , bytestring          
+--                , containers          
+--                , GLUtil              
+--                , ilist               
+--                , lens                
+--                , linear              
+--                , locators            
+--                , massiv              
+--                , OpenGL              
+--                , random                        
+--                , sdl2                
+--                , split               
+--                , store               
+--                , text                
+--                , simple-affine-space 
+--                , sort                
+--                , vector              
+--                , uuid                
 
-  other-modules:
-                Paths_e1340
-              , Graphics.RedViz
-              , Graphics.RedViz.Rendering
-              , Graphics.RedViz.Descriptor
-              , Graphics.RedViz.Drawable
-              , Graphics.RedViz.LoadShaders
-              , Graphics.RedViz.Material
-              , Graphics.RedViz.Texture
-              , Graphics.RedViz.Utils
-              , Graphics.RedViz.Camera
-              , Graphics.RedViz.Controllable
-              , Graphics.RedViz.Input.Keyboard
-              , Graphics.RedViz.Input.Mouse
-              , Graphics.RedViz.Project
-              , Graphics.RedViz.Project.Model
-              , Graphics.RedViz.Project.Project
-              , Graphics.RedViz.FromVector
-              , Graphics.RedViz.PGeo
-              , Graphics.RedViz.VAO
-              , Graphics.RedViz.Project.Utils
-              , Graphics.RedViz.Input
-              , Graphics.RedViz.Input.FRP.Yampa
-              , Graphics.RedViz.Input.FRP.Yampa.AppInput
-              , Graphics.RedViz.Input.FRP.Yampa.Update
-              , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
-              , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
-              , Graphics.RedViz.Object
-              , Graphics.RedViz.Widget
-              , Graphics.RedViz.Backend
-              , Graphics.RedViz.Primitives             
-              , ObjectTree
-              , App
-              , App.App
-              , App.Update
-              , Application
-              , Application.Application
-              , Application.Update
-              , Application.Interface
-              , Camera
-              , Camera.Update
-              , Object
-              , Object.Object
-              , Object.Update
-              , Solvable
-              , Projects.Test
-              , GUI
-              , GUI.GUI
-              , GUI.Update
+--   other-modules:
+--                 Paths_e1340
+--               , Graphics.RedViz
+--               , Graphics.RedViz.Rendering
+--               , Graphics.RedViz.Descriptor
+--               , Graphics.RedViz.Drawable
+--               , Graphics.RedViz.LoadShaders
+--               , Graphics.RedViz.Material
+--               , Graphics.RedViz.Texture
+--               , Graphics.RedViz.Utils
+--               , Graphics.RedViz.Camera
+--               , Graphics.RedViz.Controllable
+--               , Graphics.RedViz.Input.Keyboard
+--               , Graphics.RedViz.Input.Mouse
+--               , Graphics.RedViz.Project
+--               , Graphics.RedViz.Project.Model
+--               , Graphics.RedViz.Project.Project
+--               , Graphics.RedViz.FromVector
+--               , Graphics.RedViz.PGeo
+--               , Graphics.RedViz.VAO
+--               , Graphics.RedViz.Project.Utils
+--               , Graphics.RedViz.Input
+--               , Graphics.RedViz.Input.FRP.Yampa
+--               , Graphics.RedViz.Input.FRP.Yampa.AppInput
+--               , Graphics.RedViz.Input.FRP.Yampa.Update
+--               , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+--               , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+--               , Graphics.RedViz.Object
+--               , Graphics.RedViz.Widget
+--               , Graphics.RedViz.Backend
+--               , Graphics.RedViz.Primitives             
+--               , ObjectTree
+--               , App
+--               , App.App
+--               , App.Update
+--               , Application
+--               , Application.Application
+--               , Application.Update
+--               , Application.Interface
+--               , Camera
+--               , Camera.Update
+--               , Object
+--               , Object.Object
+--               , Object.Update
+--               , Solvable
+--               , Projects.Test
+--               , GUI
+--               , GUI.GUI
+--               , GUI.Update
               
-  default-language:
-                Haskell2010
+--   default-language:
+--                 Haskell2010
 
 executable ProjectViewer
   main-is:      ProjectViewer.hs
@@ -266,8 +266,8 @@ executable ProjectViewer
   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
   --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
   ghc-options:   -O2 -threaded
-  -- cpp-options:   -DDEBUG
-  -- cpp-options:   -DDEBUGMAIN
+  --cpp-options:   -DDEBUG
+  --cpp-options:   -DDEBUGMAIN
   build-depends:
                  base                
                , aeson               
@@ -344,12 +344,13 @@ executable ProjectViewer
               , GUI.Update
               , Projects.Body3
               , Projects.Graph
-              , Projects.InfoEarth
+              --, Projects.InfoEarth
               , Projects.SolarSystem
-              , Projects.SolarSystemMini
+              --, Projects.SolarSystemMini
               , Projects.Test
-              , Projects.PlanetSputnik
-              , Projects.Curve
+              --, Projects.PlanetSputnik
+              --, Projects.Curve
+              , Projects.Test
               
   default-language:
                 Haskell2010
@@ -471,13 +472,13 @@ executable genProject
               , Graphics.RedViz.Utils
               , Projects.Test
               , Projects.SolarSystem
-              , Projects.InfoEarth
+              --, Projects.InfoEarth
               , Projects.Graph
               , Projects.Body3
-              , Projects.PlanetSputnik
-              , Projects.SolarSystemMini
-              , Projects.SolarSystemExtended
-              , Projects.Curve
+              --, Projects.PlanetSputnik
+              --, Projects.SolarSystemMini
+              --, Projects.SolarSystemExtended
+              --, Projects.Curve
 
   default-language:
                 Haskell2010
@@ -677,7 +678,7 @@ executable genUUID
               , Graphics.RedViz.Texture
               , Graphics.RedViz.Material
               , Graphics.RedViz.Utils
-              , Projects.Curve
+              --, Projects.Curve
 
   default-language:
                 Haskell2010

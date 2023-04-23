@@ -3,6 +3,7 @@ module Projects.Graph where
 import Data.UUID
 
 import Graphics.RedViz.Project.Project hiding (gui)
+import Graphics.RedViz.Backend
 
 gui :: PreGUI
 gui =
@@ -12,11 +13,11 @@ gui =
 
 graph   :: [Int] -> PreObject
 graph   idxs =
-  PreObject "graph"  "sprite" 0 nil idxs [] [] [] []
+  PreObject "graph"  "sprite" 0 nil idxs [] [] [] [] defaultBackendOptions
 
 gizmo   :: [Int] -> PreObject
 gizmo   idxs =
-  PreObject "gizmo" "rbd" 0 nil idxs [] [] [] []
+  PreObject "gizmo" "rbd" 0 nil idxs [] [] [] [] defaultBackendOptions
 
 graphCam :: ProjectCamera
 graphCam =

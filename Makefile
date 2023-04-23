@@ -284,13 +284,14 @@ options:
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/options
 
 grapher:
-	# cabal clean
-	# cabal build
+	#cabal clean
+	#cabal build
 	./resources/convertGeo.sh graph
-	cabal build exe:Grapher
 	cabal run exe:genProject -- ./projects/graph 	
-	cabal run exe:genUUID -- -p ./projects/graph 	
-	cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
+	cabal run exe:genUUID    -- -p ./projects/graph
+	cabal build exe:Grapher
+	cabal run   exe:Grapher ./projects/graph ./projects/graph
+	#cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
 	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem
 
 
@@ -315,8 +316,8 @@ curve:
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/curve	
 
 solarsystem:
-	# cabal clean
-	# cabal build exe:ProjectViewer
+	#cabal clean
+	cabal build exe:ProjectViewer
 
 	# ./resources/convertGeo.sh fnt_crosshair
 	# ./resources/convertGeo.sh gizmo
@@ -338,6 +339,7 @@ solarsystem:
 	# ./resources/convertGeo.sh ganymede
 	# ./resources/convertGeo.sh io
 	# ./resources/convertGeo.sh callisto
+	# ./resources/convertGeo.sh PNK
 
 	cabal build exe:genProject
 	cabal build exe:genApplication

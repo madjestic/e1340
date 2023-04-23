@@ -11,7 +11,7 @@ module App
   , selected
   , debug
   , App.App.fromProject
-  , toDrawable
+  , toDrawables
   , updateMainApp
   , updateIntroApp
   , updateOptsApp

@@ -20,7 +20,7 @@ void main()
 
 	vec4 font_clr = texture(fonts_ext,   vec2(uv.x, 1.0f-uv.y));
 	//fragColor = vec4( 1.0f, 0.0f, 0.0f, 1.0f);
-	fragColor = vec4(vec3(font_clr.r), font_clr.r);
+	fragColor = font_clr;//vec4(vec3(font_clr.r), font_clr.r);
 	// TODO : figure out what's up with uv.y
 	// fragColor = vec4( 0, uv.y*1, 0.0, 1.0);
 }

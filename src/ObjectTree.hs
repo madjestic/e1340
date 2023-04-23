@@ -23,10 +23,10 @@ import Linear (V3(..), V4(..))
 import Graphics.Rendering.OpenGL (ShaderType (..))
 import GHC.Float
 
-import Graphics.RedViz.Project as Project hiding (_solvers)
-import Graphics.RedViz.Project as P       hiding (_solvers)
+import Graphics.RedViz.Project as Project   hiding (_solvers, name, _name, _options)
+import Graphics.RedViz.Project as P         hiding (_solvers, name, _name, _options)
 import Graphics.RedViz.Project.Model as Model
-import Graphics.RedViz.Material as Material
+import Graphics.RedViz.Material as Material hiding (_name, name)
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
                             , fromVGeo
@@ -45,12 +45,13 @@ import Graphics.RedViz.Object as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders
-import Graphics.RedViz.Widget as Widget
+import Graphics.RedViz.Widget as Widget hiding (_options)
 import Graphics.RedViz.Primitives
 
 import Object
 import Solvable hiding (_ypr, _trs)
 import Object.Update (updateOnce)
+import Graphics.RedViz.Backend (defaultBackendOptions)
 
 --import Debug.Trace as DT
 
@@ -133,22 +134,22 @@ fromPreObject prj0 cls pObj0 = do
     presolverAttrs' = pObj0 ^. presolverAttrs :: [[Double]]
     solverAttrs'    = pObj0 ^. solverAttrs    :: [[Double]]
 
-    presolversF  = case presolvers' of
-                     [] -> [""]
-                     _  -> presolvers'        :: [String]
-    solversF     = case psolvers' of
-                     [] -> [""]
-                     _  -> psolvers'          :: [String]
+    presolvers      = case presolvers' of
+                        [] -> [""]
+                        _  -> presolvers'        :: [String]
+    solvers         = case psolvers' of
+                        [] -> [""]
+                        _  -> psolvers'          :: [String]
+                     
+    preattrs        = case presolverAttrs' of
+                        [] -> [[]]
+                        _  -> presolverAttrs'    :: [[Double]]
+    attrs           = case solverAttrs' of
+                        [] -> [[]]
+                        _  -> solverAttrs'       :: [[Double]]
 
-    preattrsF    = case presolverAttrs' of
-                     [] -> [[]]
-                     _  -> presolverAttrs'    :: [[Double]]
-    attrsF       = case solverAttrs' of
-                     [] -> [[]]
-                     _  -> solverAttrs'       :: [[Double]]
-
-    presolvers''  = toSolver <$> zip presolversF preattrsF :: [Solver]                     
-    solvers''     = toSolver <$> zip solversF    attrsF    :: [Solver]
+    presolvers''  = toSolver <$> zip presolvers preattrs :: [Solver]                     
+    solvers''     = toSolver <$> zip solvers    attrs    :: [Solver]
     
     xforms'      = U.fromList <$> (Just <$> toListOf (traverse . sxf) svgeos') :: [M44 Double]
     ypr0s        = repeat (V3 0 0 0 :: V3 Double)
@@ -174,22 +175,28 @@ fromPreObject prj0 cls pObj0 = do
     density'     = 1.0 :: Double
     time'        = 0.0 :: Double
     trs'         = replicate 500 $ V3 0 0 0 -- TODO: change with repeat
+    options'     = pObj0 ^. P.options
 
   case cls of
     Font -> return $ updateOnce $
       Object.Sprite
       { _base =
        ( Object'
-         ds'
-         materials'
-         programs'
-         transforms'
-         (head transforms')
-         (identity :: M44 Double)
-         (sum ypr')
-         (V3 0 0 0 :: V3 Double)
-         time')
-      ,_nameP = name' }
+         {
+           _name        = name'
+          ,_descriptors = ds'
+          ,_materials   = materials'
+          ,_programs    = programs'
+          ,_transforms  = transforms'
+          ,_transform0  = (head transforms')
+          ,_transform1  = (identity :: M44 Double)
+          ,_ypr         = (sum ypr')
+          ,_ypr0        = (V3 0 0 0 :: V3 Double)
+          ,_time        = time'
+          ,_options     = options'
+         }
+       )
+      }
 
     _ ->
       case _ptype pObj0 of
@@ -199,7 +206,8 @@ fromPreObject prj0 cls pObj0 = do
             _base = 
             ( Object'
               {
-               _descriptors = ds'
+               _name        = name'
+              ,_descriptors = ds'
               ,_materials   = materials'
               ,_programs    = programs'
               ,_transforms  = transforms'
@@ -208,9 +216,9 @@ fromPreObject prj0 cls pObj0 = do
               ,_ypr0        = sum ypr'
               ,_ypr         = V3 0 0 0 :: V3 Double
               ,_time        = time'
+              ,_options     = options'
               }
             )
-          ,_nameP     = name'
           ,_idxP      = idx'
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
@@ -225,7 +233,8 @@ fromPreObject prj0 cls pObj0 = do
             _base = 
             ( Object'
               {
-               _descriptors = ds'
+               _name        = name'
+              ,_descriptors = ds'
               ,_materials   = materials'
               ,_programs    = programs'
               ,_transforms  = transforms'
@@ -234,9 +243,9 @@ fromPreObject prj0 cls pObj0 = do
               ,_ypr0        = sum ypr'
               ,_ypr         = V3 0 0 0 :: V3 Double
               ,_time        = time'
+              ,_options     = options'
               }
             )
-          ,_nameP     = name'
           ,_idxP      = idx'          
           ,_velocity  = velocity'
           ,_avelocity = avelocity'
@@ -248,17 +257,23 @@ fromPreObject prj0 cls pObj0 = do
         "sprite" -> return $ updateOnce $
           Sprite
           { _base =
-            ( Object'
-             ds'
-             materials'
-             programs'
-             transforms'
-             (head transforms')
-             (identity :: M44 Double)
-             (sum ypr')
-             (V3 0 0 0 :: V3 Double)
-             time')
-          ,_nameP = name' }
+            (
+              Object'
+              {
+               _name        = name'
+              ,_descriptors = ds'
+              ,_materials   = materials'
+              ,_programs    = programs'
+              ,_transforms  = transforms'
+              ,_transform0  = (head transforms')
+              ,_transform1  = (identity :: M44 Double)
+              ,_ypr0        = (sum ypr')
+              ,_ypr         = (V3 0 0 0 :: V3 Double)
+              ,_time        = time'
+              ,_options     = options'
+              }
+            )
+          }
         ""       -> return emptyObj :: IO Object
         _        -> return emptyObj :: IO Object
 
@@ -311,17 +326,18 @@ initObject' vgeo = do
       _base =
         Object'
         {
-          _descriptors = ds
+          _name        = nm_
+        , _descriptors = ds
         , _materials   = mats'
         , _programs    = progs
         , _transforms  = preTransforms
         , _transform0  = (identity::M44 Double)
         , _transform1  = (identity::M44 Double)
-        , Obj._ypr     = V3 0 0 0 :: V3 Double
-        , Obj._ypr0    = V3 0 0 0 :: V3 Double
+        , _ypr     = V3 0 0 0 :: V3 Double
+        , _ypr0    = V3 0 0 0 :: V3 Double
         , _time        = 0.1
+        , _options     = defaultBackendOptions
         }
-    , _nameP = nm_
     }
 
 toVGeo :: Project -> PreObject -> IO [VGeo]
@@ -372,12 +388,13 @@ toCurve objs = do
   let
     base' =
       defaultObject'
+      & name        .~ "Curve"
       & descriptors .~ [ds]
       & materials   .~ [material]
       & programs    .~ [program]
 
     curveObj' =
-      Sprite base' "Curve"
+      Sprite base'
   
   return curveObj'
 

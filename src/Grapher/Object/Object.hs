@@ -9,7 +9,7 @@ module Grapher.Object.Object
   ( Object (..)
   , emptyObj
   , base
-  , nameP
+  --, nameP
   , idxP
   , materials
   , programs
@@ -23,7 +23,7 @@ module Grapher.Object.Object
   , mass
   , solvers
   , trs
-  , objectNames
+--  , objectNames
   , time
   ) where
 
@@ -40,10 +40,6 @@ import Graphics.RedViz.Object
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
 
-instance Eq Object where
-  (==) obj0 obj1 =
-    (_nameP obj0 == _nameP obj1) && (_idxP obj0 == _idxP obj1)
-
 data Object
   =  Empty
      {
@@ -52,7 +48,6 @@ data Object
   |  RBD
      {
        _base        :: Object'
-     , _nameP       :: String
      , _idxP        :: Integer
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double -- | Angular velocity
@@ -66,7 +61,6 @@ data Object
   |  Planet
      {
        _base        :: Object'
-     , _nameP       :: String
      , _idxP        :: Integer
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
@@ -78,7 +72,6 @@ data Object
   |  Sprite
      {
        _base        :: Object'
-     , _nameP       :: String
      }
   -- |  Graph
   --    {
@@ -89,10 +82,11 @@ data Object
   deriving Show
 $(makeLenses ''Object)
 
+instance Eq Object where
+  (==) obj0 obj1 =
+    (obj0 ^. base . name == obj1 ^. base . name) && (_idxP obj0 == _idxP obj1)
+
 emptyObj :: Object
 emptyObj =
   Grapher.Object.Object.Empty
   defaultObject'
-
-objectNames :: Object -> String
-objectNames obj = obj ^. nameP

@@ -9,7 +9,7 @@ module Object.Object
   ( Object (..)
   , emptyObj
   , base
-  , nameP
+  , name
   , idxP
   , materials
   , programs
@@ -22,7 +22,7 @@ module Object.Object
   , mass
   , solvers
   , trs
-  , objectNames
+--  , objectNames
   , time
   ) where
 
@@ -37,19 +37,14 @@ import Graphics.RedViz.Object
 --------------------------------------------------------------------------------
 -- < Object > ------------------------------------------------------------------
 
-instance Eq Object where
-  (==) obj0 obj1 =
-    (_nameP obj0 == _nameP obj1) && (_idxP obj0 == _idxP obj1)
-
 data Object
   =  Empty
      {
-       _base        :: Object'
+      _base        :: Object'
      }  -- a unit
   |  RBD
      {
        _base        :: Object'
-     , _nameP       :: String
      , _idxP        :: Integer
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double   -- | Angular velocity
@@ -61,7 +56,6 @@ data Object
   |  Planet
      {
        _base        :: Object'
-     , _nameP       :: String
      , _idxP        :: Integer
      , _velocity    :: V3 Double
      , _avelocity   :: V3 Double    -- | Angular velocity
@@ -73,15 +67,15 @@ data Object
   |  Sprite
      {
        _base        :: Object'
-     , _nameP       :: String -- mostly for debugging fonts, remove when done?
      }
   deriving Show
 $(makeLenses ''Object)
+
+instance Eq Object where
+  (==) obj0 obj1 =
+    (obj0 ^. base . name  == obj1 ^. base . name) && (_idxP obj0 == _idxP obj1)
 
 emptyObj :: Object
 emptyObj =
   Object.Object.Empty
   defaultObject'
-
-objectNames :: Object -> String
-objectNames obj = obj ^. nameP

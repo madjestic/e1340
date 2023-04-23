@@ -11,8 +11,8 @@ module Object
   , solvers
   , trs
   , updateObjectsPre
-  , objectNames
-  , nameP
+  --, objectNames
+  , name
   , idxP
   , time
   ) where

@@ -167,21 +167,25 @@ mouseOverE' res0
         inside'  = insideBBox res0 (bbox' btn) (bx, by) (mx, my)
 mouseOverE' _ _ _ = (Empty, NoEvent)
 
-updateCursor :: SF (AppInput, Widget) Widget
+updateCursor :: SF (AppInput, Maybe Widget) (Maybe Widget)
 updateCursor =
-  proc (input, Cursor activeC lableC fmt opts)-> do
-    (mouse', _) <- updateMouse -< input
-    let
-      mousePos' = mouse' ^. pos
-      --coords' = bimap int2Double int2Double $ mouse' ^. pos
-      result' =
-        Cursor
-        {
-          _active  = activeC
-        , _lable   = lableC
-        , _format  = fmt
-                     & xoffset .~ (int2Double $ mousePos'^._1)
-                     & yoffset .~ (int2Double $ mousePos'^._2)
-        , _options = opts}
-
-    returnA -< result'
+  proc (input, cursor)-> do
+    case cursor of
+      Just (Cursor activeC lableC fmt opts) -> do
+        --(mouse', mevs) <- updateMouse -< input
+        (mouse', _) <- updateMouse -< input
+        let
+          mousePos = mouse' ^. pos :: (Int, Int)
+          coords'  = bimap int2Double int2Double mousePos
+          result'  = Just $
+            Cursor
+            {
+              _active  = activeC
+            , _lable   = lableC
+            , _format  = fmt
+                         & xoffset .~ (int2Double $ mousePos^._1)
+                         & yoffset .~ (int2Double $ mousePos^._2)
+            , _options = opts}
+        returnA -< result'
+      Nothing -> do
+        returnA -< Nothing

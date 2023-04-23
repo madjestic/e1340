@@ -42,6 +42,9 @@
         },
         {
             "path": "models/callisto.bgeo"
+        },
+        {
+            "path": "models/TNS.bgeo"
         }
     ],
     "objects": [
@@ -54,9 +57,20 @@
             "solverAttrs": [],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "bbb8abac-8aef-4f2a-899e-c22c0c6494bf"
+            "uuid": "f5e5c92f-8c52-40d0-9276-5c9abea15ad2"
         },
         {
             "pname": "mercury",
@@ -82,9 +96,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "ddee16b8-58cd-4d75-a656-171e2745a38f"
+            "uuid": "ceb5a4d4-188d-4239-8c10-dff47d3b2a45"
         },
         {
             "pname": "venus",
@@ -110,9 +135,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "5cc088af-f199-47f6-89b4-a0f4a84998f5"
+            "uuid": "bf2f7827-8146-441b-b9cb-d32a7d6960e1"
         },
         {
             "pname": "earth",
@@ -139,9 +175,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "73016693-cf51-47c8-8cea-e74df823195f"
+            "uuid": "431f5bf6-7bc0-4884-bad7-29f5442969c1"
         },
         {
             "pname": "moon",
@@ -167,9 +214,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "e49b7d7e-0477-4c0f-937a-66161dfd0425"
+            "uuid": "f14df9f9-e74e-4297-bde0-6af317ed2586"
         },
         {
             "pname": "mars",
@@ -195,9 +253,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "7f366771-2a2e-4dad-ba52-390df329c098"
+            "uuid": "27c0e38a-225e-4a4a-a8ef-2977957dce1a"
         },
         {
             "pname": "phobos",
@@ -223,9 +292,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "de9f428c-71cd-4a7c-8ebe-6063739492f7"
+            "uuid": "ab0770b1-4d3f-4acd-977b-b895b0493d8e"
         },
         {
             "pname": "deimos",
@@ -251,9 +331,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 7,
             "ptype": "rbd",
-            "uuid": "7533b6bb-915b-46ca-8108-59fb203a1781"
+            "uuid": "d92f0998-dd4e-4f33-8fb5-8961db1ee310"
         },
         {
             "pname": "jupiter",
@@ -279,9 +370,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 8,
             "ptype": "rbd",
-            "uuid": "d20faaad-f8cb-4b47-93c2-49109119a579"
+            "uuid": "ca07e064-949e-47b3-bd5e-d4a68ade945d"
         },
         {
             "pname": "europa",
@@ -307,9 +409,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 9,
             "ptype": "rbd",
-            "uuid": "13368be1-cfcf-4ed8-8afd-5ed4c7257aa8"
+            "uuid": "ad563e15-665b-4c35-ba42-2523311df504"
         },
         {
             "pname": "ganymede",
@@ -335,9 +448,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 10,
             "ptype": "rbd",
-            "uuid": "39453c35-8230-4813-960d-2499c9b272cb"
+            "uuid": "d20d01f4-8328-4b26-ae1b-2318324276d6"
         },
         {
             "pname": "io",
@@ -363,9 +487,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 11,
             "ptype": "rbd",
-            "uuid": "c39395ee-6edc-4f5c-bbf0-fd1327cec372"
+            "uuid": "5f2663ab-d428-4baa-ac29-e634ad5fa56f"
         },
         {
             "pname": "callisto",
@@ -391,9 +526,44 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
             "pidx": 12,
             "ptype": "rbd",
-            "uuid": "88732b8b-a5f8-4030-9f6b-a3a55c18ab36"
+            "uuid": "514cf916-c1ac-4bd3-9318-be78e92bff41"
+        },
+        {
+            "pname": "NPK",
+            "modelIDXs": [
+                13
+            ],
+            "solvers": [],
+            "solverAttrs": [],
+            "presolvers": [],
+            "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
+            "pidx": 13,
+            "ptype": "sprite",
+            "uuid": "b2d85193-9d7b-4c52-b190-cf11ecd318dd"
         }
     ],
     "background": [],
