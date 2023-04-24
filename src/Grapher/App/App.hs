@@ -130,8 +130,10 @@ instance Monoid Format where
 instance Semigroup Format where
   f <> _ = f
 
-instance Monoid Double
-instance Semigroup Double
+instance Monoid Double where
+  mempty = 0.0
+instance Semigroup Double where
+  x <> _ = x
 
 toDrawables :: App -> Double -> Object -> [Drawable]
 toDrawables app time obj = --drs -- (drs, drs')

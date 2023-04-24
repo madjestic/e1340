@@ -71,7 +71,7 @@ updateButton res0 btn0 =
           Button {} -> Just btn' {_pressed = isEvent $ gate lbpE overBtn}
           _ -> Just btn'
     returnA -< result
-updateButton _ w = proc _ -> do returnA -< w
+--updateButton _ w = proc _ -> do returnA -< w
 
 -- TODO : move to Widget formatting
 bos :: Double

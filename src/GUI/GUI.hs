@@ -208,8 +208,8 @@ read filePath guiSwitch =
               Right pt -> Just pt            
               _ -> Nothing
               
-    _ -> error $ "GUI' value does not exist: " ++ show guiSwitch
-              ++ "when reading file: " ++ show filePath
+    -- _ -> error $ "GUI' value does not exist: " ++ show guiSwitch
+    --           ++ "when reading file: " ++ show filePath
 
 write :: FilePath -> GUI -> IO ()
 write filePath gui = do

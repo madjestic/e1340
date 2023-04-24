@@ -3,13 +3,15 @@ module Projects.Test where
 import Data.UUID
 
 import Graphics.RedViz.Project.Project
-import Graphics.RedViz.Backend (defaultBackendOptions)
+import Graphics.RedViz.Backend
 
 defaultPreGUI :: PreGUI
 defaultPreGUI =
   PreGUI
-  defaultFonts
-  defaultIcons
+  {
+    _fonts = defaultFonts :: [Model]
+  , _icons = defaultIcons :: [Model]
+  }
 
 project :: Int -> Int -> Project
 project resx resy =
@@ -18,7 +20,6 @@ project resx resy =
   resx
   resy
   "AbsoluteLocation"
-  --[ (Model   "models/graph.bgeo")]
   [ (Model   "models/box.bgeo")]
   [ PreObject
     {
@@ -38,8 +39,7 @@ project resx resy =
     ]
   []
   defaultPreGUI
-  [ defaultPCam
-  ]
+  [ defaultPCam ]
 
 options :: Int -> Int -> Project
 options resx resy =
@@ -63,25 +63,10 @@ options resx resy =
                         ,[0.01,0,0]]
     , _options        = defaultBackendOptions
     }
-    
-    ]
+  ]
   []
   defaultPreGUI
-  [ defaultPCam
-  ]
-
-guiTestRed :: PreGUI
-guiTestRed =
-  PreGUI
-  defaultFonts
-  []
-
-emptyGUI :: PreGUI
-emptyGUI =
-  PreGUI
-  []
-  []
-  
+  [ defaultPCam ]
 
 projectTestRed :: Int -> Int -> Project
 projectTestRed resx resy =
@@ -91,7 +76,7 @@ projectTestRed resx resy =
   resy
   "AbsoluteLocation"
   [ (Model "models/box_red.bgeo")
-  , (Model "models/PNK.bgeo")
+  , (Model "models/PNK_roll.bgeo")
   ]
   [ PreObject
     {
@@ -108,7 +93,7 @@ projectTestRed resx resy =
     }
   , PreObject
     {
-      _pname          = "NPK"
+      _pname          = "PNK_roll"
     , _ptype          = "sprite"
     , _pidx           = 1
     , _uuid           = nil
@@ -117,13 +102,12 @@ projectTestRed resx resy =
     , _presolverAttrs = []
     , _solvers        = []
     , _solverAttrs    = []
-    , _options        = defaultBackendOptions
+    , _options        = defaultBackendOptions'
     }
   ]
   []
   defaultPreGUI
-  [ defaultPCam
-  ]
+  [ defaultPCam ]
 
 projectTestGreen :: Int -> Int -> Project
 projectTestGreen resx resy =
@@ -149,8 +133,7 @@ projectTestGreen resx resy =
   ]
   []
   defaultPreGUI
-  [ defaultPCam
-  ]
+  [ defaultPCam ]
 
 projectTestBlue :: Int -> Int -> Project
 projectTestBlue resx resy =
@@ -175,5 +158,4 @@ projectTestBlue resx resy =
   ]
   []
   defaultPreGUI
-  [ defaultPCam
-  ]
+  [ defaultPCam ]

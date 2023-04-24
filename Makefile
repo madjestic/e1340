@@ -319,7 +319,7 @@ solarsystem:
 	#cabal clean
 	cabal build exe:ProjectViewer
 
-	# ./resources/convertGeo.sh fnt_crosshair
+	./resources/convertGeo.sh fnt_crosshair
 	# ./resources/convertGeo.sh gizmo
 
 	#./resources/convertGeo.sh sun
@@ -339,7 +339,7 @@ solarsystem:
 	# ./resources/convertGeo.sh ganymede
 	# ./resources/convertGeo.sh io
 	# ./resources/convertGeo.sh callisto
-	# ./resources/convertGeo.sh PNK
+	./resources/convertGeo.sh PNK_roll
 
 	cabal build exe:genProject
 	cabal build exe:genApplication

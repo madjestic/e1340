@@ -126,15 +126,7 @@ output fps lastInteraction window application = do
            ) :: [Texture]
     hmap = _hmap application
 
-    opts =
-      BackendOptions
-      { primitiveMode = Triangles
-      , bgrColor      = Color4 0.0 0.0 0.0 1.0
-      , ptSize        = 1.0
-      , depthMsk      = Enabled
-      }
-    
-  clearColor $= bgrColor opts
+  clearColor $= Color4 0.0 0.0 0.0 1.0
   clear [ColorBuffer, DepthBuffer]
 
   dts <- readMVar fps

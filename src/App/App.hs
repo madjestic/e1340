@@ -96,8 +96,10 @@ fromProject prj0 gui0 = do
 
   return result
 
-instance Monoid Double
-instance Semigroup Double
+instance Monoid Double where
+  mempty = 0.0
+instance Semigroup Double where
+  x <> _ = x
 
 toDrawables :: App -> Double -> Object -> [Drawable]
 toDrawables app time obj = --drs -- (drs, drs')
@@ -111,48 +113,3 @@ toDrawables app time obj = --drs -- (drs, drs')
           cam  = view playCam app :: Camera
           drs  = D.toDrawables mpos time res' cam (obj^.base)
       Nothing -> []
-
--- type MousePos    = (Double, Double)
--- type Time        = Double
--- type Res         = (CInt, CInt)
--- type CameraM44   = M44 Double
--- type ViewAngle   = Double
--- type FieldOfView = Double
-
--- toDrawable ::
---      String
---   -> MousePos
---   -> Time
---   -> Res
---   -> Camera
---   -> M44 Double
---   -> BackendOptions
---   -> (Material, Program, Descriptor)
---   -> Drawable
--- toDrawable name mpos time res cam xformO opts (mat, prg, d) = dr
---   where
---     apt    = _apt cam
---     foc    = _foc cam
---     xformC = view (controller . Controllable.transform) cam  :: M44 Double
---     dr  = Drawable name (Uniforms mat prg mpos time res xformC apt foc xformO) d opts
-
--- toDrawables'
---   :: (Double, Double)
---   -> Double
---   -> (CInt, CInt)
---   -> Camera
---   -> Object -> [Drawable]
--- toDrawables' mpos time0 res0 cam obj = drs
---   where
---     drs = toDrawable name' mpos time0 res0 cam xformO opts'
---           <$> [(mats, progs, ds)
---               | mats  <- obj ^. base . materials
---               , progs <- obj ^. base . programs
---               , ds    <- obj ^. base . descriptors]
-
---     name'  = obj ^. base . Object.name
---     xformO = obj ^. base . transform0
---     opts'  = obj ^. base . Obj.options :: BackendOptions
---     mats   = obj ^. base . materials   :: [Material]
---     progs  = obj ^. base . programs    :: [Program]
---     ds     = obj ^. base . descriptors :: [Descriptor]
