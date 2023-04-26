@@ -191,9 +191,6 @@ defaultPreApplication =
   , _pinfoGUI = "./gui/pinfogui"
   }
 
-defaultApplication :: Application
-defaultApplication = undefined
-
 data Application
   = Application
   {

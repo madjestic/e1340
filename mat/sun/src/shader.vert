@@ -17,13 +17,6 @@ out vec3  Ng;
 out vec3  Cd;
 out vec3  uv;
 
-float log10(in float x)
-{
-	float far  = 10.0;
-	float result = (1.0f / log(far)) * log(x);
-	return(result);
-}
-
 void main()
 {
 	mat3 viewRot =

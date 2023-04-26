@@ -340,6 +340,8 @@ solarsystem:
 	# ./resources/convertGeo.sh io
 	# ./resources/convertGeo.sh callisto
 	./resources/convertGeo.sh PNK_roll
+	./resources/convertGeo.sh PNK_pitch
+	./resources/convertGeo.sh PNK_yaw
 
 	cabal build exe:genProject
 	cabal build exe:genApplication
@@ -351,6 +353,6 @@ solarsystem:
 	cabal run exe:genUUID -- -p ./projects/testblue
 	cabal run exe:genUUID -- -p ./projects/options
 	cabal run exe:genGUI
-	cabal run exe:ProjectViewer ./applications/solarsystem
 	#cabal run +RTS -sstderr -N -RTS ProjectViewer ./applications/solarsystem
 	#cabal run TS 8 ProjectViewer ./projects/solar_system_mini
+	cabal run exe:ProjectViewer ./applications/solarsystem

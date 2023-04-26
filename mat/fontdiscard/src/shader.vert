@@ -9,7 +9,7 @@ layout(location = 4) in vec3 vPosition;
 uniform mat4 camera;
 uniform mat4 persp;
 uniform mat4 xform;
-//uniform vec3 sunP;
+uniform mat4 xform1;
 
 // Output data ; will be interpolated for each fragment.
 out float A;
@@ -17,7 +17,6 @@ out vec3  N;
 out vec3  Ng;
 out vec3  Cd;
 out vec3  uv;
-out vec3  P;
 
 void main()
 {
@@ -32,32 +31,43 @@ void main()
 			 , camera[2]
 			 , vec4(0,0,0,1));
 
+	mat3 perspRot =
+		mat3 ( persp[0].xyz
+			 , persp[1].xyz
+			 , persp[2].xyz );
+
+	mat4 xform    = xform1;
+	
 	mat3 xformRot =
 		mat3 ( xform[0].xyz
 			 , xform[1].xyz
-			 , xform[2].xyz );	
+			 , xform[2].xyz );
+
+	mat4 perspRot4 =
+		mat4 ( vec4 (persp[0].xyz, 0)
+			 , vec4 (persp[1].xyz, 0)
+			 , vec4 (persp[2].xyz, 0)
+			 , vec4(0,0,0,1));
+
+	mat4 scale44 =
+		mat4 ( vec4 (1,0,0,0)
+			 , vec4 (0,1,0,0)
+			 , vec4 (0,0,1,0)
+			 , vec4 (0,0,0,1) );
 	
 	A  = alpha;
-	//N  = normalize(perspRot * viewRot * xformRot * normal);
-	N  = normalize(xformRot * normal);
+	N  = normalize(perspRot * viewRot * xformRot * normal);
 	Ng = normalize(normal);
 	Cd = color;
 	uv = uvCoords;
-	P  =  transpose(xform)[3].xyz;
-	//sunP = SunP;
-	//P  = (transpose(xform)[3].xyz) * viewRot;
-	//P  = vec3(.0, .0, -1.0);
-	//P  =  (cameraRot * xform)[3].xyz;
 
-	vec4 position = vec4(vPosition,1.0);	
+	vec4 position = vec4(vPosition,1.0) + vec4 (0,0,0,0);
 
 	gl_Position
-		= persp
-		* cameraRot
+		= perspRot4
 		* xform
-		* position;
+		* position
+		* scale44;
 
-	float x = length(gl_Position.xyz);
-	gl_Position.z = mix (f1(x, s1), f2(x, s2), mixF(x, far));
-	// gl_Position.z = -log10(length(gl_Position.xyz));
-}
+	gl_Position.z = -1;
+} 

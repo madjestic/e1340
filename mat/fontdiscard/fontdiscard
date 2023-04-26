@@ -1,0 +1,13 @@
+{
+    "name": "fontdiscard",
+    "fragShader": "./mat/fontdiscard/src/shader.frag",
+    "vertShader": "./mat/fontdiscard/src/shader.vert",
+    "geomShader": null,
+    "textures": [
+        {
+            "name": "fonts_ext",
+            "uuid": "206214ce-d4c9-4890-8a83-af6717c57e10",
+            "path": "./textures/fonts_ext.png"
+        }
+    ]
+}

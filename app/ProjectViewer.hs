@@ -18,7 +18,8 @@ import SDL
     , glSwapWindow
     , Event(eventPayload)
     , EventPayload
-    , Window )
+    , Window
+    , delay)
 import SDL.Input.Mouse
 import SDL.Vect
 
@@ -99,6 +100,7 @@ animate window sf =
 output :: MVar [Double] -> MVar Double -> Window -> Application -> IO ()
 output fps lastInteraction window application = do
 -- | render FPS current
+  --_  <- SDL.delay 100 -- shader preview hack to reduce memory leak on load
   ct <- SDL.time
 
   let
@@ -135,12 +137,7 @@ output fps lastInteraction window application = do
   dts'<- swapMVar fps $ tail dts ++ [dt]
 
   let
-    dt = sum dts'/fromIntegral (length dts')
-    mouseCoords = case app ^. App.gui . cursor of
-      crs'@(Just Cursor {}) -> 
-        (fromJust crs' ^. format . xoffset, fromJust crs' ^. format . yoffset)
-      _ -> (0,0)
-
+    dt            = sum dts'/fromIntegral (length dts')
     render'       = render txs hmap                         :: Drawable -> IO ()
     renderWidgets = renderWidget dt fntsDrs icnsDrs render' :: Widget   -> IO ()
 
@@ -190,7 +187,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  _ <- setMouseLocationMode AbsoluteLocation
+  _ <- setMouseLocationMode AbsoluteLocation --RelativeLocation
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
   _ <- cursorVisible $= False
 

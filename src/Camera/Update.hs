@@ -42,7 +42,7 @@ updateCameraController cam0 =
           let
             kbd  = (view (controller.device.keyboard) cam)
             
-          (mouse', mevs) <- updateMouse -< input
+          (mouse', mev)  <- updateMouse -< input
           (kbrd',  kevs) <- updateKeyboard kbd0 -< (input, kbd)
 
           let
@@ -130,6 +130,7 @@ updateCameraController cam0 =
                      Controllable._transform = mtx'
                    , Controllable._vel       = vel' * tlag
                    , Controllable._ypr       = ypr' * rlag
+                   , Controllable._yprS      = (cam ^. controller . yprS) + ypr'
                    , Controllable._device    =
                        (dev' { _keyboard = kbrd'
                              --, _mouse    = mouse'
@@ -149,7 +150,8 @@ updateCameraController cam0 =
                        
           returnA -<
             ( result
-            , catEvents (kevs ++ (tagWith () <$> mevs)) $> result )
+            --, catEvents (kevs ++ (tagWith () <$> mevs)) $> result )
+            , catEvents (tagWith () mev : kevs) $> result )
 
     cont = updateCameraController
 
@@ -178,17 +180,6 @@ keyList ks =
   , keyLAlt     ks 
   , keyW        ks 
   ]
-
--- updateScale :: Camera -> SF (Camera, AppInput) Double
--- updateScale cam0 = 
---   switch sf cont
---   where
---     sf =
---       proc (cam, input) ->
---          do
---            --(kbrd',  kevs) <- updateKeyboard (view (controller.device.keyboard) cam0) -< input
---            returnA -< undefined
---     cont = undefined
 
 updateCamera :: Camera -> SF (AppInput, Camera) Camera
 updateCamera cam0 = 

@@ -1,7 +1,5 @@
 #version 430 core
 
-#define M_PI 3.1415926535897932384626433832795
-
 layout(location = 0) in float alpha;
 layout(location = 1) in vec3 color;
 layout(location = 2) in vec3 normal;
@@ -20,33 +18,6 @@ out vec3  Ng;
 out vec3  Cd;
 out vec3  uv;
 out vec3  P;
-//out vec3  sunP;
-
-float s1  = 1.0f;
-float s2  = 10.0f;
-float far = 20000.0f;
-
-float f1 (in float x, in float s)
-{
-	return (-s*log (x));
-}
-
-float f2 (in float x, in float s)
-{
-	return (-pow(s*log (x), 2.0f));
-}
-
-float mixF (in float x, in float far)
-{
-	return (cos (clamp (x/(-far) + M_PI, 0.0f, M_PI)) + 1.0f);
-}
-
-float log10(in float x)
-{
-	float far  = 10.0f;
-	float result = (10.0f / log(far)) * log(x);
-	return(result);
-}
 
 void main()
 {

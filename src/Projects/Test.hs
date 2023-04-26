@@ -77,6 +77,8 @@ projectTestRed resx resy =
   "AbsoluteLocation"
   [ (Model "models/box_red.bgeo")
   , (Model "models/PNK_roll.bgeo")
+  , (Model "models/PNK_pitch.bgeo")
+  , (Model "models/PNK_yaw.bgeo")
   ]
   [ PreObject
     {
@@ -98,6 +100,32 @@ projectTestRed resx resy =
     , _pidx           = 1
     , _uuid           = nil
     , _modelIDXs      = [1]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions'
+    }
+  , PreObject
+    {
+      _pname          = "PNK_pitch"
+    , _ptype          = "sprite"
+    , _pidx           = 2
+    , _uuid           = nil
+    , _modelIDXs      = [2]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions'
+    }
+  , PreObject
+    {
+      _pname          = "PNK_yaw"
+    , _ptype          = "sprite"
+    , _pidx           = 3
+    , _uuid           = nil
+    , _modelIDXs      = [3]
     , _presolvers     = []
     , _presolverAttrs = []
     , _solvers        = []
