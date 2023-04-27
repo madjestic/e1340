@@ -109,6 +109,11 @@ output lastInteraction window application = do
     objsDrs = concatMap (toDrawables app ct) fgrObjs :: [Drawable]
     bgrsDrs = concatMap (toDrawables app ct) bgrObjs :: [Drawable]
 
+    cursor  = _cursor $ app ^. App.gui  :: Maybe Widget
+    mpos    = case cursor of
+      Just cursor' -> (cursor' ^. format . xoffset, cursor' ^. format . yoffset)
+      Nothing      -> (0,0)
+
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
 
     app  = fromApplication application
@@ -129,7 +134,7 @@ output lastInteraction window application = do
   clear [ColorBuffer, DepthBuffer]
 
   let
-    render'       = render txs hmap                         :: Drawable -> IO ()
+    render'       = render txs hmap mpos                     :: Drawable -> IO ()
     renderWidgets = renderWidget 0.0 fntsDrs icnsDrs render' :: Widget   -> IO ()
 
   mapM_ render' $ objsDrs ++ bgrsDrs

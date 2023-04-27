@@ -140,89 +140,9 @@ toDrawables app time obj = --drs -- (drs, drs')
     case app ^. Grapher.App.App.gui . cursor of
       Just cursor'  -> drs
         where
-          mpos = (cursor' ^. format . xoffset, cursor' ^. format . yoffset)
           resX = fromEnum $ fst $ view (Grapher.App.App.options . Grapher.App.App.res) app :: Int
           resY = fromEnum $ snd $ view (Grapher.App.App.options . Grapher.App.App.res) app :: Int
           res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
           cam  = view playCam app :: Camera
-          drs  = D.toDrawables mpos time res' cam (obj ^. base)
+          drs  = D.toDrawables time res' cam (obj ^. base)
       Nothing -> []
-
--- type MousePos    = (Double, Double)
--- type Time        = Double
--- type Res         = (CInt, CInt)
--- type CameraM44   = M44 Double
--- type ViewAngle   = Double
--- type FieldOfView = Double
-
--- toDrawable ::
---      String
---   -> MousePos
---   -> Time
---   -> Res
---   -> Camera
---   -> M44 Double
---   -> BackendOptions
---   -> (Material, Program, Descriptor)
---   -> Drawable
--- toDrawable name mpos time res cam xformO opts (mat, prg, d) = dr
---   where
---     apt    = _apt cam
---     foc    = _foc cam
---     xformC = view (controller . Controllable.transform) cam  :: M44 Double
---     dr  = Drawable name (Uniforms mat prg mpos time res xformC apt foc xformO) d opts
-
--- toDrawables'
---   :: (Double, Double)
---   -> Double
---   -> (CInt, CInt)
---   -> Camera
---   -> Object -> [Drawable]
--- toDrawables' mpos time0 res0 cam obj = drs
---   where
---     drs = toDrawable name' mpos time0 res0 cam xformO opts'
---           <$> [(mats, progs, ds)
---               | mats  <- obj ^. base . materials
---               , progs <- obj ^. base . programs
---               , ds    <- obj ^. base . descriptors]
-
---     name'  = obj ^. base . Object.name
---     xformO = obj ^. base . transform0
---     opts'  = obj ^. base . Obj.options :: BackendOptions
---     mats   = obj ^. base . materials   :: [Material]
---     progs  = obj ^. base . programs    :: [Program]
---     ds     = obj ^. base . descriptors :: [Descriptor]
-
--- toDrawable :: App -> [Object] -> Double -> [Drawable]
--- toDrawable app objs time0 = drs -- (drs, drs')
---   where
---     --mpos = _coords (app ^. Grapher.App.App.gui . cursor)
---     fmt  = app ^. Grapher.App.App.gui . cursor . format
---     mpos = (fmt ^. xoffset, fmt ^. yoffset)
---     resX = fromEnum $ fst $ view (Grapher.App.App.options . Grapher.App.App.res) app :: Int
---     resY = fromEnum $ snd $ view (Grapher.App.App.options . Grapher.App.App.res) app :: Int
---     res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
---     cam  = view playCam app :: Camera
---     drs  = concatMap (toDrawable' mpos time0 res' cam) objs :: [Drawable]
-
--- toDrawable' :: (Double, Double) -> Double -> (CInt, CInt) -> Camera -> Object -> [Drawable]
--- toDrawable' mpos time0 res0 cam obj = undefined --drs
-  -- where
-  --   drs      =
-  --     (\u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform' ds' ps' name'
-  --       -> Drawable name' (Uniforms u_mats' u_prog' u_mouse' u_time' u_res' u_cam' u_cam_a' u_cam_f' u_xform') ds' ps')
-  --     <$.> mats <*.> progs <*.> mpos_ <*.> time_ <*.> res_ <*.> cam_ <*.> cam_a_ <*.> cam_f_ <*.> xforms <*.> ds <*.> progs <*.> names
-
-  --   n      = length $ obj ^. base . descriptors :: Int
-  --   mpos_  = replicate n mpos  :: [(Double, Double)]
-  --   time_  = replicate n time0 :: [Double]
-  --   res_   = replicate n res0  :: [(CInt, CInt)]
-  --   cam_   = replicate n $ view (controller . Controllable.transform) cam  :: [M44 Double]
-  --   cam_a_ = replicate n $ _apt cam :: [Double]
-  --   cam_f_ = replicate n $ _foc cam :: [Double]
-
-  --   names  = repeat $ objectNames obj
-  --   mats   = obj ^. base . materials :: [Material]
-  --   progs  = obj ^. base . programs  :: [Program]
-  --   xforms = concat $ replicate n $ obj ^. base . transforms :: [M44 Double]
-  --   ds     = obj ^. base . descriptors :: [Descriptor]

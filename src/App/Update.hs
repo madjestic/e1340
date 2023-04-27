@@ -23,30 +23,6 @@ import Camera
 
 -- import Debug.Trace as DT (trace)
 
-formatDebug' :: App -> String
-formatDebug' app0 =
-  "App.Cam pos     : " ++ show camPos ++ "\n" ++
-  "App.Object name : " ++ show obj0Name ++ "\n" ++
-  "App.Object time : " ++ show (obj0 ^. base . Object.time) ++ "\n" ++
-  "App.Object tr   : " ++ show obj0tr ++ "\n" ++
-  "App.Object ypr  : " ++ show obj0ypr ++ "\n"
-  where
-    obj0  = head $ app0 ^. App.objects.foreground :: Object
-    obj0Name =
-      case obj0 of
-        Object.Empty _ -> "Empty"
-        _ -> obj0 ^. base . Object.name
-    obj0tr =
-      case obj0 of
-        Object.Empty _ -> V3 (-1) (-1) (-1)
-        _ -> (head $ obj0^.base.transforms::M44 Double)^.translation :: V3 Double
-    obj0ypr =
-      case obj0 of
-        Object.Empty _ -> V3 (-1) (-1) (-1)
-        _ -> obj0^.base.Object.ypr :: V3 Double
-    camPos =
-      app0 ^. playCam . controller . Ctrl.transform . translation  :: V3 Double
-
 selectByDist :: Double -> Camera -> [Object] -> [Object]
 selectByDist dist cam0 objs0 = selectable'
   where

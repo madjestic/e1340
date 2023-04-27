@@ -53,7 +53,7 @@ import Solvable hiding (_ypr, _trs)
 import Object.Update (updateOnce)
 import Graphics.RedViz.Backend (defaultBackendOptions)
 
---import Debug.Trace as DT
+import Debug.Trace as DT
 
 data ObjectTree =
   ObjectTree
@@ -114,14 +114,14 @@ fromPreObject prj0 cls pObj0 = do
     mapM (\mat -> case _geomShader mat of
              Just geomShader' ->
                loadShaders
-                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
+                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat))
                   , ShaderInfo GeometryShader (FileSource geomShader')
-                  , ShaderInfo FragmentShader (FileSource (_fragShader mat ))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat))
                   ]
              Nothing ->             
                loadShaders
-                  [ ShaderInfo VertexShader   (FileSource (_vertShader mat ))
-                  , ShaderInfo FragmentShader (FileSource (_fragShader mat )) ]
+                  [ ShaderInfo VertexShader   (FileSource ( _vertShader mat))
+                  , ShaderInfo FragmentShader (FileSource (_fragShader mat)) ]
          ) materials'
 
   let

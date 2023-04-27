@@ -102,14 +102,13 @@ instance Semigroup Double where
   x <> _ = x
 
 toDrawables :: App -> Double -> Object -> [Drawable]
-toDrawables app time obj = --drs -- (drs, drs')
+toDrawables app time obj =
     case app ^. App.App.gui . cursor of
       Just cursor'  -> drs
         where
-          mpos = (cursor' ^. format . xoffset, cursor' ^. format . yoffset)
           resX = fromEnum $ fst $ view (App.App.options . App.App.res) app :: Int
           resY = fromEnum $ snd $ view (App.App.options . App.App.res) app :: Int
           res' = (toEnum resX, toEnum resY) :: (CInt, CInt)
           cam  = view playCam app :: Camera
-          drs  = D.toDrawables mpos time res' cam (obj^.base)
+          drs  = D.toDrawables time res' cam (obj^.base)
       Nothing -> []

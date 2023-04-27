@@ -524,6 +524,7 @@ executable genApplication
                 Application.Application
                 Camera
                 Camera.Update
+                Projects.Test
                 GUI
                 GUI.GUI
                 GUI.Update

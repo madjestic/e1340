@@ -22,6 +22,7 @@ module GUI.GUI
   , GUI.GUI.write
   , guiSwitch
   , defGUI
+  , defaultGUI
   ) where
 
 import Control.Lens
@@ -264,6 +265,15 @@ fontSize s =
     1 -> 0.02
     0 -> 0.01
     _ -> 1.0
+
+defaultGUI :: (Int, Int) -> GUI
+defaultGUI res0@(resx, resy) =
+  defGUI
+  {
+    _res    = res0
+  , _cursor = Just $ Cursor True ""
+    (defaultCursorFormat resx resy) defOpts
+  }
 
 intrGUI :: (Int, Int) -> GUI
 intrGUI res0@(resx, resy) =

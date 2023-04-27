@@ -114,9 +114,12 @@ output fps lastInteraction window application = do
     bgrsDrs = concatMap (toDrawables app ct) bgrObjs :: [Drawable]
     wgts    = fromGUI $ app ^. App.gui  :: [Widget]
     app     = fromApplication application
-    crsr    = _cursor $ app ^. App.gui  :: Maybe Widget
+    cursor  = _cursor $ app ^. App.gui  :: Maybe Widget
+    mpos    = case cursor of
+      Just cursor' -> (cursor' ^. format . xoffset, cursor' ^. format . yoffset)
+      Nothing      -> (0,0)
     gizmo   = _gizmo  $ app ^. App.gui  :: Maybe Widget
-    icns    = maybeToList crsr ++ maybeToList gizmo :: [Widget]
+    icns    = maybeToList cursor ++ maybeToList gizmo :: [Widget]
 
   curvObj <- unsafeInterleaveIO $ toCurve fgrObjs; let curvObjs = [curvObj]
   let
@@ -138,7 +141,7 @@ output fps lastInteraction window application = do
 
   let
     dt            = sum dts'/fromIntegral (length dts')
-    render'       = render txs hmap                         :: Drawable -> IO ()
+    render'       = render txs hmap mpos                         :: Drawable -> IO ()
     renderWidgets = renderWidget dt fntsDrs icnsDrs render' :: Widget   -> IO ()
 
   mapM_ render' $ objsDrs ++ bgrsDrs
@@ -174,7 +177,7 @@ main :: IO ()
 main = do
 
   args      <- getArgs
-  initPreApp  <- if debug then A.read ("./applications/solarsystem" :: FilePath)
+  initPreApp  <- if debug then A.read ("./applications/preview" :: FilePath)
                  else          A.read (unsafeCoerce (head args)     :: FilePath)
   
   let
@@ -195,6 +198,7 @@ main = do
 
   --initPreApp      <- A.read "./applications/solarsystem"
   initApplication <- fromPreApplication initPreApp
+  --error "SUKANAH"
   app             <- initResources initApplication
   let res'        =  unsafeCoerce (resX, resY) :: (Int, Int)
   

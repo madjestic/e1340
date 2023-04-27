@@ -267,18 +267,6 @@ options:
 	#cabal run +RTS -sstderr -RTS e1340 ./projects/options ./projects/options ./projects/options
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/options
 
-grapher:
-	#cabal clean
-	#cabal build
-	./resources/convertGeo.sh graph
-	cabal run exe:genProject -- ./projects/graph 	
-	cabal run exe:genUUID    -- -p ./projects/graph
-	cabal build exe:Grapher
-	cabal run   exe:Grapher ./projects/graph ./projects/graph
-	#cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
-	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem
-
-
 projectviewer:
 	cabal build exe:ProjectViewer
 	cabal build
@@ -362,3 +350,13 @@ box2:
 	cabal run exe:genApplication -- -p ./projects/box2
 	cabal run exe:ProjectViewer ./applications/preview
 
+grapher:
+	#cabal clean
+	#cabal build
+	./resources/convertGeo.sh graph
+	cabal run exe:genProject -- ./projects/graph 	
+	cabal run exe:genUUID    -- -p ./projects/graph
+	cabal build exe:Grapher
+	cabal run   exe:Grapher ./projects/graph ./projects/graph
+	#cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
+	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem
