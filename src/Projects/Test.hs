@@ -64,8 +64,52 @@ box2 resx resy =
                            --,[0.01,0,0]]
     , _options        = defaultBackendOptions
     }
-    
-    ]
+  ]
+  []
+  defaultPreGUI
+  [ defaultPCam ]
+
+pnk :: Int -> Int -> Project
+pnk resx resy =
+  Project
+  "Test Project"
+  resx
+  resy
+  "AbsoluteLocation"
+  [ (Model "models/box.bgeo")
+  , (Model "models/PNK_roll.bgeo")
+  , (Model "models/PNK_pitch.bgeo")
+  , (Model "models/PNK_yaw.bgeo")
+  ]
+  [
+    PreObject
+    {
+      _pname          = "box"
+    , _ptype          = "rbd"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = ["rotate", "translate"]
+    , _solverAttrs    = [[0,0,0,0,0,0.01,0,0,0]
+                        ,[0.01,0,0]]
+    , _options        = defaultBackendOptions
+    }    
+  , PreObject
+    {
+      _pname          = "PNK"
+    , _ptype          = "sprite"
+    , _pidx           = 1
+    , _uuid           = nil
+    , _modelIDXs      = [1,2,3]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions'
+    }
+  ]
   []
   defaultPreGUI
   [ defaultPCam ]

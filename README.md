@@ -61,6 +61,24 @@ $ cabal run genMaterial mat/graph
 $ cabal run exe:genProject -- ./projects/test
 ```
 
+## Generate a new Application:
+```bash
+$ cabal run exe:genApplication -- -a ./applications/solarsystem
+```
+
+## A Makefile snippet for generating a project preview:
+```bash
+test:
+	./resources/convertGeo.sh box
+	cabal build exe:genProject
+	cabal build exe:genApplication
+	cabal run exe:genGUI
+	cabal run exe:genProject     --    ./projects/test
+	cabal run exe:genUUID        -- -p ./projects/test
+	cabal run exe:genApplication -- -p ./projects/test
+	cabal run exe:ProjectViewer ./applications/preview
+```
+
 ## Fix project's UUIDs:
 ```bash
 $ cabal run exe:genUUID -- -p ./projects/test

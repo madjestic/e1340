@@ -141,7 +141,7 @@ output fps lastInteraction window application = do
 
   let
     dt            = sum dts'/fromIntegral (length dts')
-    render'       = render txs hmap mpos                         :: Drawable -> IO ()
+    render'       = render txs hmap mpos                    :: Drawable -> IO ()
     renderWidgets = renderWidget dt fntsDrs icnsDrs render' :: Widget   -> IO ()
 
   mapM_ render' $ objsDrs ++ bgrsDrs

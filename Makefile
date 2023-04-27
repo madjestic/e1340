@@ -360,3 +360,15 @@ grapher:
 	cabal run   exe:Grapher ./projects/graph ./projects/graph
 	#cabal run +RTS -sstderr -RTS Grapher ./projects/graph ./projects/graph
 	#cabal run +RTS -sstderr -RTS Grapher ./projects/solarsystem ./projects/solarsystem
+
+pnk:
+	./resources/convertGeo.sh box
+	./resources/convertGeo.sh PNK_roll
+	./resources/convertGeo.sh PNK_pitch
+	./resources/convertGeo.sh PNK_yaw
+	cabal build exe:genProject
+	cabal build exe:genApplication
+	cabal run exe:genGUI
+	cabal run exe:genApplication -- -p ./projects/pnk
+	cabal run exe:genUUID        -- -p ./projects/pnk
+	cabal run exe:ProjectViewer ./applications/preview

@@ -36,6 +36,8 @@ previewProject fp = splitter fp >>= \(applName, filePath) -> do
       P.write (Projects.Test.project resx' resy') filePath
     "box2" -> do
       P.write (Projects.Test.box2 resx' resy') filePath
+    "pnk" -> do
+      P.write (Projects.Test.pnk resx' resy') filePath
     _ -> error $ "Project " ++ show filePath ++ " does not exist."
 
 genApplication :: FilePath -> IO ()
@@ -56,7 +58,6 @@ genApplication fp = splitter fp >>= \(applName, filePath) -> do
 
 splitter :: String -> IO (String, String)
 splitter fs = return (last $ splitOn "/" fs, fs )
-
 parseArgs :: [String] -> IO String
 parseArgs ["-h"] = help    >> exit
 parseArgs ["-v"] = version >> exit

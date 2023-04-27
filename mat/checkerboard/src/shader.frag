@@ -15,7 +15,6 @@ out vec4 fragColor;
 
 void main()
 {
-	vec4 font_clr = texture(checkerboard, vec2(uv.x, 1.0-uv.y));
-	fragColor     = vec4(vec3(font_clr.r), font_clr.r*2.0);
-	//fragColor   = vec4( Cd.x, Cd.y, Cd.z, A );
+	vec4 font_clr = texture(checkerboard, vec2(uv.x, 1.0f-uv.y));
+	fragColor     = font_clr;
 }

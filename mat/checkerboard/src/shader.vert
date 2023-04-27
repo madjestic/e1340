@@ -10,7 +10,7 @@ uniform mat4 camera;
 uniform mat4 persp;
 uniform mat4 xform;
 //uniform vec3 sunP;
-
+ 
 // Output data ; will be interpolated for each fragment.
 out float A;
 out vec3  N;

@@ -38,6 +38,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "graph"         -> Project.write Projects.Graph.project                    filePath
   "options"       -> Project.write (Projects.Test.options          1280 720) filePath
   "body3"         -> Project.write Projects.Body3.project                    filePath
+  "pnk"           -> Project.write (Projects.Test.pnk              1280 720) filePath
   --"planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
   _ -> Project.write (Projects.Test.project 1280 720)                        filePath
                                    

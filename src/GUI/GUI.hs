@@ -275,6 +275,10 @@ defaultGUI res0@(resx, resy) =
     (defaultCursorFormat resx resy) defOpts
   }
 
+pnkGUI :: (Int, Int) -> GUI
+pnkGUI res0@(resx, resy) =
+  defGUI
+
 intrGUI :: (Int, Int) -> GUI
 intrGUI res0@(resx, resy) =
   defGUI
