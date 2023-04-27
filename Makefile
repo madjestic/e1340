@@ -257,22 +257,6 @@ infoearth:
 	cabal build exe:e1340
 	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/infoearth
 
-test:
-	./resources/convertGeo.sh box
-	cabal build exe:genProject
-	cabal run exe:genProject -- ./projects/test
-	cabal run exe:genUUID -- -p ./projects/test
-	cabal build exe:e1340
-	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/test
-
-test2:
-	./resources/convertGeo.sh earth
-	cabal build exe:genProject
-	cabal run exe:genProject -- ./projects/test2
-	cabal run exe:genUUID -- -p ./projects/test2
-	cabal build exe:e1340
-	cabal run +RTS -sstderr -RTS ProjectViewer ./projects/test2
-
 options:
 	#cabal clean
 	#cabal build
@@ -345,7 +329,7 @@ solarsystem:
 
 	cabal build exe:genProject
 	cabal build exe:genApplication
-	cabal run exe:genApplication
+	cabal run exe:genApplication -- -a ./applications/solarsystem
 	cabal run exe:genUUID -- -p ./projects/solarsystem
 	cabal run exe:genUUID -- -p ./projects/test
 	cabal run exe:genUUID -- -p ./projects/testred
@@ -356,3 +340,25 @@ solarsystem:
 	#cabal run +RTS -sstderr -N -RTS ProjectViewer ./applications/solarsystem
 	#cabal run TS 8 ProjectViewer ./projects/solar_system_mini
 	cabal run exe:ProjectViewer ./applications/solarsystem
+
+test:
+	./resources/convertGeo.sh box
+	cabal build exe:genProject
+	cabal build exe:genApplication
+	cabal run exe:genGUI
+	cabal run exe:genProject     --    ./projects/test
+	cabal run exe:genUUID        -- -p ./projects/test
+	cabal run exe:genApplication -- -p ./projects/test
+	cabal run exe:ProjectViewer ./applications/preview
+
+box2:
+	./resources/convertGeo.sh box
+	./resources/convertGeo.sh box2
+	cabal build exe:genApplication
+	cabal build exe:genProject
+	cabal run exe:genGUI
+	cabal run exe:genProject     --    ./projects/box2
+	cabal run exe:genUUID        -- -p ./projects/box2
+	cabal run exe:genApplication -- -p ./projects/box2
+	cabal run exe:ProjectViewer ./applications/preview
+

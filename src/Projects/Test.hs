@@ -41,6 +41,35 @@ project resx resy =
   defaultPreGUI
   [ defaultPCam ]
 
+box2 :: Int -> Int -> Project
+box2 resx resy =
+  Project
+  "Test Project"
+  resx
+  resy
+  "AbsoluteLocation"
+  [ (Model   "models/box.bgeo")
+  , (Model   "models/box2.bgeo")]
+  [ PreObject
+    {
+      _pname          = "box"
+    , _ptype          = "planet"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0,1]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = [] --["rotate", "translate"]
+    , _solverAttrs    = [] --[[0,0,0,0,0,0.01,0,0,0]
+                           --,[0.01,0,0]]
+    , _options        = defaultBackendOptions
+    }
+    
+    ]
+  []
+  defaultPreGUI
+  [ defaultPCam ]
+
 options :: Int -> Int -> Project
 options resx resy =
   Project
@@ -96,42 +125,42 @@ projectTestRed resx resy =
   , PreObject
     {
       _pname          = "PNK_roll"
-    , _ptype          = "sprite"
+    , _ptype          = "rbd"
     , _pidx           = 1
     , _uuid           = nil
-    , _modelIDXs      = [1]
+    , _modelIDXs      = [1,2,3]
     , _presolvers     = []
     , _presolverAttrs = []
     , _solvers        = []
     , _solverAttrs    = []
     , _options        = defaultBackendOptions'
     }
-  , PreObject
-    {
-      _pname          = "PNK_pitch"
-    , _ptype          = "sprite"
-    , _pidx           = 2
-    , _uuid           = nil
-    , _modelIDXs      = [2]
-    , _presolvers     = []
-    , _presolverAttrs = []
-    , _solvers        = []
-    , _solverAttrs    = []
-    , _options        = defaultBackendOptions'
-    }
-  , PreObject
-    {
-      _pname          = "PNK_yaw"
-    , _ptype          = "sprite"
-    , _pidx           = 3
-    , _uuid           = nil
-    , _modelIDXs      = [3]
-    , _presolvers     = []
-    , _presolverAttrs = []
-    , _solvers        = []
-    , _solverAttrs    = []
-    , _options        = defaultBackendOptions'
-    }
+  -- , PreObject
+  --   {
+  --     _pname          = "PNK_pitch"
+  --   , _ptype          = "sprite"
+  --   , _pidx           = 2
+  --   , _uuid           = nil
+  --   , _modelIDXs      = [2]
+  --   , _presolvers     = []
+  --   , _presolverAttrs = []
+  --   , _solvers        = []
+  --   , _solverAttrs    = []
+  --   , _options        = defaultBackendOptions'
+  --   }
+  -- , PreObject
+  --   {
+  --     _pname          = "PNK_yaw"
+  --   , _ptype          = "sprite"
+  --   , _pidx           = 3
+  --   , _uuid           = nil
+  --   , _modelIDXs      = [3]
+  --   , _presolvers     = []
+  --   , _presolverAttrs = []
+  --   , _solvers        = []
+  --   , _solverAttrs    = []
+  --   , _options        = defaultBackendOptions'
+  --   }
   ]
   []
   defaultPreGUI

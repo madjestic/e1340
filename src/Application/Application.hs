@@ -19,6 +19,8 @@ module Application.Application
   , quit
   , PreApplication (..)
   , defaultPreApplication
+  , solarsystemPreApplication
+  , previewPreApplication
   , Application.Application.read
   , Application.Application.write
   , fromPreApplication
@@ -175,6 +177,46 @@ defaultPreApplication :: PreApplication
 defaultPreApplication =
   PreApplication
   {
+    _pfile    = ""
+  , _pname    = ""
+  , _resx     = 1280
+  , _resy     = 720
+  , _resp     = 0                            -- resolultion list position (for multi-res selctors)
+  , _trace    = False
+  , _pintr    = ""
+  , _pmain    = ""
+  , _popts    = ""
+  , _pinfo    = ""
+  , _pintrGUI = ""
+  , _pmainGUI = ""
+  , _poptsGUI = ""
+  , _pinfoGUI = ""
+  }
+
+previewPreApplication :: FilePath -> PreApplication
+previewPreApplication filePath =
+  PreApplication
+  {
+    _pfile    = "./applications/preview"
+  , _pname    = "Project Viewer"
+  , _resx     = 1280
+  , _resy     = 720
+  , _resp     = 0                            -- resolultion list position (for multi-res selctors)
+  , _trace    = True
+  , _pintr    = filePath
+  , _pmain    = filePath
+  , _popts    = filePath
+  , _pinfo    = filePath
+  , _pintrGUI = "./gui/defgui"
+  , _pmainGUI = "./gui/defgui"
+  , _poptsGUI = "./gui/defgui"
+  , _pinfoGUI = "./gui/defgui"
+  }
+
+solarsystemPreApplication :: PreApplication
+solarsystemPreApplication =
+  PreApplication
+  {
     _pfile    = "./applications/solarsystem"
   , _pname    = "Hello, World!"
   , _resx     = 1280
@@ -190,6 +232,7 @@ defaultPreApplication =
   , _poptsGUI = "./gui/poptsgui"
   , _pinfoGUI = "./gui/pinfogui"
   }
+  
 
 data Application
   = Application

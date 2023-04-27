@@ -6,7 +6,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec3 uvCoords;
 layout(location = 4) in vec3 vPosition;
 
-uniform vec3 ypr;
+uniform vec3 yprS;
 
 uniform mat4 camera;
 uniform mat4 persp;
@@ -59,7 +59,7 @@ void main()
 
 
 	vec3  axis  = vec3(0,0,1);
-	float angle = ypr.z*57.281;
+	float angle = yprS.z*57.281;
 	// vec4  quat  = vec4(axis, angle);
 	// gl_Position =
 	// 	mult_quat
