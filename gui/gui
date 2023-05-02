@@ -1,0 +1,82 @@
+{
+    "_cursor": {
+        "_active": true,
+        "_coords": [
+            640,
+            380
+        ],
+        "_lable": "",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "tag": "Cursor"
+    },
+    "_fps": {
+        "_active": true,
+        "_format": {
+            "_alignment": "TC",
+            "_soffset": 1.5e-2,
+            "_ssize": 0.2,
+            "_xoffset": -0.1,
+            "_yoffset": -5.0e-2,
+            "_zoffset": 0
+        },
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "tag": "FPS"
+    },
+    "_gizmo": {
+        "_active": true,
+        "_idx": 1,
+        "_lable": "",
+        "tag": "Icon"
+    },
+    "_res": [
+        1280,
+        760
+    ],
+    "_speed": {
+        "_active": true,
+        "_format": {
+            "_alignment": "BC",
+            "_soffset": 1.5e-2,
+            "_ssize": 0.2,
+            "_xoffset": 0.53,
+            "_yoffset": 9.4e-2,
+            "_zoffset": 0
+        },
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_text": [
+            "speed : 0.777"
+        ],
+        "tag": "TextField"
+    },
+    "tag": "MainGUI"
+}

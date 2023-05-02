@@ -1,0 +1,196 @@
+{
+    "_backB": null,
+    "_cursor": {
+        "_active": true,
+        "_format": {
+            "_alignment": "CC",
+            "_soffset": 0,
+            "_ssize": 0.2,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": 0,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_lable": "",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "tag": "Cursor"
+    },
+    "_fps": null,
+    "_gizmo": null,
+    "_guiSwitch": "IntrGUI'",
+    "_infos": null,
+    "_optsB": {
+        "_active": true,
+        "_bbox": {
+            "_bbx0": -0.2,
+            "_bbx1": 0.2,
+            "_bby0": 0.1,
+            "_bby1": -0.1
+        },
+        "_format": {
+            "_alignment": "CC",
+            "_soffset": 3.3e-2,
+            "_ssize": 0.2,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": -7.5e-2,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_lable": "OPTIONS",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_pressed": false,
+        "_rover": false,
+        "tag": "Button"
+    },
+    "_quitB": {
+        "_active": true,
+        "_bbox": {
+            "_bbx0": -0.2,
+            "_bbx1": 0.2,
+            "_bby0": 0.1,
+            "_bby1": -0.1
+        },
+        "_format": {
+            "_alignment": "CC",
+            "_soffset": 3.3e-2,
+            "_ssize": 0.2,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": -0.15,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_lable": "QUIT",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_pressed": false,
+        "_rover": false,
+        "tag": "Button"
+    },
+    "_res": [
+        1280,
+        720
+    ],
+    "_speed": null,
+    "_strtB": {
+        "_active": true,
+        "_bbox": {
+            "_bbx0": -0.2,
+            "_bbx1": 0.2,
+            "_bby0": 0.1,
+            "_bby1": -0.1
+        },
+        "_format": {
+            "_alignment": "CC",
+            "_soffset": 3.3e-2,
+            "_ssize": 0.2,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": 0,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_lable": "NEW GAME",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_pressed": false,
+        "_rover": false,
+        "tag": "Button"
+    },
+    "_title": {
+        "_active": true,
+        "_format": {
+            "_alignment": "TC",
+            "_soffset": 3.0e-2,
+            "_ssize": 0.2,
+            "_xoffset": -0.2,
+            "_xres": 1280,
+            "_yoffset": -0.25,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_text": [
+            "a space odyssey"
+        ],
+        "tag": "TextField"
+    },
+    "_xx": {
+        "_active": true,
+        "_format": {
+            "_alignment": "TC",
+            "_soffset": 8.0e-2,
+            "_ssize": 0.3,
+            "_xoffset": 0.19,
+            "_xres": 1280,
+            "_yoffset": 0,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "_text": [
+            "PARAYA"
+        ],
+        "tag": "TextField"
+    }
+}

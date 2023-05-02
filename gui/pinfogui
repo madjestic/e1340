@@ -1,0 +1,124 @@
+{
+    "_backB": null,
+    "_cursor": {
+        "_active": true,
+        "_format": {
+            "_alignment": "CC",
+            "_soffset": 0,
+            "_ssize": 0.2,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": 0,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_lable": "",
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "tag": "Cursor"
+    },
+    "_fps": {
+        "_active": true,
+        "_format": {
+            "_alignment": "TC",
+            "_soffset": 8.5e-2,
+            "_ssize": 1,
+            "_xoffset": 0,
+            "_xres": 1280,
+            "_yoffset": 0,
+            "_yres": 720,
+            "_zoffset": 0
+        },
+        "_options": {
+            "bgrColor": {
+                "alpha": 1,
+                "blue": 0,
+                "green": 0,
+                "red": 0
+            },
+            "depthMsk": "Enabled",
+            "primitiveMode": "Triangles",
+            "ptSize": 1
+        },
+        "tag": "FPS"
+    },
+    "_gizmo": null,
+    "_guiSwitch": "InfoGUI'",
+    "_infos": [
+        {
+            "_active": true,
+            "_format": {
+                "_alignment": "BC",
+                "_soffset": 8.5e-2,
+                "_ssize": 1,
+                "_xoffset": 0,
+                "_xres": 1280,
+                "_yoffset": 0,
+                "_yres": 720,
+                "_zoffset": 0
+            },
+            "_options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
+            "_text": [
+                "planet ebanat"
+            ],
+            "tag": "TextField"
+        },
+        {
+            "_active": true,
+            "_format": {
+                "_alignment": "TC",
+                "_soffset": 8.5e-2,
+                "_ssize": 1,
+                "_xoffset": -0.15,
+                "_xres": 1280,
+                "_yoffset": 0,
+                "_yres": 720,
+                "_zoffset": 0
+            },
+            "_options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
+            "_text": [
+                "population: 11,000,000,000 ebanats"
+            ],
+            "tag": "TextField"
+        }
+    ],
+    "_optsB": null,
+    "_quitB": null,
+    "_res": [
+        1280,
+        720
+    ],
+    "_speed": null,
+    "_strtB": null,
+    "_title": null,
+    "_xx": null
+}
