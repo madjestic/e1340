@@ -1,0 +1,15 @@
+{
+    "resx": 1280,
+    "resy": 720,
+    "resp": 0,
+    "trace": false,
+    "pintr": "./projects/solarsystem",
+    "pmain": "./projects/solarsystem",
+    "popts": "./projects/solarsystem",
+    "pinfo": "./projects/solarsystem",
+    "pintrGUI": "./gui/pintrgui",
+    "pmainGUI": "./gui/pmaingui",
+    "poptsGUI": "./gui/poptsgui",
+    "pinfoGUI": "./gui/pmaingui",
+    "pfile": "./applications/solarsystem"
+}

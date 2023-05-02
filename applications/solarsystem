@@ -1,0 +1,16 @@
+{
+    "pfile": "./applications/solarsystem",
+    "pname": "Hello, World!",
+    "resx": 1280,
+    "resy": 720,
+    "resp": 0,
+    "trace": true,
+    "pintr": "./projects/testred",
+    "pmain": "./projects/test",
+    "popts": "./projects/testgreen",
+    "pinfo": "./projects/testblue",
+    "pintrGUI": "./gui/pintrgui",
+    "pmainGUI": "./gui/pmaingui",
+    "poptsGUI": "./gui/poptsgui",
+    "pinfoGUI": "./gui/pinfogui"
+}

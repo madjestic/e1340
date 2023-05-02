@@ -1,0 +1,16 @@
+{
+    "pfile": "./applications/preview",
+    "pname": "Project Viewer",
+    "resx": 1280,
+    "resy": 720,
+    "resp": 0,
+    "trace": true,
+    "pintr": "./projects/pnk",
+    "pmain": "./projects/pnk",
+    "popts": "./projects/pnk",
+    "pinfo": "./projects/pnk",
+    "pintrGUI": "./gui/defgui",
+    "pmainGUI": "./gui/defgui",
+    "poptsGUI": "./gui/defgui",
+    "pinfoGUI": "./gui/defgui"
+}
