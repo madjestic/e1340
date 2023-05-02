@@ -190,7 +190,7 @@ main = do
                (resX, resY)
 
   -- | SDL Mouse Options
-  _ <- setMouseLocationMode AbsoluteLocation --RelativeLocation
+  _ <- setMouseLocationMode RelativeLocation
   _ <- warpMouse (WarpInWindow window) (P (V2 (resX`div`2) (resY`div`2)))
   _ <- cursorVisible $= False
 

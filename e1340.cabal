@@ -1,1 +1,786 @@
-/home/madjestic/Projects/Haskell/e1340/e1340.cabal.current
+cabal-version: 3.0
+name:          e1340
+version:       0.4.0.0
+synopsis:      A space sim game.
+description:   Please see the README on GitHub at <https://github.com/madjestic/e1338#readme>
+homepage:      https://github.com/madjestic/e1340
+license:       BSD-3-Clause
+license-file:  LICENSE
+author:        madjestic
+maintainer:    madjestic13@gmail.com
+copyright:     Vladimir Lopatin
+category:      App
+build-type:    Simple
+
+extra-source-files:
+                ChangeLog.md
+                README.md
+                LICENSE
+
+source-repository head
+  type:         git
+  location:     https://github.com/madjestic/e1340
+
+library
+  hs-source-dirs:
+                src
+  ghc-options: -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options: -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+  --ghc-options: -threaded -O2
+  build-depends:
+                base
+              , aeson               
+              , aeson-pretty
+              --, bearriver
+              , Yampa              
+              , bytestring
+              , containers          
+              --, GLUtil              
+              , ilist               
+              , lens                
+              , linear              
+              , locators            
+              , massiv          
+              , OpenGL
+              , random              
+              , scientific          
+              , simple-affine-space 
+              , sdl2                
+              , sort
+              , split
+              , store
+              , text                
+              , uuid                
+              , vector
+  exposed-modules:
+              Graphics.RedViz.LoadShaders
+              Graphics.RedViz.Rendering
+              Graphics.RedViz.Material
+              Graphics.RedViz.Descriptor
+              Graphics.RedViz.Drawable
+              Graphics.RedViz.Texture
+              Graphics.RedViz.Utils
+              Graphics.RedViz.Camera
+              Graphics.RedViz.Controllable
+              Graphics.RedViz.Input
+              Graphics.RedViz.Input.Keyboard
+              Graphics.RedViz.Input.Mouse
+              Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+              Graphics.RedViz.Backend
+              Graphics.RedViz.Input.FRP.Yampa
+              Graphics.RedViz.Input.FRP.Yampa.AppInput
+              Graphics.RedViz.Project.Model
+              Graphics.RedViz.Project.Project
+              Graphics.RedViz.Project.Utils
+              Graphics.RedViz.PGeo
+              Graphics.RedViz.VAO
+              Graphics.RedViz.FromVector
+              Graphics.RedViz.Object
+              Graphics.RedViz.Widget
+              
+  other-modules:
+                Paths_e1340
+                Graphics.RedViz
+              
+  default-language:
+              Haskell2010
+
+executable Grapher
+  main-is:             Grapher.hs
+  hs-source-dirs:
+                       app
+                     , src
+  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+  ghc-options:   -O2 -threaded
+  --cpp-options:   -DDEBUG
+  --cpp-options:   -DDEBUGMAIN 
+  build-depends:
+                  base                
+                , aeson               
+                , aeson-pretty                         
+                --, bearriver
+                , Yampa
+                , bytestring          
+                , containers                             
+                , ilist                                  
+                , lens                
+                , linear              
+                , locators                               
+                , massiv              
+                , random              
+                , vector
+                , GLUT
+                --, GLUtil
+                , OpenGL
+                , sdl2
+                , simple-affine-space                  
+                , splitmix
+                , split                                  
+                , sort                                   
+                , store                                 
+                , text                
+                , uuid                
+  other-modules:
+                  Paths_e1340
+                , Graphics.RedViz.Controllable
+                , Graphics.RedViz.Descriptor
+                , Graphics.RedViz.Drawable
+                , Graphics.RedViz.Input.FRP.Yampa.AppInput
+                , Graphics.RedViz.Input.Keyboard
+                , Graphics.RedViz.Input.Mouse
+                , Graphics.RedViz.LoadShaders
+                , Graphics.RedViz.Material
+                , Graphics.RedViz.Project
+                , Graphics.RedViz.Project.Model
+                , Graphics.RedViz.Project.Project
+                , Graphics.RedViz.Rendering
+                , Graphics.RedViz.Texture
+                , Graphics.RedViz.Utils
+                , Graphics.RedViz.VAO
+                , Graphics.RedViz.Widget
+                , Graphics.RedViz.Input
+                , Graphics.RedViz.Input.FRP.Yampa
+                , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+                , Graphics.RedViz.Camera
+                , Graphics.RedViz.FromVector
+                , Graphics.RedViz.Object
+                , Graphics.RedViz.PGeo
+                , Graphics.RedViz.Project.Utils
+                , Graphics.RedViz.Backend
+                , Graphics.RedViz.Primitives
+                , Grapher.Application.Application
+                , Grapher.Graph
+                , Grapher.GUI
+                , Grapher.GUI.GUI
+                , Grapher.GUI.Update
+                , Grapher.App
+                , Grapher.App.App
+                , Grapher.App.Update
+                , Grapher.Object
+                , Grapher.Object.Object
+                , Grapher.Object.Update
+                , Grapher.ObjectTree
+                , Grapher.Application.Interface
+                , Grapher.Application
+                , Grapher.Application.Update
+                --, Projects.Curve                
+                , Solvable
+
+  default-language:    Haskell2010
+                
+                                                                           
+-- executable e1340
+--   main-is:      Main.hs
+--   hs-source-dirs:
+--                 app
+--               , src
+--   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+--   --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+--   ghc-options:   -O2 -threaded
+--   --cpp-options:   -DDEBUG
+--   --cpp-options:   -DDEBUGMAIN
+--   build-depends:
+--                  base
+--                , aeson               
+--                , aeson-pretty        
+--                --, bearriver
+--                , Yampa             
+--                , bytestring          
+--                , containers          
+--                , GLUtil              
+--                , ilist               
+--                , lens                
+--                , linear              
+--                , locators            
+--                , massiv              
+--                , OpenGL              
+--                , random                        
+--                , sdl2                
+--                , split               
+--                , store               
+--                , text                
+--                , simple-affine-space 
+--                , sort                
+--                , vector              
+--                , uuid                
+
+--   other-modules:
+--                 Paths_e1340
+--               , Graphics.RedViz
+--               , Graphics.RedViz.Rendering
+--               , Graphics.RedViz.Descriptor
+--               , Graphics.RedViz.Drawable
+--               , Graphics.RedViz.LoadShaders
+--               , Graphics.RedViz.Material
+--               , Graphics.RedViz.Texture
+--               , Graphics.RedViz.Utils
+--               , Graphics.RedViz.Camera
+--               , Graphics.RedViz.Controllable
+--               , Graphics.RedViz.Input.Keyboard
+--               , Graphics.RedViz.Input.Mouse
+--               , Graphics.RedViz.Project
+--               , Graphics.RedViz.Project.Model
+--               , Graphics.RedViz.Project.Project
+--               , Graphics.RedViz.FromVector
+--               , Graphics.RedViz.PGeo
+--               , Graphics.RedViz.VAO
+--               , Graphics.RedViz.Project.Utils
+--               , Graphics.RedViz.Input
+--               , Graphics.RedViz.Input.FRP.Yampa
+--               , Graphics.RedViz.Input.FRP.Yampa.AppInput
+--               , Graphics.RedViz.Input.FRP.Yampa.Update
+--               , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+--               , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+--               , Graphics.RedViz.Object
+--               , Graphics.RedViz.Widget
+--               , Graphics.RedViz.Backend
+--               , Graphics.RedViz.Primitives             
+--               , ObjectTree
+--               , App
+--               , App.App
+--               , App.Update
+--               , Application
+--               , Application.Application
+--               , Application.Update
+--               , Application.Interface
+--               , Camera
+--               , Camera.Update
+--               , Object
+--               , Object.Object
+--               , Object.Update
+--               , Solvable
+--               , Projects.Test
+--               , GUI
+--               , GUI.GUI
+--               , GUI.Update
+              
+--   default-language:
+--                 Haskell2010
+
+executable ProjectViewer
+  main-is:      ProjectViewer.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+  ghc-options:   -O2 -threaded
+  --cpp-options:   -DDEBUG
+  --cpp-options:   -DDEBUGSHADERS
+  --cpp-options:   -DDEBUGMAIN
+  build-depends:
+                 base                
+               , aeson               
+               , aeson-pretty        
+               --, bearriver
+               , Yampa                              
+               , bytestring          
+               , containers          
+               --, GLUtil
+               , JuicyPixels
+               , ilist               
+               , lens                
+               , linear              
+               , locators            
+               , massiv              
+               , OpenGL              
+               , random                        
+               , sdl2                
+               , split              
+               , store
+               , array          
+               , text                
+               , simple-affine-space 
+               , sort                
+               , vector              
+               , uuid
+               , dear-imgui
+
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz
+              , Graphics.RedViz.Rendering
+              , Graphics.RedViz.Descriptor
+              , Graphics.RedViz.Drawable
+              , Graphics.RedViz.LoadShaders
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.Texture
+              , Graphics.RedViz.Utils
+              , Graphics.RedViz.Camera
+              , Graphics.RedViz.Controllable
+              , Graphics.RedViz.Input.Keyboard
+              , Graphics.RedViz.Input.Mouse
+              , Graphics.RedViz.Project
+              , Graphics.RedViz.Project.Model
+              , Graphics.RedViz.Project.Project
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.PGeo
+              , Graphics.RedViz.VAO
+              , Graphics.RedViz.Project.Utils
+              , Graphics.RedViz.Input
+              , Graphics.RedViz.Input.FRP.Yampa
+              , Graphics.RedViz.Input.FRP.Yampa.AppInput
+              , Graphics.RedViz.Input.FRP.Yampa.Update
+              , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+              , Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+              , Graphics.RedViz.Object
+              , Graphics.RedViz.Widget
+              , Graphics.RedViz.Primitives
+              , Graphics.RedViz.Backend
+              , Graphics.RedViz.GLUtil
+              , Graphics.RedViz.GLUtil.JuicyTextures
+              , Graphics.RedViz.GLUtil.Textures
+              , Graphics.RedViz.GLUtil.TypeMapping              
+              , ObjectTree
+              , App
+              , App.App
+              , App.Update
+              , Application
+              , Application.Application
+              , Application.Update
+              , Application.Interface
+              , Camera
+              , Camera.Update
+              , Object
+              , Object.Object
+              , Object.Update
+              , Solvable
+              , GUI
+              , GUI.GUI
+              , GUI.Update
+              , Projects.Body3
+              , Projects.Graph
+              --, Projects.InfoEarth
+              , Projects.SolarSystem
+              --, Projects.SolarSystemMini
+              , Projects.Test
+              --, Projects.PlanetSputnik
+              --, Projects.Curve
+              , Projects.Test
+              
+  default-language:
+                Haskell2010
+
+-- executable Welcome
+--   main-is:      Welcome.hs
+--   hs-source-dirs:
+--                 app
+--               , src
+
+--   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+--   ghc-options:    -threaded -O2 -Wno-missing-home-modules
+--   --cpp-options:   -DDEBUG
+--   build-depends:
+--                 base
+--               , managed
+--               , dear-imgui
+--               , OpenGL
+--               , sdl2
+--               , bytestring
+--               , Yampa
+--               , linear
+--               , lens
+--               , aeson
+--               , uuid
+--               , text
+--               , sort
+--               , aeson-pretty
+--               , random
+--               , simple-affine-space
+--               , vector
+--               , locators
+--               , ilist
+--               , containers
+--               , massiv
+--               , store
+--               --, GLUtil
+--               , split
+                
+--   other-modules:
+--                 Paths_e1340
+--               , Graphics.RedViz.LoadShaders
+
+--   default-language:
+--                 Haskell2010
+
+executable genMaterial
+  main-is:      genMaterial.hs
+  hs-source-dirs:
+                app
+              , src
+
+  ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options    -threaded -O2
+  --cpp-options:   -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers                      
+              , directory           
+              , ilist                                                       
+              , lens                
+              , linear                         
+              , locators            
+              , OpenGL              
+              , random              
+              , simple-affine-space           
+              , split               
+              , text                
+              , uuid                
+              , vector                         
+
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.Utils
+              , Graphics.RedViz.Texture
+              , Graphics.RedViz.Backend              
+
+  default-language:
+                Haskell2010
+
+executable genProject
+  main-is:      genProject.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers          
+              , ilist                                         
+              , lens                
+              , linear              
+              , locators                        
+              , OpenGL              
+              , random                        
+              , simple-affine-space           
+              , text                
+              , sort                
+              , uuid                
+              , vector
+              , split
+
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.Project
+              , Graphics.RedViz.Project.Model
+              , Graphics.RedViz.Project.Project
+              , Graphics.RedViz.Texture
+              , Graphics.RedViz.Utils
+              , Projects.Test
+              , Projects.SolarSystem
+              --, Projects.InfoEarth
+              , Projects.Graph
+              , Projects.Body3
+              , Graphics.RedViz.Backend
+              --, Projects.PlanetSputnik
+              --, Projects.SolarSystemMini
+              --, Projects.SolarSystemExtended
+              --, Projects.Curve
+
+  default-language:
+                Haskell2010
+
+executable genApplication
+  main-is:      genApplication.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base
+              , OpenGL
+              , sdl2
+              , linear
+              , Yampa
+              , lens
+              , bytestring
+              , aeson
+              , aeson-pretty
+              , uuid
+              , text
+              , sort
+              , random
+              , simple-affine-space
+              , vector
+              , locators
+              , ilist
+              , containers
+              , massiv
+              , store
+              , array
+              --, GLUtil
+              , JuicyPixels
+              , split
+              
+  other-modules:
+                Paths_e1340
+                App
+                App.App
+                App.Update
+                Application.Application
+                Camera
+                Camera.Update
+                Projects.Test
+                GUI
+                GUI.GUI
+                GUI.Update
+                Graphics.RedViz
+                Graphics.RedViz.Backend
+                Graphics.RedViz.Camera
+                Graphics.RedViz.Controllable
+                Graphics.RedViz.Descriptor
+                Graphics.RedViz.Drawable
+                Graphics.RedViz.FromVector
+                Graphics.RedViz.Input
+                Graphics.RedViz.Input.FRP.Yampa
+                Graphics.RedViz.Input.FRP.Yampa.AppInput
+                Graphics.RedViz.Input.FRP.Yampa.Update
+                Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+                Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+                Graphics.RedViz.Input.Keyboard
+                Graphics.RedViz.Input.Mouse
+                Graphics.RedViz.LoadShaders
+                Graphics.RedViz.Material
+                Graphics.RedViz.Object
+                Graphics.RedViz.PGeo
+                Graphics.RedViz.Primitives
+                Graphics.RedViz.Project
+                Graphics.RedViz.Project.Model
+                Graphics.RedViz.Project.Project
+                Graphics.RedViz.Project.Utils
+                Graphics.RedViz.GLUtil
+                Graphics.RedViz.GLUtil.JuicyTextures
+                Graphics.RedViz.GLUtil.Textures
+                Graphics.RedViz.GLUtil.TypeMapping
+                Projects.SolarSystem
+                Graphics.RedViz.Rendering
+                Graphics.RedViz.Texture
+                Graphics.RedViz.Utils
+                Graphics.RedViz.VAO
+                Graphics.RedViz.Widget
+                Object
+                Object.Object
+                Object.Update
+                ObjectTree
+                Solvable
+
+  default-language:
+                Haskell2010
+
+executable genGUI
+  main-is:      genGUI.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base
+              , OpenGL
+              , sdl2
+              , linear
+              , Yampa
+              , lens
+              , bytestring
+              , aeson
+              , aeson-pretty
+              -- , uuid
+              , text
+              -- , sort
+              -- , random
+              -- , simple-affine-space
+              -- , vector
+              -- , locators
+              -- , ilist
+              -- , containers
+              -- , massiv
+              -- , store
+              -- , GLUtil
+              -- , split
+              
+  other-modules:
+                Paths_e1340
+                -- App
+                -- App.App
+                -- App.Update
+                -- Application.Application
+                -- Camera
+                -- Camera.Update
+                GUI
+                GUI.GUI
+                GUI.Update
+                Graphics.RedViz.Backend
+                -- Graphics.RedViz.Camera
+                -- Graphics.RedViz.Controllable
+                -- Graphics.RedViz.Descriptor
+                -- Graphics.RedViz.Drawable
+                -- Graphics.RedViz.FromVector
+                -- Graphics.RedViz.Input
+                -- Graphics.RedViz.Input.FRP.Yampa
+                Graphics.RedViz.Input.FRP.Yampa.AppInput
+                -- Graphics.RedViz.Input.FRP.Yampa.Update
+                -- Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
+                Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+                -- Graphics.RedViz.Input.Keyboard
+                Graphics.RedViz.Input.Mouse
+                -- Graphics.RedViz.LoadShaders
+                -- Graphics.RedViz.Material
+                -- Graphics.RedViz.Object
+                -- Graphics.RedViz.PGeo
+                -- Graphics.RedViz.Primitives
+                -- Graphics.RedViz.Project
+                -- Graphics.RedViz.Project.Model
+                -- Graphics.RedViz.Project.Project
+                -- Graphics.RedViz.Project.Utils
+                -- Graphics.RedViz.Rendering
+                -- Graphics.RedViz.Texture
+                -- Graphics.RedViz.Utils
+                -- Graphics.RedViz.VAO
+                Graphics.RedViz.Widget
+                -- Object
+                -- Object.Object
+                -- Object.Update
+                -- ObjectTree
+                -- Solvable
+
+  default-language:
+                Haskell2010
+
+executable genUUID
+  main-is:      genUUID.hs
+  hs-source-dirs:
+                app
+              , src
+  --ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                
+              , aeson               
+              , aeson-pretty        
+              , bytestring          
+              , containers          
+              , directory           
+              , ilist               
+              , lens                
+              , linear              
+              , locators            
+              , OpenGL              
+              , simple-affine-space                         
+              , sort                
+              , text                
+              , uuid                
+              , random              
+              , vector              
+              
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.Project
+              , Graphics.RedViz.Project.Model
+              , Graphics.RedViz.Project.Project
+              , Graphics.RedViz.Texture
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.Utils
+              --, Projects.Curve
+
+  default-language:
+                Haskell2010
+                
+executable geoIndexer
+  main-is:       geoIndexer.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -with-rtsopts=-N -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                 
+              , OpenGL               
+              , aeson                
+              , aeson-pretty         
+              , bytestring           
+              , containers           
+              , ilist                
+              , lens                 
+              , linear               
+              , locators                          
+              , massiv               
+              , optparse-applicative 
+              , random                                        
+              , store                
+              , text                 
+              , simple-affine-space  
+              , time-compat          
+              , time                 
+              , uuid                 
+              , vector               
+              
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.Texture
+              , Graphics.RedViz.PGeo
+              , Graphics.RedViz.Utils
+              , Graphics.RedViz.VAO
+              , Graphics.RedViz.Backend
+              
+
+  default-language:
+                   Haskell2010
+
+executable rpcShuffler
+  main-is:       rpcShuffler.hs
+  hs-source-dirs:
+                app
+              , src
+  ghc-options:         -threaded -O2 -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+  --ghc-options:         -threaded -O2
+  --cpp-options:         -DDEBUG
+  build-depends:
+                base                 
+              , aeson                
+              , aeson-pretty         
+              , bytestring           
+              , containers           
+              , text                 
+              , OpenGL               
+              , ilist                
+              , extra                
+              , lens                 
+              , locators                         
+              , random                                       
+              , store                
+              , simple-affine-space  
+              , linear               
+              , massiv               
+              , vector               
+              , uuid                 
+              
+  other-modules:
+                Paths_e1340
+              , Graphics.RedViz.FromVector
+              , Graphics.RedViz.Material
+              , Graphics.RedViz.PGeo
+              , Graphics.RedViz.Utils
+              , Graphics.RedViz.VAO
+              , Graphics.RedViz.Texture
+              --, Graphics.RedViz.Backend
+              
+  default-language:
+                Haskell2010
