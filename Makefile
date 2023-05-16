@@ -368,6 +368,7 @@ pnk:
 	./resources/convertGeo.sh PNK_yaw
 	cabal build exe:genProject
 	cabal build exe:genApplication
+	cabal build exe:genGUI
 	cabal run exe:genGUI
 	cabal run exe:genApplication -- -p ./projects/pnk
 	cabal run exe:genUUID        -- -p ./projects/pnk

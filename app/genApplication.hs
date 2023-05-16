@@ -58,6 +58,7 @@ genApplication fp = splitter fp >>= \(applName, filePath) -> do
 
 splitter :: String -> IO (String, String)
 splitter fs = return (last $ splitOn "/" fs, fs )
+
 parseArgs :: [String] -> IO String
 parseArgs ["-h"] = help    >> exit
 parseArgs ["-v"] = version >> exit

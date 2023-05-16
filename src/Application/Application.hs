@@ -207,10 +207,10 @@ previewPreApplication filePath =
   , _pmain    = filePath
   , _popts    = filePath
   , _pinfo    = filePath
-  , _pintrGUI = "./gui/defgui"
-  , _pmainGUI = "./gui/defgui"
-  , _poptsGUI = "./gui/defgui"
-  , _pinfoGUI = "./gui/defgui"
+  , _pintrGUI = "./gui/pnkgui"
+  , _pmainGUI = "./gui/pnkgui"
+  , _poptsGUI = "./gui/pnkgui"
+  , _pinfoGUI = "./gui/pnkgui"
   }
 
 solarsystemPreApplication :: PreApplication

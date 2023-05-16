@@ -9,8 +9,8 @@
     "pmain": "./projects/pnk",
     "popts": "./projects/pnk",
     "pinfo": "./projects/pnk",
-    "pintrGUI": "./gui/defgui",
-    "pmainGUI": "./gui/defgui",
-    "poptsGUI": "./gui/defgui",
-    "pinfoGUI": "./gui/defgui"
+    "pintrGUI": "./gui/pnkgui",
+    "pmainGUI": "./gui/pnkgui",
+    "poptsGUI": "./gui/pnkgui",
+    "pinfoGUI": "./gui/pnkgui"
 }

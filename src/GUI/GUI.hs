@@ -21,6 +21,7 @@ module GUI.GUI
   , GUI.GUI.read
   , GUI.GUI.write
   , guiSwitch
+  , pnkGUI
   , defGUI
   , defaultGUI
   ) where
@@ -278,6 +279,22 @@ defaultGUI res0@(resx, resy) =
 pnkGUI :: (Int, Int) -> GUI
 pnkGUI res0@(resx, resy) =
   defGUI
+  {
+    _res    = res0
+  , _cursor = Just $ Cursor True ""
+    (defaultCursorFormat resx resy) defOpts
+  , _fps    = Just $
+    FPS       True
+    (Format CC resx resy (-0.2) (-0.0) (0.0) 0.015 0.2) defOpts
+  , _speed  = Just $
+    TextField True ["speed : 0.777"]
+    (Format CC resx resy 0.0 0.0 0.0 0.015 0.2) defOpts    
+  , _title  = Just $
+    TextField True ["a space odyssey"] 
+    (Format CC resx resy (-0.2) (0.0) 0.0 0.03 (fontSize 4)) defOpts
+  , _gizmo     = Just $ Icon True "" 1 (Format CC resx resy (-0.2) (0.0) (0) 0.0 0.5) defOpts
+  , _guiSwitch = MainGUI'
+  }
 
 intrGUI :: (Int, Int) -> GUI
 intrGUI res0@(resx, resy) =

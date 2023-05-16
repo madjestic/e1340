@@ -52,6 +52,9 @@ library
               , text                
               , uuid                
               , vector
+              , array
+              , JuicyPixels
+              
   exposed-modules:
               Graphics.RedViz.LoadShaders
               Graphics.RedViz.Rendering
@@ -77,6 +80,10 @@ library
               Graphics.RedViz.FromVector
               Graphics.RedViz.Object
               Graphics.RedViz.Widget
+              Graphics.RedViz.GLUtil
+              Graphics.RedViz.GLUtil.JuicyTextures
+              Graphics.RedViz.GLUtil.Textures
+              Graphics.RedViz.GLUtil.TypeMapping
               
   other-modules:
                 Paths_e1340
@@ -85,90 +92,95 @@ library
   default-language:
               Haskell2010
 
-executable Grapher
-  main-is:             Grapher.hs
-  hs-source-dirs:
-                       app
-                     , src
-  --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
-  --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
-  ghc-options:   -O2 -threaded
-  --cpp-options:   -DDEBUG
-  --cpp-options:   -DDEBUGMAIN 
-  build-depends:
-                  base                
-                , aeson               
-                , aeson-pretty                         
-                --, bearriver
-                , Yampa
-                , bytestring          
-                , containers                             
-                , ilist                                  
-                , lens                
-                , linear              
-                , locators                               
-                , massiv              
-                , random              
-                , vector
-                , GLUT
-                --, GLUtil
-                , OpenGL
-                , sdl2
-                , simple-affine-space                  
-                , splitmix
-                , split                                  
-                , sort                                   
-                , store                                 
-                , text                
-                , uuid                
-  other-modules:
-                  Paths_e1340
-                , Graphics.RedViz.Controllable
-                , Graphics.RedViz.Descriptor
-                , Graphics.RedViz.Drawable
-                , Graphics.RedViz.Input.FRP.Yampa.AppInput
-                , Graphics.RedViz.Input.Keyboard
-                , Graphics.RedViz.Input.Mouse
-                , Graphics.RedViz.LoadShaders
-                , Graphics.RedViz.Material
-                , Graphics.RedViz.Project
-                , Graphics.RedViz.Project.Model
-                , Graphics.RedViz.Project.Project
-                , Graphics.RedViz.Rendering
-                , Graphics.RedViz.Texture
-                , Graphics.RedViz.Utils
-                , Graphics.RedViz.VAO
-                , Graphics.RedViz.Widget
-                , Graphics.RedViz.Input
-                , Graphics.RedViz.Input.FRP.Yampa
-                , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
-                , Graphics.RedViz.Camera
-                , Graphics.RedViz.FromVector
-                , Graphics.RedViz.Object
-                , Graphics.RedViz.PGeo
-                , Graphics.RedViz.Project.Utils
-                , Graphics.RedViz.Backend
-                , Graphics.RedViz.Primitives
-                , Grapher.Application.Application
-                , Grapher.Graph
-                , Grapher.GUI
-                , Grapher.GUI.GUI
-                , Grapher.GUI.Update
-                , Grapher.App
-                , Grapher.App.App
-                , Grapher.App.Update
-                , Grapher.Object
-                , Grapher.Object.Object
-                , Grapher.Object.Update
-                , Grapher.ObjectTree
-                , Grapher.Application.Interface
-                , Grapher.Application
-                , Grapher.Application.Update
-                --, Projects.Curve                
-                , Solvable
+-- executable Grapher
+--   main-is:             Grapher.hs
+--   hs-source-dirs:
+--                        app
+--                      , src
+--   --ghc-options:   -O2 -threaded -Wall -Werror -Wcompat -Widentities -Wno-unused-top-binds -Wno-orphans
+--   --ghc-options:   -threaded -fprof-auto -fprof-cafs "-with-rtsopts=-N -p -s -hc -i0.1 -xc"
+--   ghc-options:   -O2 -threaded
+--   --cpp-options:   -DDEBUG
+--   --cpp-options:   -DDEBUGMAIN 
+--   build-depends:
+--                   base                
+--                 , aeson               
+--                 , aeson-pretty                         
+--                 --, bearriver
+--                 , Yampa
+--                 , bytestring          
+--                 , containers                             
+--                 , ilist                                  
+--                 , lens                
+--                 , linear              
+--                 , locators                               
+--                 , massiv              
+--                 , random              
+--                 , vector
+--                 , GLUT
+--                 --, GLUtil
+--                 , JuicyPixels
+--                 , OpenGL
+--                 , sdl2
+--                 , simple-affine-space                  
+--                 , splitmix
+--                 , split                                  
+--                 , sort                                   
+--                 , store
+--                 , array
+--                 , text                
+--                 , uuid                
+--   other-modules:
+--                   Paths_e1340
+--                 , Graphics.RedViz.Controllable
+--                 , Graphics.RedViz.Descriptor
+--                 , Graphics.RedViz.Drawable
+--                 , Graphics.RedViz.Input.FRP.Yampa.AppInput
+--                 , Graphics.RedViz.Input.Keyboard
+--                 , Graphics.RedViz.Input.Mouse
+--                 , Graphics.RedViz.LoadShaders
+--                 , Graphics.RedViz.Material
+--                 , Graphics.RedViz.Project
+--                 , Graphics.RedViz.Project.Model
+--                 , Graphics.RedViz.Project.Project
+--                 , Graphics.RedViz.Rendering
+--                 , Graphics.RedViz.Texture
+--                 , Graphics.RedViz.Utils
+--                 , Graphics.RedViz.VAO
+--                 , Graphics.RedViz.Widget
+--                 , Graphics.RedViz.Input
+--                 , Graphics.RedViz.Input.FRP.Yampa
+--                 , Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
+--                 , Graphics.RedViz.Camera
+--                 , Graphics.RedViz.FromVector
+--                 , Graphics.RedViz.Object
+--                 , Graphics.RedViz.PGeo
+--                 , Graphics.RedViz.Project.Utils
+--                 , Graphics.RedViz.Backend
+--                 , Graphics.RedViz.Primitives
+--                 , Graphics.RedViz.GLUtil
+--                 , Graphics.RedViz.GLUtil.JuicyTextures
+--                 , Graphics.RedViz.GLUtil.Textures
+--                 , Graphics.RedViz.GLUtil.TypeMapping
+--                 , Grapher.Application.Application
+--                 , Grapher.Graph
+--                 , Grapher.GUI
+--                 , Grapher.GUI.GUI
+--                 , Grapher.GUI.Update
+--                 , Grapher.App
+--                 , Grapher.App.App
+--                 , Grapher.App.Update
+--                 , Grapher.Object
+--                 , Grapher.Object.Object
+--                 , Grapher.Object.Update
+--                 , Grapher.ObjectTree
+--                 , Grapher.Application.Interface
+--                 , Grapher.Application
+--                 , Grapher.Application.Update
+--                 --, Projects.Curve                
+--                 , Solvable
 
-  default-language:    Haskell2010
-                
+--   default-language:    Haskell2010
                                                                            
 -- executable e1340
 --   main-is:      Main.hs
@@ -331,7 +343,7 @@ executable ProjectViewer
               , Graphics.RedViz.GLUtil
               , Graphics.RedViz.GLUtil.JuicyTextures
               , Graphics.RedViz.GLUtil.Textures
-              , Graphics.RedViz.GLUtil.TypeMapping              
+              , Graphics.RedViz.GLUtil.TypeMapping
               , ObjectTree
               , App
               , App.App
@@ -469,6 +481,7 @@ executable genProject
               , uuid                
               , vector
               , split
+              
 
   other-modules:
                 Paths_e1340
@@ -598,64 +611,25 @@ executable genGUI
               , bytestring
               , aeson
               , aeson-pretty
-              -- , uuid
               , text
-              -- , sort
-              -- , random
-              -- , simple-affine-space
-              -- , vector
-              -- , locators
-              -- , ilist
-              -- , containers
-              -- , massiv
-              -- , store
-              -- , GLUtil
-              -- , split
+              , array
+              , vector
+              , JuicyPixels
               
   other-modules:
                 Paths_e1340
-                -- App
-                -- App.App
-                -- App.Update
-                -- Application.Application
-                -- Camera
-                -- Camera.Update
                 GUI
                 GUI.GUI
                 GUI.Update
                 Graphics.RedViz.Backend
-                -- Graphics.RedViz.Camera
-                -- Graphics.RedViz.Controllable
-                -- Graphics.RedViz.Descriptor
-                -- Graphics.RedViz.Drawable
-                -- Graphics.RedViz.FromVector
-                -- Graphics.RedViz.Input
-                -- Graphics.RedViz.Input.FRP.Yampa
                 Graphics.RedViz.Input.FRP.Yampa.AppInput
-                -- Graphics.RedViz.Input.FRP.Yampa.Update
-                -- Graphics.RedViz.Input.FRP.Yampa.Update.Keyboard
                 Graphics.RedViz.Input.FRP.Yampa.Update.Mouse
-                -- Graphics.RedViz.Input.Keyboard
                 Graphics.RedViz.Input.Mouse
-                -- Graphics.RedViz.LoadShaders
-                -- Graphics.RedViz.Material
-                -- Graphics.RedViz.Object
-                -- Graphics.RedViz.PGeo
-                -- Graphics.RedViz.Primitives
-                -- Graphics.RedViz.Project
-                -- Graphics.RedViz.Project.Model
-                -- Graphics.RedViz.Project.Project
-                -- Graphics.RedViz.Project.Utils
-                -- Graphics.RedViz.Rendering
-                -- Graphics.RedViz.Texture
-                -- Graphics.RedViz.Utils
-                -- Graphics.RedViz.VAO
                 Graphics.RedViz.Widget
-                -- Object
-                -- Object.Object
-                -- Object.Update
-                -- ObjectTree
-                -- Solvable
+                Graphics.RedViz.GLUtil
+                Graphics.RedViz.GLUtil.JuicyTextures
+                Graphics.RedViz.GLUtil.Textures
+                Graphics.RedViz.GLUtil.TypeMapping
 
   default-language:
                 Haskell2010
@@ -684,8 +658,10 @@ executable genUUID
               , sort                
               , text                
               , uuid                
-              , random              
-              , vector              
+              , random
+              , array             
+              , vector
+              , JuicyPixels
               
   other-modules:
                 Paths_e1340
@@ -694,8 +670,12 @@ executable genUUID
               , Graphics.RedViz.Project.Project
               , Graphics.RedViz.Texture
               , Graphics.RedViz.Material
+              , Graphics.RedViz.Backend
               , Graphics.RedViz.Utils
-              --, Projects.Curve
+              , Graphics.RedViz.GLUtil
+              , Graphics.RedViz.GLUtil.JuicyTextures
+              , Graphics.RedViz.GLUtil.Textures
+              , Graphics.RedViz.GLUtil.TypeMapping
 
   default-language:
                 Haskell2010
@@ -728,7 +708,9 @@ executable geoIndexer
               , time-compat          
               , time                 
               , uuid                 
-              , vector               
+              , vector
+              , array
+              , JuicyPixels
               
   other-modules:
                 Paths_e1340
@@ -739,7 +721,10 @@ executable geoIndexer
               , Graphics.RedViz.Utils
               , Graphics.RedViz.VAO
               , Graphics.RedViz.Backend
-              
+              , Graphics.RedViz.GLUtil
+              , Graphics.RedViz.GLUtil.JuicyTextures
+              , Graphics.RedViz.GLUtil.Textures
+              , Graphics.RedViz.GLUtil.TypeMapping
 
   default-language:
                    Haskell2010

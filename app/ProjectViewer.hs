@@ -137,7 +137,7 @@ output fps lastInteraction window application = do
   dts <- readMVar fps
   ct  <- SDL.time -- current time
   dt  <- (ct -) <$> readMVar lastInteraction :: IO Double
-  dts'<- swapMVar fps $ tail dts ++ [dt]
+  dts'<- swapMVar fps $ tail dts ++ [dt*10]
 
   let
     dt            = sum dts'/fromIntegral (length dts')
@@ -198,7 +198,7 @@ main = do
 
   --initPreApp      <- A.read "./applications/solarsystem"
   initApplication <- fromPreApplication initPreApp
-  --error "SUKANAH"
+
   app             <- initResources initApplication
   let res'        =  unsafeCoerce (resX, resY) :: (Int, Int)
   

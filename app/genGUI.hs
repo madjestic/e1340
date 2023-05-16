@@ -9,3 +9,4 @@ main = do
   GUI.write "./gui/poptsgui" (optsGUI (1280, 720))
   GUI.write "./gui/pinfogui" (infoGUI (1280, 720))
   GUI.write "./gui/defgui"   (defaultGUI (1280, 720))
+  GUI.write "./gui/pnkgui"   (pnkGUI (1280, 720))

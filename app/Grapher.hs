@@ -28,7 +28,7 @@ import SDL
 import SDL.Input.Mouse
 
 import Graphics.Rendering.OpenGL 
-import Graphics.GLUtil.Textures  ( loadTexture
+import Graphics.RedViz.GLUtil.Textures  ( loadTexture
                                  , texInfo
                                  , texture2DWrap
                                  , TexColor(TexRGBA))
