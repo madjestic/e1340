@@ -99,7 +99,14 @@ toSolver (solver, parms) =
     -- Static  - static  animation (apply a const value (matrix only update))
     "translate"     -> Translate    Dynamic WorldSpace  (toV3 parms) (toV3 parms)
     "translate'"    -> Translate    Dynamic ObjectSpace (toV3 parms) (toV3 parms)
-    "translateconst"-> Translate    Static  WorldSpace  (toV3 parms) (toV3 parms)
+    "translateconst"->
+      Translate
+      {
+        _anim  = Static
+      , _space = WorldSpace
+      , _txyz  = toV3 parms
+      , _vel   = toV3 parms
+      }
     "rotate"        ->
       Rotate
       { _anim  = Dynamic
@@ -108,7 +115,14 @@ toSolver (solver, parms) =
       , _ypr   = toV3' 3 3 parms
       , _avel  = toV3' 6 3 parms
       }
-    "rotate'"       -> Rotate       Dynamic ObjectSpace (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
+    "rotate'"       ->
+      Rotate
+      { _anim  = Dynamic
+      , _space = ObjectSpace
+      , _pivot = toV3' 0 3 parms
+      , _ypr   = toV3' 3 3 parms
+      , _avel  = toV3' 6 3 parms
+      }
     "rotateconst"   -> Rotate       Static  WorldSpace  (toV3 $ take 3 parms) (toV3 $ drop 3 parms) (toV3 parms)
     "gravity"       -> Gravity
     "orbit"         -> Orbit        (toV3 $ take 3 parms) (toV4 $ take 4 $ drop 3 parms) (parms!!7)  (round $ last parms)

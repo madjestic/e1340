@@ -114,6 +114,73 @@ pnk resx resy =
   defaultPreGUI
   [ defaultPCam ]
 
+leo :: Int -> Int -> Project
+leo resx resy =
+  Project
+  "Test Project"
+  resx
+  resy
+  "AbsoluteLocation"
+  [ (Model "models/box.bgeo")
+  , (Model "models/PNK_roll.bgeo")
+  , (Model "models/PNK_pitch.bgeo")
+  , (Model "models/PNK_yaw.bgeo")
+  , (Model "models/earth.bgeo")
+  ]
+  [
+    PreObject
+    {
+      _pname          = "box"
+    , _ptype          = "rbd"
+    , _pidx           = 0
+    , _uuid           = nil
+    , _modelIDXs      = [0]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = ["rotate", "translate"]
+    , _solverAttrs    = [[0,0,0,0,0,0.01,0,0,0]
+                        ,[0.01,0,0]]
+    , _options        = defaultBackendOptions
+    }    
+  , PreObject
+    {
+      _pname          = "PNK"
+    , _ptype          = "sprite"
+    , _pidx           = 1
+    , _uuid           = nil
+    , _modelIDXs      = [1,2,3]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = []
+    , _solverAttrs    = []
+    , _options        = defaultBackendOptions'
+    }
+  , PreObject
+    {
+      _pname          = "earth"
+    , _ptype          = "rbd"
+    , _pidx           = 2
+    , _uuid           = nil
+    , _modelIDXs      = [4]
+    , _presolvers     = []
+    , _presolverAttrs = []
+    , _solvers        = [ "identity"
+                        , "translateconst"
+                        , "rotate'"
+                        ]
+    , _solverAttrs    = [[]
+                        ,[1.5,0,0]
+                        ,[0,0,0
+                         ,0,0.01,0
+                         ,0,0,0]
+                        ]
+    , _options        = defaultBackendOptions
+    }    
+  ]
+  []
+  defaultPreGUI
+  [ defaultPCam ]
+
 options :: Int -> Int -> Project
 options resx resy =
   Project

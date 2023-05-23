@@ -373,3 +373,17 @@ pnk:
 	cabal run exe:genApplication -- -p ./projects/pnk
 	cabal run exe:genUUID        -- -p ./projects/pnk
 	cabal run exe:ProjectViewer ./applications/preview
+
+leo:
+	./resources/convertGeo.sh box
+	./resources/convertGeo.sh PNK_roll
+	./resources/convertGeo.sh PNK_pitch
+	./resources/convertGeo.sh PNK_yaw
+	./resources/convertGeo.sh earth
+	cabal build exe:genProject
+	cabal build exe:genApplication
+	cabal build exe:genGUI
+	cabal run exe:genGUI
+	cabal run exe:genApplication -- -p ./projects/leo
+	cabal run exe:genUUID	     -- -p ./projects/leo
+	cabal run exe:ProjectViewer ./applications/preview

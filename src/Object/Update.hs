@@ -91,16 +91,14 @@ solve objs0 obj0 slv =
   case slv of
     Translate Static WorldSpace txyz _ -> obj1
       where
-        mtx0 = obj0 ^. base . transform0
         mtx1 = (LM.identity :: M44 Double) & translation .~ txyz
-        mtx  = mtx0 !*! mtx1
-        obj1 = obj0 & base . transform0 .~ mtx
+        obj1 = obj0 & base . transform1 .~ mtx1
     
     Translate Dynamic WorldSpace txyz _ -> obj1
       where
-        mtx0   = obj0 ^. base . transform0
-        mtx1   = (LM.identity :: M44 Double) & translation .~ txyz
-        mtx    = mtx0 !*! mtx1
+        mtx0 = obj0 ^. base . transform0
+        mtx1 = (LM.identity :: M44 Double) & translation .~ txyz
+        mtx  = mtx0 !*! mtx1
         obj1 = obj0 & base . transform0 .~ mtx
 
     Rotate  _ WorldSpace _ ypr0' _ -> obj1
@@ -113,6 +111,18 @@ solve objs0 obj0 slv =
           !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
           !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
         mtx = mtx0 & translation .~ (mtx0 ^. translation *! rot)
+        obj1 = obj0 & base . transform0 .~ mtx
+
+    Rotate  _ ObjectSpace _ ypr0' _ -> obj1
+      where
+        mtx0   = obj0 ^. base . transform0
+        rot0 = LM.identity :: M33 Double
+        rot  = 
+          (LM.identity :: M33 Double)
+          !*! fromQuaternion (axisAngle (view _x rot0) (view _x ypr0')) -- yaw  
+          !*! fromQuaternion (axisAngle (view _y rot0) (view _y ypr0')) -- pitch
+          !*! fromQuaternion (axisAngle (view _z rot0) (view _z ypr0')) -- roll
+        mtx = mtx0 & _m33 .~ (mtx0 ^. _m33 !*! inv33 rot)
         obj1 = obj0 & base . transform0 .~ mtx
 
     Orbit pivot qrot ang idx -> obj1

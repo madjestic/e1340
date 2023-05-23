@@ -38,6 +38,8 @@ previewProject fp = splitter fp >>= \(applName, filePath) -> do
       P.write (Projects.Test.box2 resx' resy') filePath
     "pnk" -> do
       P.write (Projects.Test.pnk resx' resy') filePath
+    "leo" -> do
+      P.write (Projects.Test.leo resx' resy') filePath
     _ -> error $ "Project " ++ show filePath ++ " does not exist."
 
 genApplication :: FilePath -> IO ()

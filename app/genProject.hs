@@ -1,5 +1,3 @@
---{-# LANGUAGE LambdaCase #-}
-
 module Main where
 
 import System.Environment
@@ -39,6 +37,7 @@ main = getArgs >>= parseArgs >>= splitter >>= \(projectName, filePath) ->
   "options"       -> Project.write (Projects.Test.options          1280 720) filePath
   "body3"         -> Project.write Projects.Body3.project                    filePath
   "pnk"           -> Project.write (Projects.Test.pnk              1280 720) filePath
+  "leo"           -> Project.write (Projects.Test.leo              1280 720) filePath
   --"planetsputnik" -> Project.write Projects.PlanetSputnik.project   filePath
   _ -> Project.write (Projects.Test.project 1280 720)                        filePath
                                    
