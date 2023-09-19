@@ -70,7 +70,7 @@
             },
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "ae369616-d293-44de-a1ff-129a9f5310d9"
+            "uuid": "bf216586-0f37-4a89-9ad2-0d4baf7889fd"
         },
         {
             "pname": "mercury",
@@ -109,7 +109,7 @@
             },
             "pidx": 1,
             "ptype": "rbd",
-            "uuid": "cd2e9560-a89d-468b-abc7-4b2d29d2d7ff"
+            "uuid": "a1925cc6-1088-4f38-824b-da46abe3760e"
         },
         {
             "pname": "venus",
@@ -148,7 +148,7 @@
             },
             "pidx": 2,
             "ptype": "rbd",
-            "uuid": "582be824-7dfd-4b62-8ad6-ce93ebb21e2d"
+            "uuid": "dbe58710-0261-45c7-b0ec-be3601f329d7"
         },
         {
             "pname": "earth",
@@ -188,7 +188,7 @@
             },
             "pidx": 3,
             "ptype": "rbd",
-            "uuid": "f8979874-74c3-4308-9ea0-bfffbbd16b64"
+            "uuid": "90bf4055-e6a9-48e9-bcb5-cbfc1080ceed"
         },
         {
             "pname": "moon",
@@ -227,7 +227,7 @@
             },
             "pidx": 4,
             "ptype": "rbd",
-            "uuid": "ad77e2f1-cf2c-4398-b878-2b475d316886"
+            "uuid": "523167f0-ddef-440f-bebe-ed275d97fb21"
         },
         {
             "pname": "mars",
@@ -266,7 +266,7 @@
             },
             "pidx": 5,
             "ptype": "rbd",
-            "uuid": "d8e7beb2-30da-483b-a209-ecaa7ae4263e"
+            "uuid": "206ac435-ce59-44dd-baa1-70160022e80e"
         },
         {
             "pname": "phobos",
@@ -305,7 +305,7 @@
             },
             "pidx": 6,
             "ptype": "rbd",
-            "uuid": "d11449b2-f4c0-4cd1-b4da-1bec208860e7"
+            "uuid": "c3642349-6aae-4873-9503-41a2cc6715d4"
         },
         {
             "pname": "deimos",
@@ -344,7 +344,7 @@
             },
             "pidx": 7,
             "ptype": "rbd",
-            "uuid": "fb855732-b36b-4399-ba33-78ed12794098"
+            "uuid": "29727b00-9b29-4a6a-adb6-2555b7540581"
         },
         {
             "pname": "jupiter",
@@ -383,7 +383,7 @@
             },
             "pidx": 8,
             "ptype": "rbd",
-            "uuid": "d5babd01-88cd-4313-8133-1a3ece840215"
+            "uuid": "d9ac74cd-5af7-4274-92d8-252e4245f628"
         },
         {
             "pname": "europa",
@@ -422,7 +422,7 @@
             },
             "pidx": 9,
             "ptype": "rbd",
-            "uuid": "df4cf5eb-6051-4ad9-922e-0c5232788c6d"
+            "uuid": "e75cc3ea-7900-406e-83f8-35618923736c"
         },
         {
             "pname": "ganymede",
@@ -461,7 +461,7 @@
             },
             "pidx": 10,
             "ptype": "rbd",
-            "uuid": "303b5768-6143-446a-a6c9-1d93bd21c4d1"
+            "uuid": "3cda17b0-ad01-41fd-979c-db4fb36f3d32"
         },
         {
             "pname": "io",
@@ -500,7 +500,7 @@
             },
             "pidx": 11,
             "ptype": "rbd",
-            "uuid": "9e4a567e-d354-4e69-9578-422cd83651e5"
+            "uuid": "97e32dd5-f9b7-4bfe-8481-ee80a1d686e5"
         },
         {
             "pname": "callisto",
@@ -539,7 +539,7 @@
             },
             "pidx": 12,
             "ptype": "rbd",
-            "uuid": "3b01668b-9c77-4ce2-ac82-1240afccdfdf"
+            "uuid": "26ad982d-f2a1-4585-96fa-2ebe89c11b39"
         },
         {
             "pname": "NPK",
@@ -563,7 +563,7 @@
             },
             "pidx": 13,
             "ptype": "sprite",
-            "uuid": "3dd017d0-3139-403e-88dc-2ef8d8aafe43"
+            "uuid": "08f5ad83-c953-48c1-aa4e-ec24147dc0b5"
         }
     ],
     "background": [],

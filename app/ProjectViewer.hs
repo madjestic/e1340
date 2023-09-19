@@ -37,12 +37,12 @@ import System.IO.Unsafe
 import Graphics.RedViz.Project as P ( camMode, resy, resx, name, read )
 import Graphics.RedViz.Input.FRP.Yampa.AppInput ( parseWinInput ) 
 import Graphics.RedViz.Rendering as R hiding (renderIcons)
-import Graphics.RedViz.Material as M
-import qualified Graphics.RedViz.Texture  as T
-import Graphics.RedViz.Drawable hiding (toDrawables)
-import Graphics.RedViz.Texture
+import Graphics.RedViz.Material.Lens as M
+import qualified Graphics.RedViz.Texture.Lens as T
+import Graphics.RedViz.Drawable.Lens hiding (toDrawables)
+import Graphics.RedViz.Texture.Lens
 import Graphics.RedViz.Widget as W
-import Graphics.RedViz.Object
+import Graphics.RedViz.Object.Lens
 
 import Application as A
 import App hiding (debug)
@@ -198,10 +198,10 @@ main = do
 
   --initPreApp      <- A.read "./applications/solarsystem"
   initApplication <- fromPreApplication initPreApp
-
+  
   app             <- initResources initApplication
   let res'        =  unsafeCoerce (resX, resY) :: (Int, Int)
-  
+
   putStrLn "Starting App."
   animate
     window

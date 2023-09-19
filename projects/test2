@@ -1,11 +1,11 @@
 {
     "name": "Test Project",
     "resx": 1280,
-    "resy": 800,
+    "resy": 720,
     "camMode": "AbsoluteLocation",
     "models": [
         {
-            "path": "models/earth.bgeo"
+            "path": "models/box.bgeo"
         }
     ],
     "objects": [
@@ -14,7 +14,10 @@
             "modelIDXs": [
                 0
             ],
-            "solvers": [],
+            "solvers": [
+                "rotate",
+                "translate"
+            ],
             "solverAttrs": [
                 [
                     0,
@@ -22,7 +25,10 @@
                     0,
                     0,
                     0,
-                    1.0e-2
+                    1.0e-2,
+                    0,
+                    0,
+                    0
                 ],
                 [
                     1.0e-2,
@@ -32,8 +38,20 @@
             ],
             "presolvers": [],
             "presolverAttrs": [],
+            "options": {
+                "bgrColor": {
+                    "alpha": 1,
+                    "blue": 0,
+                    "green": 0,
+                    "red": 0
+                },
+                "depthMsk": "Enabled",
+                "primitiveMode": "Triangles",
+                "ptSize": 1
+            },
+            "pidx": 0,
             "ptype": "planet",
-            "uuid": "0d53fa0c-e304-4c41-be93-67d042b79fea"
+            "uuid": "a8b1e1af-2d4e-473b-8ebe-2167841a43e7"
         }
     ],
     "background": [],
@@ -59,9 +77,9 @@
                 0,
                 1
             ],
-            "pMouseS": 1,
-            "pKeyboardRS": 5,
-            "pKeyboardTS": 1.0e-6,
+            "pMouseS": 1.0e-2,
+            "pKeyboardRS": 1.0e-2,
+            "pKeyboardTS": 0.1,
             "pcname": "PlayerCamera"
         }
     ],
@@ -299,6 +317,9 @@
         "icons": [
             {
                 "path": "models/fnt_crosshair.bgeo"
+            },
+            {
+                "path": "models/gizmo.bgeo"
             }
         ]
     }

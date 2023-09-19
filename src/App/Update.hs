@@ -11,7 +11,7 @@ import SDL (distance)
 import SDL.Input.Keyboard.Codes as SDL
 
 import Graphics.RedViz.Input
-import Graphics.RedViz.Camera
+import Graphics.RedViz.Camera.Lens
 import Graphics.RedViz.Controllable as Ctrl
 import Graphics.RedViz.Widget (text)
 

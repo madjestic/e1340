@@ -25,7 +25,8 @@ import Foreign.Storable      (sizeOf)
 import SDL
 import Control.Lens          (view, makeLenses, toListOf, view, (^..), (^.), bimap, (&), (.~))
 
-import Graphics.RedViz.LoadShaders
+--import Graphics.RedViz.LoadShaders
+import           LoadShaders
 import qualified DearImGui.FontAtlas as FontAtlas
 import Control.Arrow (ArrowLoop(loop))
 import Data.IORef (newIORef, writeIORef, readIORef, IORef)

@@ -60,7 +60,7 @@
             },
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "a23efdb6-3bd0-431b-b132-83fe8bb4e031"
+            "uuid": "678f92a8-5cf9-45c2-803d-511223ed6d6e"
         },
         {
             "pname": "PNK",
@@ -86,7 +86,7 @@
             },
             "pidx": 1,
             "ptype": "sprite",
-            "uuid": "8738699f-7c83-4075-b96c-dc40fc3acf74"
+            "uuid": "305217bc-3e7b-4913-9d45-93901966b8cc"
         }
     ],
     "background": [],

@@ -17,8 +17,8 @@ import System.Environment
 import System.Exit
 
 import Graphics.RedViz.Project as P
-import Graphics.RedViz.Material as M
-import Graphics.RedViz.Texture  as T
+import Graphics.RedViz.Material.Lens as M
+import Graphics.RedViz.Texture.Lens as T
 import Graphics.RedViz.Utils                (encodeStringUUID, (<$.>), (<*.>))
 
 -- import Debug.Trace as DT

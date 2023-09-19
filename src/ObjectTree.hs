@@ -26,7 +26,7 @@ import GHC.Float
 import Graphics.RedViz.Project as Project   hiding (_solvers, name, _name, _options)
 import Graphics.RedViz.Project as P         hiding (_solvers, name, _name, _options)
 import Graphics.RedViz.Project.Model as Model
-import Graphics.RedViz.Material as Material hiding (_name, name)
+import Graphics.RedViz.Material.Lens as Material hiding (_name, name)
 import Graphics.RedViz.Descriptor
 import Graphics.RedViz.PGeo ( readBGeo
                             , fromVGeo
@@ -41,7 +41,7 @@ import Graphics.RedViz.PGeo ( readBGeo
                             , toVAO
                             , VAO)
 import Graphics.RedViz.Utils as U
-import Graphics.RedViz.Object as Obj
+import Graphics.RedViz.Object.Lens as Obj
 import Graphics.RedViz.Rendering (toDescriptor)
 import Graphics.RedViz.VAO (VAO')
 import Graphics.RedViz.LoadShaders

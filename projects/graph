@@ -34,7 +34,7 @@
             },
             "pidx": 0,
             "ptype": "sprite",
-            "uuid": "ea430b5f-a294-4ef8-9abe-2d6986e7901b"
+            "uuid": "df05da50-75ba-4d43-a110-a09281e5a4fb"
         },
         {
             "pname": "gizmo",
@@ -58,7 +58,7 @@
             },
             "pidx": 0,
             "ptype": "rbd",
-            "uuid": "2b5c0a7b-1297-4d13-bc0e-d8414b02efb9"
+            "uuid": "17ee8642-4176-46a6-af62-cdb58ac982b4"
         }
     ],
     "background": [],

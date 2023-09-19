@@ -5,7 +5,7 @@ import Unsafe.Coerce
 import System.Environment        (getArgs)
 import Data.List.Split
 
-import Graphics.RedViz.Material
+import Graphics.RedViz.Material.Lens
 
 -- import Debug.Trace as DT
 

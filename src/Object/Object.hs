@@ -30,7 +30,7 @@ import Control.Lens hiding (transform, pre)
 import Linear (V3(..))
 
 import Solvable
-import Graphics.RedViz.Object
+import Graphics.RedViz.Object.Lens
 
 --import Debug.Trace    as DT
 

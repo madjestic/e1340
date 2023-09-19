@@ -13,7 +13,7 @@ import Linear.Matrix as LM
 import SDL hiding          ((*^), (^+^), (^-^), (^/), norm, Event, Mouse)
 import Data.Ord
 
-import Graphics.RedViz.Camera       as Camera
+import Graphics.RedViz.Camera.Lens as Camera
 import Graphics.RedViz.Input.FRP.Yampa.AppInput
 import Graphics.RedViz.Controllable as Controllable
 import Graphics.RedViz.Input

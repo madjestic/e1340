@@ -27,11 +27,11 @@ import Foreign.C                     (CInt)
 import Linear.Matrix
 import Graphics.Rendering.OpenGL     (Program)
                                       
-import Graphics.RedViz.Camera
+import Graphics.RedViz.Camera.Lens as Camera
 import Graphics.RedViz.Controllable as Controllable
-import Graphics.RedViz.Drawable as D ( Drawable(Drawable), Uniforms(Uniforms), toDrawables )
+import Graphics.RedViz.Drawable.Lens as D ( Drawable(Drawable), Uniforms(Uniforms), toDrawables )
 import Graphics.RedViz.Descriptor
-import Graphics.RedViz.Material ( Material )
+import Graphics.RedViz.Material.Lens ( Material )
 import Graphics.RedViz.Utils ((<$.>), (<*.>))
 import Graphics.RedViz.Project.Project as P ( name, resx, resy, cameras, Project )
 import Graphics.RedViz.Project.Utils

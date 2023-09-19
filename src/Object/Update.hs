@@ -14,7 +14,7 @@ import Linear.V3       as LV3
 import Linear.V4
 import Linear.Quaternion hiding (rotate)
 
-import Graphics.RedViz.Object as Object
+import Graphics.RedViz.Object.Lens as Object
 
 import Object.Object as Obj
 import Solvable
